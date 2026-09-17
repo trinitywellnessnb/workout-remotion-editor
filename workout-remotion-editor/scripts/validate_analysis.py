@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a Workout Remotion Editor v2.2 analysis JSON file."""
+"""Validate a Workout Remotion Editor v2.3 analysis JSON file."""
 from __future__ import annotations
 
 import argparse
@@ -40,14 +40,14 @@ def basic_schema_errors(document: Any) -> list[str]:
     errors: list[str] = []
     if not isinstance(document, dict):
         return ["/: must be an object"]
-    allowed = {"schema_version", "project", "sources", "segments", "repetitions", "audio_events", "issues", "notes"}
+    allowed = {"schema_version", "project", "sources", "segments", "repetitions", "audio_events", "issues", "notes", "retention_plan"}
     for key in document.keys() - allowed:
         errors.append(f"/{key}: unexpected property")
     for key in ("schema_version", "project", "sources", "segments"):
         if key not in document:
             errors.append(f"/{key}: required property is missing")
-    if document.get("schema_version") != "2.2":
-        errors.append("/schema_version: must equal '2.2'")
+    if document.get("schema_version") != "2.3":
+        errors.append("/schema_version: must equal '2.3'")
     project = document.get("project")
     if not isinstance(project, dict):
         errors.append("/project: must be an object")
@@ -124,6 +124,29 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
             segment_id = event.get("segment_id")
             if collection == "repetitions" and segment_id is not None and segment_id not in segment_ids:
                 errors.append(f"{prefix}/segment_id: unknown segment {segment_id!r}")
+
+    retention_plan = document.get("retention_plan")
+    if isinstance(retention_plan, dict):
+        beats = retention_plan.get("beats", [])
+        beat_ids: set[str] = set()
+        for index, beat in enumerate(beats if isinstance(beats, list) else []):
+            if not isinstance(beat, dict):
+                continue
+            prefix = f"/retention_plan/beats/{index}"
+            beat_id = beat.get("id")
+            if beat_id in beat_ids:
+                errors.append(f"{prefix}/id: retention beat ID {beat_id!r} is not unique")
+            elif isinstance(beat_id, str):
+                beat_ids.add(beat_id)
+            start, end = beat.get("timeline_start"), beat.get("timeline_end")
+            if isinstance(start, (int, float)) and isinstance(end, (int, float)):
+                if not (math.isfinite(start) and math.isfinite(end)):
+                    errors.append(f"{prefix}: times must be finite")
+                elif end <= start:
+                    errors.append(f"{prefix}: timeline_end must be greater than timeline_start")
+        payoff = retention_plan.get("payoff_beat_id")
+        if payoff is not None and payoff not in beat_ids:
+            errors.append(f"/retention_plan/payoff_beat_id: unknown retention beat {payoff!r}")
 
     for index, issue in enumerate(document.get("issues", [])):
         if isinstance(issue, dict) and issue.get("source_id") is not None and issue["source_id"] not in sources:

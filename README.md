@@ -1,8 +1,8 @@
-![Workout Remotion Editor v2.2 — From raw clips to a polished workout video](assets/readme/workout-remotion-editor-banner.jpg)
+![Workout Remotion Editor v2.3 — From raw clips to a polished workout video](assets/readme/workout-remotion-editor-banner.jpg)
 
 # Workout Remotion Editor
 
-An open-source ChatGPT Skill that adds workout-specific directing intelligence to Remotion. Version **2.2** analyzes raw workout footage, builds a truthful rep-aware edit plan, and routes implementation to the appropriate official Remotion Agent Skills.
+An open-source ChatGPT Skill that adds workout-specific directing intelligence to Remotion. Version **2.3** analyzes raw workout footage, builds a truthful rep-aware, retention-aware edit plan, and routes implementation to the appropriate official Remotion Agent Skills.
 
 [Remotion](https://www.remotion.dev/) is the recommended video-building and rendering layer. Other capable video-editing agents or plugins may work experimentally when they can honor the same edit blueprint, timing, overlays, audio policy, reframing, and QA requirements.
 
@@ -27,9 +27,18 @@ It can help Remotion:
 
 The goal is not to replace Remotion. It is to make Remotion **workout-aware**.
 
-![Workout Remotion Editor v2.2 — One skill, all the Remotion tools](https://drive.google.com/uc?export=view&id=1J9Jw9XLz3POrjqLfg037oeBO6ePxvZES)
+![Workout Remotion Editor v2.3 — One skill, all the Remotion tools](https://drive.google.com/uc?export=view&id=1J9Jw9XLz3POrjqLfg037oeBO6ePxvZES)
 
-## What v2.2 does
+## What v2.3 adds
+
+- Defines a specific viewer promise and maps hook, orientation, progression, payoff, and optional close.
+- Uses honest curiosity, purposeful pattern changes, earned endings, and loops that cannot falsify rep continuity.
+- Selects a supported share reason—utility, identity/community, achievement/story, conversation, or delight/craft—without engagement bait.
+- Records evidence, confidence, risks, and optional single-variable variant hypotheses in the blueprint.
+- Uses comparable first-party analytics for diagnosis while avoiding virality or retention guarantees.
+- Adds schema and semantic validation for structured retention plans.
+
+## What v2.3 preserves
 
 - Analyzes all supplied workout clips before building the edit.
 - Reasons about exercises, sets, reps, movement phases, high-effort hooks, cut points, setup/rest, and exercise-aware reframing.
@@ -44,7 +53,7 @@ The goal is not to replace Remotion. It is to make Remotion **workout-aware**.
 
 Workout Remotion Editor decides **WHAT** belongs in the workout edit. The official Remotion skills remain authoritative for **HOW** the edit is implemented in Remotion.
 
-v2.2 can route to these upstream skills when relevant and available:
+v2.3 can route to these upstream skills when relevant and available:
 
 - `remotion-best-practices`
 - `remotion-create`
@@ -59,7 +68,7 @@ v2.2 can route to these upstream skills when relevant and available:
 - `remotion-saas`
 - `remotion-maps`
 
-These skills are referenced rather than copied into this repository. See [`remotion-skill-routing.md`](workout-remotion-editor/references/remotion-skill-routing.md).
+These skills are referenced rather than copied into this repository. See [`remotion-skill-routing.md`](workout-remotion-editor/references/remotion-skill-routing.md). The v2.3 editorial layer is documented in [`retention-and-shareability.md`](workout-remotion-editor/references/retention-and-shareability.md).
 
 ## First-time setup & use
 
@@ -78,7 +87,7 @@ From there, use normal language. For example: **“make it faster,” “open wi
 The distributable Skill source lives under `workout-remotion-editor/`.
 
 <details>
-<summary><strong>📘 Workout Remotion Editor v2.2 — User Manual</strong></summary>
+<summary><strong>📘 Workout Remotion Editor v2.3 — User Manual</strong></summary>
 
 ### Read online
 
@@ -86,36 +95,37 @@ The distributable Skill source lives under `workout-remotion-editor/`.
 
 ### Download the Word version
 
-- **[Download the original DOCX manual](docs/Workout_Remotion_Editor_v2.2_User_Manual.docx?raw=1)**
+- **[Download the archived v2.2 DOCX manual](docs/Workout_Remotion_Editor_v2.2_User_Manual.docx?raw=1)**
 
 ### Manual menu
 
 1. [What This Skill Is](docs/USER_MANUAL.md#1-what-this-skill-is)
-2. [v2.2 Remotion Skill Integration](docs/USER_MANUAL.md#2-v22-remotion-skill-integration)
-3. [Best Way to Prompt It](docs/USER_MANUAL.md#3-best-way-to-prompt-it)
-4. [Pacing Modes](docs/USER_MANUAL.md#4-pacing-modes)
-5. [Hook & High-Effort Rep Editing](docs/USER_MANUAL.md#5-hook--high-effort-rep-editing)
-6. [Rep-Aware & Movement-Phase Editing](docs/USER_MANUAL.md#6-rep-aware--movement-phase-editing)
-7. [Rep Counters](docs/USER_MANUAL.md#7-rep-counters)
-8. [Exercise Labels, Workout Data & Coaching](docs/USER_MANUAL.md#8-exercise-labels-workout-data--coaching)
-9. [Instructional Edits & Animated Callouts](docs/USER_MANUAL.md#9-instructional-edits--animated-callouts)
-10. [Glitch Terminology](docs/USER_MANUAL.md#10-glitch-terminology)
-11. [Multi-Clip Editing](docs/USER_MANUAL.md#11-multi-clip-editing)
-12. [Exercise-Aware 9:16 Reframing](docs/USER_MANUAL.md#12-exercise-aware-916-reframing)
-13. [Audio & Music-Aware Editing](docs/USER_MANUAL.md#13-audio--music-aware-editing)
-14. [Optional Intelligent Analysis Signals](docs/USER_MANUAL.md#14-optional-intelligent-analysis-signals)
-15. [Internal Edit Blueprint](docs/USER_MANUAL.md#15-internal-edit-blueprint)
-16. [Official Remotion Workflow in v2.2](docs/USER_MANUAL.md#16-official-remotion-workflow-in-v22)
-17. [Revision Stability](docs/USER_MANUAL.md#17-revision-stability)
-18. [Quality Control](docs/USER_MANUAL.md#18-quality-control)
-19. [Feature Activation Quick Reference](docs/USER_MANUAL.md#19-feature-activation-quick-reference)
-20. [Copy-Ready Prompt Library](docs/USER_MANUAL.md#20-copy-ready-prompts)
-21. [Recommended Prompt Template](docs/USER_MANUAL.md#21-recommended-prompt-template)
-22. [Practical Tips](docs/USER_MANUAL.md#22-practical-tips)
-23. [Technical Notes for v2.2](docs/USER_MANUAL.md#23-technical-notes-for-v22)
-24. [One-Sentence Starting Point](docs/USER_MANUAL.md#24-one-sentence-starting-point)
+2. [v2.3 Remotion Skill Integration](docs/USER_MANUAL.md#2-v23-remotion-skill-integration)
+3. [Retention & Shareability](docs/USER_MANUAL.md#3-retention-shareability)
+4. [Best Way to Prompt It](docs/USER_MANUAL.md#4-best-way-to-prompt-it)
+5. [Pacing Modes](docs/USER_MANUAL.md#5-pacing-modes)
+6. [Hook & High-Effort Rep Editing](docs/USER_MANUAL.md#6-hook-high-effort-rep-editing)
+7. [Rep-Aware & Movement-Phase Editing](docs/USER_MANUAL.md#7-rep-aware-movement-phase-editing)
+8. [Rep Counters](docs/USER_MANUAL.md#8-rep-counters)
+9. [Exercise Labels, Workout Data & Coaching](docs/USER_MANUAL.md#9-exercise-labels-workout-data-coaching)
+10. [Instructional Edits & Animated Callouts](docs/USER_MANUAL.md#10-instructional-edits-animated-callouts)
+11. [Glitch Terminology](docs/USER_MANUAL.md#11-glitch-terminology)
+12. [Multi-Clip Editing](docs/USER_MANUAL.md#12-multi-clip-editing)
+13. [Exercise-Aware 9:16 Reframing](docs/USER_MANUAL.md#13-exercise-aware-916-reframing)
+14. [Audio & Music-Aware Editing](docs/USER_MANUAL.md#14-audio-music-aware-editing)
+15. [Optional Intelligent Analysis Signals](docs/USER_MANUAL.md#15-optional-intelligent-analysis-signals)
+16. [Internal Edit Blueprint](docs/USER_MANUAL.md#16-internal-edit-blueprint)
+17. [Official Remotion Workflow in v2.3](docs/USER_MANUAL.md#17-official-remotion-workflow-in-v23)
+18. [Revision Stability](docs/USER_MANUAL.md#18-revision-stability)
+19. [Quality Control](docs/USER_MANUAL.md#19-quality-control)
+20. [Feature Activation Quick Reference](docs/USER_MANUAL.md#20-feature-activation-quick-reference)
+21. [Copy-Ready Prompts](docs/USER_MANUAL.md#21-copy-ready-prompts)
+22. [Recommended Prompt Template](docs/USER_MANUAL.md#22-recommended-prompt-template)
+23. [Practical Tips](docs/USER_MANUAL.md#23-practical-tips)
+24. [Technical Notes for v2.3](docs/USER_MANUAL.md#24-technical-notes-for-v23)
+25. [One-Sentence Starting Point](docs/USER_MANUAL.md#25-one-sentence-starting-point)
 
-The Markdown manual is intended for fast browsing directly on GitHub. The DOCX file is included so users who download or clone the repository also have the formatted Word version available offline.
+The Markdown manual is intended for fast browsing directly on GitHub. The v2.2 DOCX remains as an archived offline manual; the Markdown manual is authoritative for v2.3.
 
 </details>
 
