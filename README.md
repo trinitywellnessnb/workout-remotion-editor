@@ -2,7 +2,7 @@
 
 # Workout Remotion Editor
 
-An open-source ChatGPT Skill that adds workout-specific directing intelligence to Remotion. Version **2.3** analyzes raw workout footage, builds a truthful rep-aware, retention-aware edit plan, and routes implementation to the appropriate official Remotion Agent Skills.
+An open-source ChatGPT Skill that adds workout-specific directing intelligence to Remotion. Version **2.3** combines rep-aware workout analysis with **research-informed social editing intelligence**: truthful hooks, retention-aware pacing, shareability reasoning, platform-native framing, controlled A/B testing, and workout-specific QA.
 
 [Remotion](https://www.remotion.dev/) is the recommended video-building and rendering layer. Other capable video-editing agents or plugins may work experimentally when they can honor the same edit blueprint, timing, overlays, audio policy, reframing, and QA requirements.
 
@@ -10,7 +10,7 @@ An open-source ChatGPT Skill that adds workout-specific directing intelligence t
 
 **Remotion provides the video-editing tools. Workout Remotion Editor provides the workout-specific directing intelligence.**
 
-A general video editor does not automatically know which workout reps matter, where movement phases begin and end, which joints and equipment must remain visible, when a rep counter should advance, or when a coaching cue should appear. Workout Remotion Editor adds that specialized layer before Remotion builds the video.
+A general video editor does not automatically know which workout reps matter, where movement phases begin and end, which joints and equipment must remain visible, when a rep counter should advance, when a coaching cue should appear, or why a viewer might keep watching, save, or share a particular workout moment. Workout Remotion Editor adds that specialized reasoning layer before Remotion builds the video.
 
 It can help Remotion:
 
@@ -21,22 +21,56 @@ It can help Remotion:
 - synchronize requested rep counters with completed visible repetitions;
 - time exercise labels, coaching cues, instructional text, captions, and callouts;
 - remove setup, rest, and dead time while protecting important working reps;
+- apply evidence-weighted hook, pacing, overlay, safe-zone, and transition priors;
+- identify a plausible viewer value and share reason such as utility, identity, achievement, humor, conversation, or motivation;
+- create controlled edit variants for A/B testing when requested;
 - use supplied music and beat information without sacrificing exercise readability;
 - preserve accepted portions of an edit during small revisions; and
-- perform workout-specific continuity, crop, overlay, audio, synchronization, and render QA.
+- perform workout-specific continuity, crop, overlay, audio, synchronization, retention, and render QA.
 
-The goal is not to replace Remotion. It is to make Remotion **workout-aware**.
+The goal is not to replace Remotion. It is to make Remotion **workout-aware and social-edit aware**.
 
 ![Workout Remotion Editor v2.3 — One skill, all the Remotion tools](https://drive.google.com/uc?export=view&id=1J9Jw9XLz3POrjqLfg037oeBO6ePxvZES)
 
 ## What v2.3 adds
 
-- Defines a specific viewer promise and maps hook, orientation, progression, payoff, and optional close.
-- Uses honest curiosity, purposeful pattern changes, earned endings, and loops that cannot falsify rep continuity.
-- Selects a supported share reason—utility, identity/community, achievement/story, conversation, or delight/craft—without engagement bait.
-- Records evidence, confidence, risks, and optional single-variable variant hypotheses in the blueprint.
-- Uses comparable first-party analytics for diagnosis while avoiding virality or retention guarantees.
-- Adds schema and semantic validation for structured retention plans.
+### Research-informed social editing intelligence
+
+v2.3 adds an evidence-informed editorial layer based on platform guidance, controlled research, large observational datasets, and fitness-content examples. The research does **not** claim a formula that guarantees virality. Instead, it gives the Skill evidence-weighted starting priors that can be refined through creator-specific testing.
+
+The core idea is simple:
+
+> **Do not edit workout videos to look viral. Edit them to earn the next second of attention and give the viewer a reason to send the video to someone else.**
+
+The Skill can now reason about:
+
+- a specific **viewer promise** and the strongest truthful proof of it;
+- meaningful motion and value early in the edit rather than forcing chronological openings;
+- a **fast opening → readable body → payoff** pacing curve instead of constant hyper-cutting;
+- movement-first editing where **rep comprehension outranks beat sync**;
+- share motivations such as utility, identity/community, achievement, humor, conversation, and motivation;
+- concise hook text, captions, platform-safe overlays, and exercise-aware vertical framing;
+- sparse semantic effects rather than decorative transition overload;
+- edit archetypes such as Peak Effort, Workout Montage, Form Fix, Exercise Breakdown, Challenge/Set Story, Relatable Gym, Transformation/Progress, and Training Diary;
+- controlled A/B variants that isolate variables such as hook, pacing, CTA, captions, crop, audio, or transition density; and
+- performance feedback based on comparable account metrics rather than invented universal algorithm thresholds.
+
+v2.3 also:
+
+- defines a specific viewer promise and maps hook, orientation, progression, payoff, and optional close;
+- uses honest curiosity, purposeful pattern changes, earned endings, and loops that cannot falsify rep continuity;
+- records evidence, confidence, risks, and optional single-variable variant hypotheses in the blueprint;
+- uses comparable first-party analytics for diagnosis while avoiding virality or retention guarantees; and
+- adds schema and semantic validation for structured retention plans.
+
+### Read and extend the research
+
+The research behind this addition is included in the repository so users and contributors can inspect it, use it as a reference, challenge assumptions, and extend the evidence base:
+
+- **[Evidence-Based Viral Editing for TikTok and Instagram Workout Videos](docs/research/EVIDENCE_BASED_VIRAL_EDITING.md)** — GitHub-readable Markdown research document.
+- **[Retention & Shareability implementation reference](workout-remotion-editor/references/retention-and-shareability.md)** — compact Skill-facing rules derived for v2.3.
+
+When extending the research, preserve the distinction between platform first-party evidence, controlled/peer-reviewed research, observational benchmarks, creator examples, and Skill-level implementation recommendations. Correlation should not be promoted into a universal claim about organic virality.
 
 ## What v2.3 preserves
 
@@ -80,7 +114,7 @@ You do **not** need to know how to code or how Remotion works internally.
 4. **Upload footage** — Add one or more workout clips to your ChatGPT conversation.
 5. **Ask for the edit** — Start with: **“Make this workout social media ready.”**
 
-From there, use normal language. For example: **“make it faster,” “open with my hardest successful rep,” “count the reps in my last set,” “label each exercise,” “add these coaching cues,” “keep more of the final set,”** or **“change only the hook.”**
+From there, use normal language. For example: **“make it faster,” “open with my hardest successful rep,” “optimize this for saves and shares,” “make a second version with a curiosity hook,” “count the reps in my last set,” “label each exercise,” “add these coaching cues,” “keep more of the final set,”** or **“change only the hook.”**
 
 > **Download Skill → Add to ChatGPT → Connect Remotion → Upload workout clips → Describe the video you want.**
 
@@ -131,13 +165,13 @@ The Markdown manual is intended for fast browsing directly on GitHub. The v2.2 D
 
 ## Example prompt
 
-> Make these clips into one fast TikTok workout. Start with my hardest-looking successful rep. Mute everything. Glitch through a few reps from the first two exercises, but show most of my final set. Count the final-set reps in the upper left. Put the exercise name up when each exercise starts. During my squat eccentric put “Control the descent” on screen and when I start driving up put “Drive!” Add “Finish Strong” over my last two reps. Keep overlays out of the way of my joints and equipment. Use cyberpunk vertical-slice glitch transitions between exercises, but no RGB/static glitch effects. Use the official Remotion skills for implementation, preview the composition in Studio if available, then render the final MP4.
+> Make these clips into one fast TikTok workout optimized for retention and shares. Start with my hardest-looking successful rep and make the reason to keep watching clear immediately. Mute the raw camera audio. Glitch through a few reps from the first two exercises, but show most of my final set. Count the final-set reps in the upper left. Put the exercise name up when each exercise starts. During my squat eccentric put “Control the descent” on screen and when I start driving up put “Drive!” Add “Finish Strong” over my last two reps. Keep overlays out of the way of my joints and equipment. Use cyberpunk vertical-slice glitch transitions between exercises, but no RGB/static glitch effects. Keep movement comprehension more important than beat sync. Use the official Remotion skills for implementation, preview the composition in Studio if available, then render the final MP4.
 
 ## For developers
 
 The package includes a semantic validator for structured analysis/edit JSON. CI/package validation also checks the Skill structure before publishing `skill.zip`.
 
-The distributable skill is under `workout-remotion-editor/`; public documentation and governance files remain outside the ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
+The distributable skill is under `workout-remotion-editor/`; public documentation, research, and governance files remain outside the ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
 
 ## License
 
