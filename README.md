@@ -1,3 +1,4 @@
+![Workout Remotion Editor + Director](assets/readme/Big%20Main%20Banner.png)
 
 # Workout Remotion Editor + Workout Remotion Director
 
@@ -89,6 +90,8 @@ Start with:
 
 ### 3. Skill + Agent — complete one-and-done workflow
 
+![Skill + Agent + Remotion full workflow](assets/readme/Work%20Flow%20Visual.png)
+
 Use **Workout Remotion Director + Workout Remotion Editor + Remotion** together for the complete system this repository is designed to support.
 
 ```text
@@ -129,6 +132,8 @@ That short prompt is enough for the combined system to make routine decisions it
 
 ## Why use Workout Remotion Editor with Remotion?
 
+![From raw clips through ChatGPT and Remotion to a polished workout video](assets/readme/ChatGPT%20to%20Remotion.png)
+
 **Remotion provides the video-editing tools. Workout Remotion Editor provides the workout-specific directing intelligence.**
 
 A general video editor does not automatically know which workout reps matter, where movement phases begin and end, which joints and equipment must remain visible, when a rep counter should advance, when a coaching cue should appear, or why a viewer might keep watching, save, or share a particular workout moment. Workout Remotion Editor adds that specialized reasoning layer before Remotion builds the video.
@@ -150,8 +155,6 @@ It can help Remotion:
 - perform workout-specific continuity, crop, overlay, audio, synchronization, retention, and render QA.
 
 The goal is not to replace Remotion. It is to make Remotion **workout-aware and social-edit aware**.
-
-![Workout Remotion Editor v2.3 — One skill, all the Remotion tools](https://drive.google.com/uc?export=view&id=1J9Jw9XLz3POrjqLfg037oeBO6ePxvZES)
 
 ## What v2.3 adds
 
@@ -206,6 +209,8 @@ When extending the research, preserve the distinction between platform first-par
 
 ## Official Remotion Agent Skills integration
 
+![Workout Remotion Editor v2.3 skill suite](assets/readme/Skill%20Suite.png)
+
 Workout Remotion Editor decides **WHAT** belongs in the workout edit. The official Remotion skills remain authoritative for **HOW** the edit is implemented in Remotion.
 
 v2.3 can route to these upstream skills when relevant and available:
@@ -226,6 +231,8 @@ v2.3 can route to these upstream skills when relevant and available:
 These skills are referenced rather than copied into this repository. See [`remotion-skill-routing.md`](workout-remotion-editor/references/remotion-skill-routing.md). The v2.3 editorial layer is documented in [`retention-and-shareability.md`](workout-remotion-editor/references/retention-and-shareability.md).
 
 ## First-time setup & use
+
+![Workout Remotion Editor setup workflow](assets/readme/Work%20Flow.png)
 
 You do **not** need to know how to code or how Remotion works internally.
 
