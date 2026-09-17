@@ -1,4 +1,4 @@
 interface:
   display_name: "Workout Remotion Editor"
-  short_description: "Analyze and edit accurate workout videos"
-  default_prompt: "Use $workout-remotion-editor to analyze my workout footage and create a validated, render-ready paper edit with overlays and QA."
+  short_description: "Direct intelligent rep-aware workout edits with Remotion"
+  default_prompt: "Use $workout-remotion-editor to analyze my workout footage, build a truthful rep-aware edit blueprint, route implementation through the relevant official Remotion skills, preview when available, and render the requested social-ready video."
