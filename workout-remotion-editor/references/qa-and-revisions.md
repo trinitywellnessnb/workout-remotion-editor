@@ -3,21 +3,53 @@
 ## Pre-render
 
 - Analysis validates; source IDs and time ranges resolve.
-- EDL has no accidental gaps/overlaps and composition duration matches.
+- EDL/edit blueprint has no accidental gaps/overlaps and composition duration matches.
 - Reordered events, replays, speed changes, and illustrative footage are clear.
 - Every factual overlay traces to footage or the brief.
-- Counts match verified completed reps.
+- Counts match sufficiently visible completed reps or explicit user-supplied counts.
 - Captions, spelling, names, units, and CTA are approved.
 - Rights and privacy status are known for footage, music, fonts, logos, and code.
+- Source-audio policy matches the brief; default workout source audio remains muted unless explicitly preserved.
+
+## Remotion preview QA
+
+When Remotion Studio is available, preview the composition before final rendering. Use the official `remotion-studio` and `remotion-interactivity` guidance where relevant.
+
+Inspect:
+
+- hook begins immediately and remains truthful
+- crop preserves required joints/equipment
+- exercise labels, counters, captions, coaching cues, and callouts do not collide
+- rep counters advance at completed reps
+- coaching cues appear during the intended movement phase
+- captions represent spoken content and remain visually distinct from coaching overlays
+- transition joins do not falsely imply uninterrupted rep continuity
+- accelerated setup/rest footage remains understandable
+- source audio stays muted/preserved exactly as requested
+- Studio-editable controls behave as expected when interactivity was requested
+
+If a Remotion API or component behavior is unclear or version-sensitive, route to `remotion-docs` rather than guessing.
 
 ## Render QA
 
-Render representative stills at the hook, dense overlay moments, transitions, counter changes, and end card before the full export. Then watch the complete final render with sound. Check first/last frame, black/dropped/repeated frames, crops, safe areas, legibility, occlusion, transition artifacts, speed ramps, A/V sync, audio peaks, captions, and encoding metadata. Also review once muted and inspect critical vertical content with platform UI-safe margins.
+Render representative stills at the hook, dense overlay moments, transitions, counter changes, and end card before the full export when practical. Then inspect the complete final render. Check first/last frame, black/dropped/repeated frames, crops, safe areas, legibility, occlusion, transition artifacts, speed ramps, A/V sync when audio is present, captions, and encoding metadata. Also inspect critical vertical content with platform UI-safe margins.
+
+Do not say “QA passed” unless the entire rendered file was inspected.
 
 ## Revision discipline
 
-Convert feedback into atomic items with owner/status. Preserve factual and technical corrections above taste changes. Revalidate affected timing after trims or FPS changes. Recheck downstream counters, captions, audio automation, transitions, and duration. Increment versions; never overwrite the approved master without permission. Document accepted deviations and unresolved limitations.
+Treat accepted edit sections as stable. Convert feedback into atomic changes and modify the smallest reasonable portion of the edit.
+
+Examples:
+
+- `Change only the hook` -> preserve later source selections, exercise order, overlays, and style; update only the hook and directly dependent transition/timeline math.
+- `Move the rep counter` -> preserve count timing and other overlays; change placement only.
+- `Show more of the final set` -> extend/replace only the relevant final-set segment and dependent timing unless the user asks for broader restructuring.
+
+Ripple timing may shift later timestamps, but later editorial decisions should remain unchanged unless they genuinely depend on the revised section.
+
+After trims, playback-rate changes, or FPS changes, revalidate downstream counters, captions, coaching cues, audio automation, transitions, and total duration. Increment versions; never overwrite an approved master without permission.
 
 ## Delivery report
 
-Report output paths; resolution/FPS/codec/duration; source and analysis versions; validation command/result; QA performed; key creative choices; licensing/attribution notes; and any uncertainty or limitation. Do not say “QA passed” unless the entire rendered file was inspected.
+Report output paths; resolution/FPS/codec/duration; source and analysis versions when applicable; validation result; QA performed; key creative choices; licensing/attribution notes; and material uncertainty or limitations.
