@@ -1,0 +1,14 @@
+.github/workflows/package-skill.yml
+CHANGELOG.md
+README.md
+docs/USER_MANUAL.md
+workout-remotion-editor/SKILL.md
+workout-remotion-editor/agents/openai.yaml
+workout-remotion-editor/references/qa-and-revisions.md
+workout-remotion-editor/references/retention-and-shareability.md
+workout-remotion-editor/scripts/analysis-schema.json
+workout-remotion-editor/scripts/validate_analysis.py
+CHANGED_FILES.txt
+VALIDATION_RESULTS.md
+PR_BODY.md
+RELEASE_NOTES_v2.3.md

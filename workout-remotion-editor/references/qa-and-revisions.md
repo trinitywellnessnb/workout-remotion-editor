@@ -53,3 +53,7 @@ After trims, playback-rate changes, or FPS changes, revalidate downstream counte
 ## Delivery report
 
 Report output paths; resolution/FPS/codec/duration; source and analysis versions when applicable; validation result; QA performed; key creative choices; licensing/attribution notes; and material uncertainty or limitations.
+
+## Retention and shareability QA (v2.3)
+
+Confirm that the opening is immediately legible and fulfills a specific viewer promise; the beat structure advances rather than delays that promise; any reordered opening, replay, or loop preserves chronology and rep counts; the payoff is delivered; and any share reason or CTA is supported by actual utility, identity/community relevance, achievement/story, conversation value, or craft. Do not report virality or retention as guaranteed. For variants, verify stable IDs and one principal changed hypothesis. Treat first-party analytics as diagnostic context, not proof of causation.

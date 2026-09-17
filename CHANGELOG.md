@@ -2,6 +2,19 @@
 
 All notable changes to Workout Remotion Editor are documented here.
 
+## [2.3.0] - 2026-09-17
+
+### Added
+
+- Evidence-informed retention/shareability guidance covering viewer promises, narrative beats, honest curiosity, supported share reasons, earned endings, safe loops, controlled variants, and analytics-informed revision.
+- Optional structured `retention_plan` data with semantic validation for beat timing, unique IDs, and payoff references.
+- v2.3 recovery, validation, release-note, and PR documentation.
+
+### Changed
+
+- Core workflow and QA now test retention choices without compromising workout truth, technique visibility, safety, accessibility, privacy, or official Remotion skill routing.
+- User documentation and prompts now expose retention/shareability planning and single-variable testing.
+
 ## [2.2.0] - 2026-09-17
 
 ### Added
