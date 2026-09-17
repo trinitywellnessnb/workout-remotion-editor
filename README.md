@@ -1,3 +1,5 @@
+![Workout Remotion Editor v2.2 — From raw clips to a polished workout video](assets/readme/workout-remotion-editor-banner.jpg)
+
 # Workout Remotion Editor
 
 An open-source ChatGPT Skill that adds workout-specific directing intelligence to Remotion. Version **2.2** analyzes raw workout footage, builds a truthful rep-aware edit plan, and routes implementation to the appropriate official Remotion Agent Skills.
