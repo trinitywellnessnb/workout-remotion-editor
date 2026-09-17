@@ -4,6 +4,46 @@ An open-source ChatGPT Skill for turning raw workout footage into truthful, rep-
 
 [Remotion](https://www.remotion.dev/) is the recommended implementation/rendering layer. Other capable video-editing agents or plugins may work experimentally when they can honor the same edit blueprint, timing, overlays, audio policy, reframing, and QA requirements.
 
+## New here? Start in 5 steps
+
+You do **not** need to know how to code or how Remotion works internally to use this Skill.
+
+1. **Download the Skill** — Download the current `skill.zip` from this repository's release/package artifact.
+2. **Add it to ChatGPT** — Open ChatGPT Skills, upload `skill.zip`, and enable **Workout Remotion Editor**.
+3. **Connect Remotion** — Enable/connect the Remotion plugin/agent skills in ChatGPT. Remotion is the recommended video-building and rendering layer.
+4. **Upload your workout clips** — Add one or more workout videos to your ChatGPT conversation.
+5. **Tell it what you want** — Start simply with: **“Make this workout social media ready.”** The Skill analyzes the workout, plans the edit, and directs the available Remotion tools to build it.
+
+After that, just talk to it normally. You can ask for things such as **“make it faster,” “open with my hardest successful rep,” “count the reps in my last set,” “label each exercise,” “add these coaching cues,” “keep more of the final set,”** or **“change only the hook.”**
+
+> **Simple workflow:** Download Skill → Add to ChatGPT → Connect Remotion → Upload workout clips → Describe the video you want.
+
+## Why use this with Remotion?
+
+**Remotion provides powerful video-editing and rendering tools. Workout Remotion Editor teaches ChatGPT how to use those tools specifically for workout footage.**
+
+Without this Skill, ChatGPT and Remotion can still edit video, but the user may need to repeatedly explain workout-specific editorial decisions: which reps matter, where a rep begins and ends, what counts as a high-effort moment, which movement phases should remain visible, where a rep counter should advance, how a vertical crop should preserve the exercise, when coaching text should appear, and which parts of an accepted edit should remain unchanged during revisions.
+
+Workout Remotion Editor v2.2 adds that specialized directing layer. It analyzes the footage first, creates a workout-aware edit plan, and then routes implementation to the appropriate Remotion capabilities.
+
+In practical terms, it can help Remotion:
+
+- recognize and organize workout footage around exercises, sets, reps, and movement phases;
+- find truthful high-effort or visually compelling hook moments without inventing failure or performance claims;
+- choose rep-aware cut points instead of arbitrary timestamps;
+- preserve important joints, weights, equipment, and movement visibility when reframing to 9:16;
+- synchronize requested rep counters with completed visible repetitions;
+- time exercise labels, coaching cues, instructional text, captions, and callouts more intelligently;
+- remove setup/rest/dead time while protecting important working reps;
+- distinguish glitch clips, glitch transitions, and glitch effects;
+- use supplied music and beat information without sacrificing exercise readability;
+- preserve accepted portions of an edit when the user requests a small revision;
+- perform workout-specific continuity, crop, overlay, audio, synchronization, and render QA before delivery.
+
+The goal is not to replace Remotion. It is to make Remotion **workout-aware**.
+
+> **Remotion provides the video-editing tools. Workout Remotion Editor provides the workout-specific directing intelligence.**
+
 ## What v2.2 does
 
 - Analyzes multiple workout clips before building the edit.
