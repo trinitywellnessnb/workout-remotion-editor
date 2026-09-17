@@ -1,82 +1,68 @@
 # Workout Remotion Editor
 
-An open-source ChatGPT skill for turning workout footage into truthful, frame-accurate paper edits, overlay plans, coaching treatments, rep counters, and render-ready videos. Version **2.1** emphasizes complete-footage review, structured/validated analysis, editorial integrity, accessibility, licensing, and end-to-end render QA.
+An open-source ChatGPT Skill for turning raw workout footage into truthful, rep-aware, social-media-ready video edits. Version **2.2** combines workout-specific editorial intelligence with explicit routing into the official Remotion Agent Skills for implementation, preview, interactivity, captions, multimedia inspection, documentation lookup, and rendering.
 
-[Remotion](https://www.remotion.dev/) is the recommended implementation and rendering layer because its frame-based React model supports deterministic, reviewable video work. Other capable video-editing agents or plugins may work **experimentally** when they can preserve exact source timing, overlays, audio, output settings, and QA requirements.
+[Remotion](https://www.remotion.dev/) is the recommended implementation/rendering layer. Other capable video-editing agents or plugins may work experimentally when they can honor the same edit blueprint, timing, overlays, audio policy, reframing, and QA requirements.
 
-## What it does
+## What v2.2 does
 
-- Quick, Standard, and Extended workflows for projects of different complexity.
-- Full-timeline source analysis and evidence-linked selection.
-- Honest struggle hooks, verified rep counters, neutral coaching overlays, and instructional structures.
-- JSON Schema plus a Python validator for analysis artifacts.
-- Paper-edit, overlay, audio, render, delivery, and revision checks.
-- Progressive-disclosure references so the core skill remains efficient.
+- Analyzes multiple workout clips before building the edit.
+- Reasons about exercises, sets, reps, movement phases, high-effort hooks, cut points, setup/rest, and exercise-aware 9:16 reframing.
+- Supports Quick (~10–25s), Standard (~20–40s), and Extended (~40–75s) pacing.
+- Supports synchronized rep counters, exercise labels, user-supplied workout data, coaching cues, instructional overlays, animated callouts, captions, music-aware cuts, and revision-local changes.
+- Keeps source audio muted by default unless explicitly preserved.
+- Uses optional scene, pose, rep-state, beat/onset, and motion signals as evidence when available.
+- Maintains a structured paper edit/edit blueprint and semantic validator for machine-readable analysis.
+- Performs final continuity, crop, overlay, audio, synchronization, and render QA.
 
-The skill does not include an editor, Remotion, pose models, footage, music, or third-party source code.
+## Official Remotion Agent Skills integration
 
-## Install in ChatGPT Skills
+Workout Remotion Editor decides **WHAT** belongs in the workout edit. The official Remotion skills remain authoritative for **HOW** the edit is implemented in Remotion.
 
-1. Open this repository's latest successful **Package skill** workflow run.
-2. Download its `workout-remotion-editor-skill` artifact and unzip the artifact wrapper if necessary; keep the packaged file named `skill.zip`.
-3. In ChatGPT, open **Settings → Skills** (the label can vary by plan/workspace) and choose **Create/Upload skill**.
-4. Upload `skill.zip` without adding another parent directory. `SKILL.md` must be at the root of the uploaded archive.
-5. Enable **Workout Remotion Editor** for the conversation or workspace.
-6. Start a chat, attach accessible workout media (or provide paths in a connected environment), and invoke it with `$workout-remotion-editor` plus your brief.
+v2.2 routes to these upstream skills when relevant and available:
 
-For a local/manual package:
+- `remotion-best-practices`
+- `remotion-create`
+- `remotion-markup`
+- `remotion-multimedia`
+- `remotion-captions`
+- `remotion-interactivity`
+- `remotion-studio`
+- `remotion-render`
+- `remotion-docs`
+- `remotion-upgrade`
+- `remotion-saas`
+- `remotion-maps`
 
-```bash
-git clone https://github.com/trinitywellnessnb/workout-remotion-editor.git
-cd workout-remotion-editor
-python -m zipfile -c skill.zip workout-remotion-editor/*
-```
+They are referenced/routed to rather than copied into this repository. See [`remotion-skill-routing.md`](workout-remotion-editor/references/remotion-skill-routing.md).
 
-When packaging manually, ensure hidden files are not needed and that the archive contains the *contents* of `workout-remotion-editor/` at its root. The workflow is the canonical packaging route. See the [user manual](docs/USER_MANUAL.md) for detailed use.
+## Install in ChatGPT
 
-## Example prompts
+1. Download the current `skill.zip` package from the repository's packaging workflow/release artifact.
+2. Open ChatGPT Skills and upload `skill.zip`.
+3. Enable Workout Remotion Editor.
+4. Connect/enable Remotion (recommended) or another compatible video-editing tool.
+5. Upload workout footage and ask for an edit.
 
-### Quick
+The distributable Skill source lives under `workout-remotion-editor/`. See the [v2.2 User Manual](docs/USER_MANUAL.md) for the full feature and prompting guide.
 
-> Use `$workout-remotion-editor` in Quick mode. Turn this single deadlift clip into a truthful 20-second vertical highlight. Keep source audio, add minimal captions, and give me the paper edit before rendering.
+## Fastest prompt
 
-### Standard
+> Make this workout social media ready.
 
-> Use `$workout-remotion-editor` in Standard mode on these workout clips. Make a 45-second 9:16 edit for Instagram, analyze the full footage, validate the analysis JSON, build an evidence-linked EDL and overlays, then render and perform complete QA.
+That invokes the default Standard workflow: one vertical social edit, source audio muted, truthful high-effort hook when available, dead time removed, and exercise visibility preserved.
 
-### Extended
+## Full v2.2 example
 
-> Use `$workout-remotion-editor` in Extended mode for this multi-camera training session. Create a selects map, a 90-second main edit and 30-second variant, verified rep notes, caption and audio plans, review checkpoints, and documented revision rounds.
-
-### Struggle hook
-
-> Find a genuine high-effort moment and use it as a struggle hook without implying injury or failure. Reveal context quickly, preserve honest chronology after the hook, and label any replay or reordering.
-
-### Rep counter
-
-> Add a rep counter to this squat set. Define the observable rep cycle first, verify every completed repetition manually, do not count partial reps, and make the on-screen counter match the validated analysis.
-
-### Coaching overlay
-
-> Create neutral coaching overlays for this lift. Tie each cue to visible evidence and exact times, show one concise cue at a time, state camera limitations, and avoid diagnosis or claims that cannot be seen.
-
-### Instructional video
-
-> Build an instructional video from these clips: goal and setup, execution, visible checkpoints, supported common errors, replay/freeze-frame callouts, and recap. Clearly label illustrative or reordered footage and include captions and accessibility QA.
+> Make these clips into one fast TikTok workout. Start with my hardest-looking successful rep. Mute everything. Glitch through a few reps from the first two exercises, but show most of my final set. Count the final-set reps in the upper left. Put the exercise name up when each exercise starts. During my squat eccentric put “Control the descent” on screen and when I start driving up put “Drive!” Add “Finish Strong” over my last two reps. Keep overlays out of the way of my joints and equipment. Use cyberpunk vertical-slice glitch transitions between exercises, but no RGB/static glitch effects. Use the official Remotion skills for implementation, preview the composition in Studio if available, then render the final MP4.
 
 ## Validation
 
-```bash
-python -m json.tool workout-remotion-editor/scripts/analysis-schema.json >/dev/null
-python workout-remotion-editor/scripts/validate_analysis.py path/to/analysis.json
-python /opt/codex/skills/.system/skill-creator/scripts/quick_validate.py workout-remotion-editor
-```
-
-`validate_analysis.py` uses `jsonschema` when available and otherwise performs built-in core structural and semantic checks. CI validates the schema and script, smoke-tests valid and invalid examples, validates the skill package, and uploads `skill.zip`.
+The package includes a semantic validator for structured analysis/edit JSON. CI/package validation should also validate the Skill structure before publishing `skill.zip`.
 
 ## Project layout
 
-The distributable skill is under `workout-remotion-editor/`; public documentation and project governance files stay outside the ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
+The distributable skill is under `workout-remotion-editor/`; public documentation and governance files remain outside the ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
 
 ## License
 
