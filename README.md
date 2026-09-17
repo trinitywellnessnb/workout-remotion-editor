@@ -44,7 +44,49 @@ They are referenced/routed to rather than copied into this repository. See [`rem
 4. Connect/enable Remotion (recommended) or another compatible video-editing tool.
 5. Upload workout footage and ask for an edit.
 
-The distributable Skill source lives under `workout-remotion-editor/`. See the [v2.2 User Manual](docs/USER_MANUAL.md) for the full feature and prompting guide.
+The distributable Skill source lives under `workout-remotion-editor/`.
+
+<details>
+<summary><strong>📘 Workout Remotion Editor v2.2 — User Manual</strong></summary>
+
+### Read online
+
+- **[Open the full GitHub-readable manual](docs/USER_MANUAL.md)**
+
+### Download the Word version
+
+- **[Download the original DOCX manual](docs/Workout_Remotion_Editor_v2.2_User_Manual.docx?raw=1)**
+
+### Manual menu
+
+1. [What This Skill Is](docs/USER_MANUAL.md#1-what-this-skill-is)
+2. [v2.2 Remotion Skill Integration](docs/USER_MANUAL.md#2-v22-remotion-skill-integration)
+3. [Best Way to Prompt It](docs/USER_MANUAL.md#3-best-way-to-prompt-it)
+4. [Pacing Modes](docs/USER_MANUAL.md#4-pacing-modes)
+5. [Hook & High-Effort Rep Editing](docs/USER_MANUAL.md#5-hook--high-effort-rep-editing)
+6. [Rep-Aware & Movement-Phase Editing](docs/USER_MANUAL.md#6-rep-aware--movement-phase-editing)
+7. [Rep Counters](docs/USER_MANUAL.md#7-rep-counters)
+8. [Exercise Labels, Workout Data & Coaching](docs/USER_MANUAL.md#8-exercise-labels-workout-data--coaching)
+9. [Instructional Edits & Animated Callouts](docs/USER_MANUAL.md#9-instructional-edits--animated-callouts)
+10. [Glitch Terminology](docs/USER_MANUAL.md#10-glitch-terminology)
+11. [Multi-Clip Editing](docs/USER_MANUAL.md#11-multi-clip-editing)
+12. [Exercise-Aware 9:16 Reframing](docs/USER_MANUAL.md#12-exercise-aware-916-reframing)
+13. [Audio & Music-Aware Editing](docs/USER_MANUAL.md#13-audio--music-aware-editing)
+14. [Optional Intelligent Analysis Signals](docs/USER_MANUAL.md#14-optional-intelligent-analysis-signals)
+15. [Internal Edit Blueprint](docs/USER_MANUAL.md#15-internal-edit-blueprint)
+16. [Official Remotion Workflow in v2.2](docs/USER_MANUAL.md#16-official-remotion-workflow-in-v22)
+17. [Revision Stability](docs/USER_MANUAL.md#17-revision-stability)
+18. [Quality Control](docs/USER_MANUAL.md#18-quality-control)
+19. [Feature Activation Quick Reference](docs/USER_MANUAL.md#19-feature-activation-quick-reference)
+20. [Copy-Ready Prompt Library](docs/USER_MANUAL.md#20-copy-ready-prompts)
+21. [Recommended Prompt Template](docs/USER_MANUAL.md#21-recommended-prompt-template)
+22. [Practical Tips](docs/USER_MANUAL.md#22-practical-tips)
+23. [Technical Notes for v2.2](docs/USER_MANUAL.md#23-technical-notes-for-v22)
+24. [One-Sentence Starting Point](docs/USER_MANUAL.md#24-one-sentence-starting-point)
+
+The Markdown manual is intended for fast browsing directly on GitHub. The DOCX file is included so users who download or clone the repository also have the formatted Word version available offline.
+
+</details>
 
 ## Fastest prompt
 
