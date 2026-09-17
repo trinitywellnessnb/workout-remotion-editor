@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate a Workout Remotion Editor v2.1 analysis JSON file."""
+"""Validate a Workout Remotion Editor v2.2 analysis JSON file."""
 from __future__ import annotations
 
 import argparse
@@ -46,8 +46,8 @@ def basic_schema_errors(document: Any) -> list[str]:
     for key in ("schema_version", "project", "sources", "segments"):
         if key not in document:
             errors.append(f"/{key}: required property is missing")
-    if document.get("schema_version") != "2.1":
-        errors.append("/schema_version: must equal '2.1'")
+    if document.get("schema_version") != "2.2":
+        errors.append("/schema_version: must equal '2.2'")
     project = document.get("project")
     if not isinstance(project, dict):
         errors.append("/project: must be an object")
