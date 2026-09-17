@@ -59,8 +59,10 @@ jobs:
           PY
       - name: Package skill.zip
         run: |
+          rm -f skill.zip
           cd workout-remotion-editor
-          zip -r ../skill.zip . -x '**/__pycache__/*' '*.pyc'
+          zip ../skill.zip SKILL.md
+          zip -r ../skill.zip agents references scripts assets -x '**/__pycache__/*' '*.pyc'
           cd ..
           unzip -t skill.zip
           test "$(unzip -Z1 skill.zip | head -1)" = "SKILL.md"
