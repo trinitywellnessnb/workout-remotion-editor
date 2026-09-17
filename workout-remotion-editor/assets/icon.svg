@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-labelledby="title desc">
+  <title id="title">Workout Remotion Editor</title><desc id="desc">Play button framed by a barbell</desc>
+  <rect width="256" height="256" rx="48" fill="#111827"/><circle cx="128" cy="128" r="66" fill="#22c55e"/>
+  <path d="M111 91v74l58-37z" fill="#fff"/><g fill="#fff"><rect x="37" y="119" width="54" height="18" rx="6"/><rect x="165" y="119" width="54" height="18" rx="6"/><rect x="24" y="103" width="15" height="50" rx="5"/><rect x="217" y="103" width="15" height="50" rx="5"/></g>
+</svg>

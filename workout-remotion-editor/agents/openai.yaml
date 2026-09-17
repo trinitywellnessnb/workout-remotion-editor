@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workout Remotion Editor"
+  short_description: "Analyze and edit accurate workout videos"
+  default_prompt: "Use $workout-remotion-editor to analyze my workout footage and create a validated, render-ready paper edit with overlays and QA."
