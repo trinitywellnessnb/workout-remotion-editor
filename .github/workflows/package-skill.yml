@@ -27,7 +27,7 @@ jobs:
       - name: Smoke-test analysis validator
         run: |
           cat > /tmp/valid-analysis.json <<'JSON'
-          {"schema_version":"2.1","project":{"title":"CI fixture","mode":"quick"},"sources":[{"id":"source-1","path":"fixture.mp4","duration":10}],"segments":[{"id":"segment-1","source_id":"source-1","start":1,"end":5,"type":"exercise","confidence":"high"}],"repetitions":[{"id":"rep-1","source_id":"source-1","segment_id":"segment-1","start":2,"end":3,"complete":true,"confidence":"high"}]}
+          {"schema_version":"2.2","project":{"title":"CI fixture","mode":"quick"},"sources":[{"id":"source-1","path":"fixture.mp4","duration":10}],"segments":[{"id":"segment-1","source_id":"source-1","start":1,"end":5,"type":"exercise","confidence":"high"}],"repetitions":[{"id":"rep-1","source_id":"source-1","segment_id":"segment-1","start":2,"end":3,"complete":true,"confidence":"high"}]}
           JSON
           python workout-remotion-editor/scripts/validate_analysis.py /tmp/valid-analysis.json
           python - <<'PY'
@@ -55,6 +55,7 @@ jobs:
           assert len(metadata["name"]) <= 64
           assert re.fullmatch(r"[a-z0-9-]+", metadata["name"])
           assert (root / "agents/openai.yaml").is_file()
+          assert (root / "references/remotion-skill-routing.md").is_file()
           PY
       - name: Package skill.zip
         run: |
