@@ -1,4 +1,3 @@
-![Workout Remotion Editor v2.3 — From raw clips to a polished workout video](assets/readme/workout-remotion-editor-banner.jpg)
 
 # Workout Remotion Editor + Workout Remotion Director
 
