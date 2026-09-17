@@ -1,12 +1,134 @@
 ![Workout Remotion Editor v2.3 — From raw clips to a polished workout video](assets/readme/workout-remotion-editor-banner.jpg)
 
-# Workout Remotion Editor
+# Workout Remotion Editor + Workout Remotion Director
 
-An open-source ChatGPT Skill that adds workout-specific directing intelligence to Remotion. Version **2.3** combines rep-aware workout analysis with **research-informed social editing intelligence**: truthful hooks, retention-aware pacing, shareability reasoning, platform-native framing, controlled A/B testing, and workout-specific QA.
+An open-source workout-video editing project for ChatGPT and Remotion. The project now has two complementary intelligence layers:
 
-[Remotion](https://www.remotion.dev/) is the recommended video-building and rendering layer. Other capable video-editing agents or plugins may work experimentally when they can honor the same edit blueprint, timing, overlays, audio policy, reframing, and QA requirements.
+- **Workout Remotion Editor v2.3** — the ChatGPT Skill for workout-specific analysis and research-informed social editing intelligence.
+- **Workout Remotion Director v1.0** — the optional ChatGPT Workspace Agent blueprint for autonomous, one-and-done orchestration from uploaded footage through QA and final render.
 
-## Why use this with Remotion?
+[Remotion](https://www.remotion.dev/) remains the recommended video implementation and rendering layer.
+
+The layers are intentionally separate:
+
+```text
+Workout Remotion Director v1.0
+Autonomous workflow + creative direction + QA/repair orchestration
+                         ↓
+Workout Remotion Editor v2.3
+Workout analysis + research-informed social editing intelligence
+                         ↓
+Remotion
+Video implementation + composition + rendering
+```
+
+The Director does not replace the Skill, and neither replaces Remotion. Each layer has a different job.
+
+## Choose how you want to use the project
+
+### 1. Skill only — Workout Remotion Editor v2.3
+
+Use the **Skill only** when you want workout-specific editing intelligence while remaining more directly involved in the conversation and edit direction.
+
+The Skill analyzes workout footage and helps determine **WHAT** should happen in the edit: exercises, sets, reps, movement phases, truthful hooks, rep-aware cuts, workout-safe framing, counters, coaching overlays, retention/shareability treatments, and workout-specific QA.
+
+Typical workflow:
+
+```text
+Upload workout clips
+        ↓
+Prompt Workout Remotion Editor
+        ↓
+Skill analyzes footage and builds the edit direction
+        ↓
+Remotion implements/renders the video
+        ↓
+Continue prompting for revisions as needed
+```
+
+Start with something as simple as:
+
+> **“Make this workout social media ready.”**
+
+Use this option if you primarily want the specialized workout-video intelligence and prefer to direct or revise the process conversationally.
+
+**Setup:** Download/install the current `skill.zip`, enable **Workout Remotion Editor**, connect the relevant Remotion capabilities, upload your workout footage, and describe the edit you want.
+
+The distributable Skill source lives under [`workout-remotion-editor/`](workout-remotion-editor/). See the [v2.3 User Manual](docs/USER_MANUAL.md) for detailed prompting and feature guidance.
+
+### 2. Agent blueprint — Workout Remotion Director v1.0
+
+Use the **Agent blueprint** when you want an autonomous workflow director that makes routine creative and production decisions itself.
+
+Workout Remotion Director owns the workflow: intake, footage inspection, creative-direction selection, delegation, implementation routing, QA, automatic repair decisions, final render, and delivery. Its default experience is **one and done**.
+
+```text
+Upload footage + give a short request
+        ↓
+Director inspects everything
+        ↓
+Director chooses the strongest truthful direction
+        ↓
+Director orchestrates implementation
+        ↓
+QA → automatic repair when needed
+        ↓
+Final render
+        ↓
+Finished video
+```
+
+The Director does not ask for approval on ordinary choices such as hook, pacing, crop, rep selection, transition restraint, or overlay placement. It should interrupt only when a genuine blocker prevents a truthful or technically valid edit.
+
+The Agent blueprint can be used without installing Workout Remotion Editor, but it must not pretend to have the Skill's full specialized workout-analysis and social-editing rules when that dependency is absent. In that configuration, its primary value is autonomous workflow orchestration using the capabilities actually available to it.
+
+Start with:
+
+> **“I uploaded several workout clips. Make this social media ready. Choose the strongest truthful direction yourself, carry the edit through QA, and return one finished vertical video.”**
+
+**Setup:** Start with [`agent/WORKOUT_REMOTION_DIRECTOR.md`](agent/WORKOUT_REMOTION_DIRECTOR.md), then follow the [`agent/setup-guide.md`](agent/setup-guide.md). The copyable Workspace Agent instructions are in [`agent/agent-instructions.md`](agent/agent-instructions.md).
+
+### 3. Skill + Agent — complete one-and-done workflow
+
+Use **Workout Remotion Director + Workout Remotion Editor + Remotion** together for the complete system this repository is designed to support.
+
+```text
+YOU
+Upload workout footage + describe the outcome
+        ↓
+WORKOUT REMOTION DIRECTOR v1.0
+Runs the job autonomously and makes routine creative decisions
+        ↓
+WORKOUT REMOTION EDITOR v2.3
+Analyzes the workout and supplies specialized editing intelligence
+        ↓
+REMOTION
+Implements the edit and renders the video
+        ↓
+DIRECTOR QA
+Checks workout truth + technical output and repairs when needed
+        ↓
+FINAL RENDER
+One finished video by default
+```
+
+This configuration combines the Director's **one-and-done autonomy** with the Skill's **workout-specific and research-informed editing intelligence** and Remotion's **video-production machinery**.
+
+For a normal request, the intended workflow is:
+
+`INGEST → INSPECT → DIRECT → DELEGATE_SKILL → IMPLEMENT_REMOTION → QA → REPAIR_IF_NEEDED → RENDER → DELIVER`
+
+The user does not need to approve a paper edit, hook, pacing decision, crop, or routine revision before the workflow continues. A/B variants remain opt-in: the default is one strongest truthful finished edit.
+
+Start with:
+
+> **“Make this workout social media ready.”**
+
+That short prompt is enough for the combined system to make routine decisions itself. More specific instructions still override defaults.
+
+**Setup:** Install Workout Remotion Editor first, configure Workout Remotion Director using the [Agent Setup Guide](agent/setup-guide.md), and enable the relevant Remotion capabilities. See [`agent/tool-requirements.md`](agent/tool-requirements.md) for dependency and fallback behavior.
+
+## Why use Workout Remotion Editor with Remotion?
 
 **Remotion provides the video-editing tools. Workout Remotion Editor provides the workout-specific directing intelligence.**
 
@@ -108,17 +230,29 @@ These skills are referenced rather than copied into this repository. See [`remot
 
 You do **not** need to know how to code or how Remotion works internally.
 
+### Skill-only setup
+
 1. **Download** — Get the current `skill.zip` from this repository's release/package artifact.
 2. **Install** — Open ChatGPT Skills, upload `skill.zip`, and enable **Workout Remotion Editor**.
 3. **Connect Remotion** — Enable/connect Remotion in ChatGPT. Remotion is the recommended implementation and rendering layer.
 4. **Upload footage** — Add one or more workout clips to your ChatGPT conversation.
 5. **Ask for the edit** — Start with: **“Make this workout social media ready.”**
 
+### Agent setup
+
+1. Open the [Workout Remotion Director overview](agent/WORKOUT_REMOTION_DIRECTOR.md).
+2. Follow the [Workspace Agent setup guide](agent/setup-guide.md).
+3. Use the copyable [Agent instructions](agent/agent-instructions.md).
+4. Connect the dependencies described in [Tool Requirements](agent/tool-requirements.md).
+5. For the complete workflow, install/enable Workout Remotion Editor and Remotion alongside the Director.
+
 From there, use normal language. For example: **“make it faster,” “open with my hardest successful rep,” “optimize this for saves and shares,” “make a second version with a curiosity hook,” “count the reps in my last set,” “label each exercise,” “add these coaching cues,” “keep more of the final set,”** or **“change only the hook.”**
 
-> **Download Skill → Add to ChatGPT → Connect Remotion → Upload workout clips → Describe the video you want.**
-
-The distributable Skill source lives under `workout-remotion-editor/`.
+> **Skill only:** Download Skill → Add to ChatGPT → Connect Remotion → Upload clips → Direct the edit.
+>
+> **Agent only:** Configure Director → Connect available tools → Upload clips → Give the outcome → Director runs the workflow.
+>
+> **Skill + Agent:** Install Skill → Configure Director → Connect Remotion → Upload clips → Give the outcome → One-and-done workflow through final render.
 
 <details>
 <summary><strong>📘 Workout Remotion Editor v2.3 — User Manual</strong></summary>
@@ -171,7 +305,9 @@ The Markdown manual is intended for fast browsing directly on GitHub. The v2.2 D
 
 The package includes a semantic validator for structured analysis/edit JSON. CI/package validation also checks the Skill structure before publishing `skill.zip`.
 
-The distributable skill is under `workout-remotion-editor/`; public documentation, research, and governance files remain outside the ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
+The distributable Skill is under `workout-remotion-editor/`. The optional Workspace Agent blueprint is under `agent/`. Public documentation, research, and governance files remain outside the Skill ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
+
+The Director and Editor use independent version numbers. The current documented pairing is **Workout Remotion Director v1.0 + Workout Remotion Editor v2.3**.
 
 ## License
 
