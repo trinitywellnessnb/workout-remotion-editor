@@ -27,6 +27,8 @@ It can help Remotion:
 
 The goal is not to replace Remotion. It is to make Remotion **workout-aware**.
 
+![Workout Remotion Editor v2.2 — One skill, all the Remotion tools](https://drive.google.com/uc?export=view&id=1J9Jw9XLz3POrjqLfg037oeBO6ePxvZES)
+
 ## What v2.2 does
 
 - Analyzes all supplied workout clips before building the edit.
