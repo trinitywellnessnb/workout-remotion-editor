@@ -98,7 +98,7 @@ Use **Workout Remotion Director + Workout Remotion Editor + Remotion** together 
 YOU
 Upload workout footage + describe the outcome
         ↓
-WORKOUT REMOTION DIRECTOR v1.0
+WORKOUT REMOTION DIRECTOR v1.1
 Runs the job autonomously and makes routine creative decisions
         ↓
 WORKOUT REMOTION EDITOR v2.3

@@ -22,6 +22,8 @@ def summarize(document: dict[str, Any]) -> dict[str, Any]:
     """Route generic evidence/status data, without interpreting workout activity."""
     counts = {name: len(document.get("evidence", {}).get(name, [])) for name in EVIDENCE_COLLECTIONS}
     available = any(counts.values())
+    supplied_sources = {run["source_id"] for run in document.get("evidence", {}).get("runs", [])
+                        if run["category"] == "media_probe" and run["provider"] == "supplied-metadata"}
     return {
         "handoff_version": "1.0",
         "status": "ready_for_visual_review" if available else "manual_review_required",
@@ -33,7 +35,8 @@ def summarize(document: dict[str, Any]) -> dict[str, Any]:
         "evidence_counts": counts,
         "sources": [
             {"source_id": source["id"], "path": source["path"], "duration": source["duration"],
-             "timing_requires_verification": source["duration"] is None}
+             "timing_requires_verification": (source["duration"] is None or source["id"] in supplied_sources
+                                             or not source.get("metadata", {}).get("timestamp_origin_verified", False))}
             for source in document["sources"]
         ],
         "analyzer_runs": [
@@ -48,7 +51,7 @@ def summarize(document: dict[str, Any]) -> dict[str, Any]:
             "Scene boundaries are not workout-set boundaries.",
             "Low motion and quiet audio never authorize removal of meaningful footage.",
             "Keep source-relative seconds canonical; convert accepted timing to frames at Remotion composition.",
-            "Unknown duration requires verified probing or manual timing before timed editorial events.",
+            "Unknown duration or unverified timing requires verified probing/manual timing before timed editorial events.",
             "Validate the Editor's completed analysis/edit document before IMPLEMENT_REMOTION.",
         ],
     }

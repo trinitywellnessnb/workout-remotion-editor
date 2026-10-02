@@ -32,12 +32,18 @@ class DirectorTests(unittest.TestCase):
     def test_every_provider_status_is_routed_without_editorial_claims(self):
         for status in ("success", "partial", "no_results", "unavailable", "failed", "skipped"):
             document = load_json(ROOT / "tests/fixtures/unavailable-valid.json")
+            document["sources"][0]["duration"] = None
             document["evidence"]["runs"][0]["status"] = status
             manifest = summarize(document)
             self.assertEqual(manifest["status"], "manual_review_required")
             self.assertEqual(manifest["analyzer_runs"][0]["status"], status)
             self.assertEqual(manifest["next_state"], "INSPECT")
             self.assertTrue(manifest["sources"][0]["timing_requires_verification"])
+
+    def test_verified_probe_timing_is_preserved(self):
+        document = load_json(ROOT / "tests/fixtures/activity-valid.json")
+        document["sources"][0]["metadata"] = {"timestamp_origin_verified": True}
+        self.assertFalse(summarize(document)["sources"][0]["timing_requires_verification"])
 
     def test_actual_cli_without_packages_or_executables(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -76,7 +82,7 @@ class DirectorTests(unittest.TestCase):
             self.assertEqual(len(manifest["analyzer_runs"]), 2)
             self.assertEqual([item["source_id"] for item in manifest["sources"]], ["source-1", "source-2"])
             self.assertTrue(all(item["duration"] == 4 for item in manifest["sources"]))
-            self.assertTrue(all(not item["timing_requires_verification"] for item in manifest["sources"]))
+            self.assertTrue(all(item["timing_requires_verification"] for item in manifest["sources"]))
             self.assertEqual(manifest["status"], "manual_review_required")
 
     def test_invalid_analysis_never_publishes_handoff(self):

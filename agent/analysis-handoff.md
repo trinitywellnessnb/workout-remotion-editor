@@ -25,7 +25,7 @@ The output directory must not exist. This prevents replacement of source files o
 
 analysis.json uses the one canonical scripts/analysis-schema.json contract inside Workout Remotion Editor. It contains source mappings, optional evidence, provenance, and empty editorial segments.
 
-handoff.json is an orchestration manifest, separate from analysis JSON. It contains source IDs/paths/durations, evidence counts, provider run statuses/diagnostics, an analysis_file path relative to the job directory, and editor_review_required: true.
+handoff.json is an orchestration manifest, separate from analysis JSON. It contains source IDs/paths/durations and timing-verification flags, evidence counts, provider run statuses/diagnostics, an analysis_file path relative to the job directory, and editor_review_required: true.
 
 Its stage and next_state are INSPECT: preparing evidence does not establish that footage was visually reviewed. Its status is ready_for_visual_review when timed machine evidence exists, otherwise manual_review_required. Neither status means editing, QA, or rendering is complete.
 
@@ -46,7 +46,7 @@ Exit 0 means both validated analysis and handoff were written; missing/failing o
 2. Visually inspect all source clips. Keep source_id/path mappings intact when referencing evidence; source numbering follows input order.
 3. Select direction, then pass the user request, source files, and validated analysis.json to Workout Remotion Editor.
 4. Let the Editor produce reviewed segments/repetitions/overlays. Retain machine evidence/provenance separately from editorial decisions; never mutate it into assertions about workout sets or removable footage.
-5. Verify unknown source durations before creating any timed editorial events. Validate the completed analysis/edit JSON before IMPLEMENT_REMOTION.
+5. Verify sources flagged timing_requires_verification (including manual-duration fallback and unverifiable timestamp origins) before creating any timed editorial events. Validate the completed analysis/edit JSON before IMPLEMENT_REMOTION.
 6. Convert accepted source seconds to frames once at the composition boundary, then complete normal Director QA, repair, render, and delivery.
 
 No automated footage deletion, workout judgment, render, hosted agent registration, or future analyzer is implemented by this command. The restored blueprint supplies those orchestration responsibilities to a configured Workspace Agent.
