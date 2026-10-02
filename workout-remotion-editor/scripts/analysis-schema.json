@@ -313,6 +313,36 @@
           "items": {
             "$ref": "#/$defs/deadTimeCandidate"
           }
+        },
+        "object_detections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/objectDetection"
+          }
+        },
+        "tracked_entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackedEntity"
+          }
+        },
+        "entity_roles": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entityRole"
+          }
+        },
+        "visual_regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/visualRegion"
+          }
+        },
+        "crop_constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cropConstraint"
+          }
         }
       }
     }
@@ -567,6 +597,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "performance": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "number",
+              "string",
+              "integer"
+            ]
+          }
         }
       }
     },
@@ -805,6 +845,357 @@
             "type": "string",
             "minLength": 1
           }
+        }
+      }
+    },
+    "objectDetection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "timestamp",
+        "category",
+        "confidence",
+        "bounding_box",
+        "coordinate_space",
+        "source_width",
+        "source_height",
+        "provider",
+        "model",
+        "sample_index",
+        "scene_id"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "timestamp": {
+          "type": "number",
+          "minimum": 0
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "bounding_box": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "coordinate_space": {
+          "const": "normalized_xyxy"
+        },
+        "source_width": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "source_height": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sample_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scene_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "track_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "trackedEntity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "category",
+        "provider",
+        "track_id",
+        "scene_id",
+        "start",
+        "end",
+        "confidence",
+        "detection_ids"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "track_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "detection_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "entityRole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "role",
+        "entity_id",
+        "scene_id",
+        "confidence",
+        "ambiguous",
+        "supporting_reasons"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "primary_athlete_candidate"
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "ambiguous": {
+          "type": "boolean"
+        },
+        "supporting_reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "visualRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "type",
+        "entity_ids",
+        "start",
+        "end",
+        "bounding_box",
+        "coordinate_space"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "athlete_bounding_region",
+            "tracked_equipment_region",
+            "athlete_equipment_union",
+            "minimum_visible_region"
+          ]
+        },
+        "entity_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0
+        },
+        "bounding_box": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "coordinate_space": {
+          "const": "normalized_xyxy"
+        }
+      }
+    },
+    "cropConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "entity_id",
+        "region_id",
+        "type",
+        "risk",
+        "risk_reasons",
+        "advisory_only"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "region_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "type": {
+          "enum": [
+            "minimum_visible_region",
+            "subject_loss",
+            "crop_risk"
+          ]
+        },
+        "risk": {
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "risk_reasons": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "subject_near_source_edge",
+              "temporary_subject_loss",
+              "excessive_crop_movement",
+              "possible_occlusion",
+              "equipment_outside_region"
+            ]
+          }
+        },
+        "advisory_only": {
+          "const": true
         }
       }
     }

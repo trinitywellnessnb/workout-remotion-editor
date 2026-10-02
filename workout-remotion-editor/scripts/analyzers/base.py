@@ -22,6 +22,7 @@ class Result:
     evidence: dict[str, list[dict[str, Any]]] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    performance: dict[str, Any] = field(default_factory=dict)
 
 
 class Provider(Protocol):
@@ -83,7 +84,8 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
             raise ValueError("provider must return Result")
         if result.status not in {"success", "partial", "no_results", "unavailable", "failed", "skipped"}:
             raise ValueError("invalid provider status")
-        if not isinstance(result.metadata, dict) or not isinstance(result.evidence, dict):
+        if (not isinstance(result.metadata, dict) or not isinstance(result.evidence, dict)
+                or not isinstance(result.performance, dict)):
             raise ValueError("provider metadata and evidence must be objects")
         for messages in (result.warnings, result.errors):
             if not isinstance(messages, list) or any(not isinstance(item, str) for item in messages):
@@ -101,9 +103,19 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
                     if not isinstance(references, list) or any(not isinstance(ref, str) for ref in references):
                         raise ValueError("signal_ids must be a list of strings")
                     item["signal_ids"] = [f"{run_id}:{ref}" for ref in references]
+                for key in ("entity_id", "region_id"):
+                    if isinstance(item.get(key), str):
+                        item[key] = f"{run_id}:{item[key]}"
+                for key in ("entity_ids", "detection_ids"):
+                    if key in item:
+                        references = item[key]
+                        if not isinstance(references, list) or any(not isinstance(ref, str) for ref in references):
+                            raise ValueError(f"{key} must be a list of strings")
+                        item[key] = [f"{run_id}:{ref}" for ref in references]
                 item.update(source_id=source["id"], run_id=run_id)
         # Non-JSON values must not escape the isolation boundary.
-        json.dumps({"metadata": result.metadata, "evidence": result.evidence}, allow_nan=False)
+        json.dumps({"metadata": result.metadata, "performance": result.performance,
+                    "evidence": result.evidence}, allow_nan=False)
     except Unavailable as exc:
         result = Result(status="unavailable", warnings=[str(exc)])
     except Exception as exc:  # Provider isolation includes normalization, not only tool execution.
@@ -124,6 +136,7 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
         "id": run_id, "source_id": source["id"], "category": provider.category,
         "provider": provider.name, "version": version, "upstream": provider.upstream,
         "status": result.status, "configuration": configuration,
+        "performance": result.performance,
         "fallback": result.status != "success",
         "warnings": result.warnings, "errors": result.errors,
     }

@@ -15,6 +15,7 @@ from analyzers.base import Provider, run_provider
 from analyzers.media_probe import MediaProbe
 from analyzers.motion_activity import MotionActivity
 from analyzers.scene import Scene
+from analyzers.object_tracking import YoloObjectTracking
 from validate_analysis import validate_document
 
 
@@ -33,7 +34,14 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
         pipeline = [MediaProbe(supplied_metadata), *(providers if providers is not None else [Scene(), MotionActivity()])]
         for invocation, provider in enumerate(pipeline):
             before = copy.deepcopy(document)
-            run, result = run_provider(provider, source, timeout, invocation=invocation)
+            provider_source = source
+            if provider.category == "object_tracking":
+                provider_source = {**source, "_analysis_context": {
+                    "scenes": [item for item in document["evidence"].get("scenes", [])
+                               if item["source_id"] == source["id"]],
+                    "activity_regions": [item for item in document["evidence"].get("activity_regions", [])
+                                         if item["source_id"] == source["id"]]}}
+            run, result = run_provider(provider, provider_source, timeout, invocation=invocation)
             document["evidence"]["runs"].append(run)
             source.update(result.metadata)
             if provider.category == "media_probe":
@@ -98,6 +106,16 @@ def main() -> int:
     parser.add_argument("--duration", type=positive, help="manual duration fallback; single input only")
     parser.add_argument("--skip-scene", action="store_true")
     parser.add_argument("--skip-activity", action="store_true")
+    parser.add_argument("--object-tracking", action="store_true",
+                        help="enable optional local Ultralytics YOLO evidence")
+    parser.add_argument("--yolo-model", default="yolo11n.pt",
+                        help="local model path unless --allow-model-download is set")
+    parser.add_argument("--yolo-device", default="cpu", help="Ultralytics device, e.g. cpu, mps, 0")
+    parser.add_argument("--yolo-sample-rate", type=positive, default=2.0, help="analyzed samples/second")
+    parser.add_argument("--yolo-tracker", choices=["bytetrack.yaml", "botsort.yaml"], default="bytetrack.yaml")
+    parser.add_argument("--yolo-confidence", type=unit, default=.25)
+    parser.add_argument("--allow-model-download", action="store_true",
+                        help="permit Ultralytics to fetch a named model (may access the network)")
     args = parser.parse_args()
     if args.duration is not None and len(args.videos) != 1:
         parser.error("--duration requires exactly one input")
@@ -114,6 +132,10 @@ def main() -> int:
     if not args.skip_activity:
         providers.append(MotionActivity(args.motion_threshold, args.audio_threshold,
                                         args.timebase, args.minimum_candidate_seconds))
+    if args.object_tracking:
+        providers.append(YoloObjectTracking(args.yolo_model, args.yolo_device, args.yolo_sample_rate,
+                                            args.yolo_tracker, args.yolo_confidence,
+                                            args.allow_model_download))
     try:
         document = analyze(args.videos, title=args.title, mode=args.mode, providers=providers,
                            timeout=args.timeout,
