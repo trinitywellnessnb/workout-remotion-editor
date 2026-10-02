@@ -57,3 +57,7 @@ Report output paths; resolution/FPS/codec/duration; source and analysis versions
 ## Retention and shareability QA (v2.3)
 
 Confirm that the opening is immediately legible and fulfills a specific viewer promise; the beat structure advances rather than delays that promise; any reordered opening, replay, or loop preserves chronology and rep counts; the payoff is delivered; and any share reason or CTA is supported by actual utility, identity/community relevance, achievement/story, conversation value, or craft. Do not report virality or retention as guaranteed. For variants, verify stable IDs and one principal changed hypothesis. Treat first-party analytics as diagnostic context, not proof of causation.
+
+## Phase 2 framing evidence QA
+
+Read object-tracking.md when available. Inspect candidate ambiguity, actual sample coverage, track gaps, scene resets, and crop risk flags. Empty flags do not establish safe anatomy/equipment visibility, especially between samples or for unsupported implement classes. Check the complete reviewed crop in Remotion; YOLO must not choose the edit or override workout truth. Map source observations through trims and playback rates before comparing timeline crops. If the union cannot fit vertical framing, choose reviewed wider framing/letterboxing/another shot.

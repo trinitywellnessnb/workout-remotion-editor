@@ -11,6 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from analyzers.visual_validation import validate_visual
+
 SCHEMA_PATH = Path(__file__).with_name("analysis-schema.json")
 COLLECTIONS = ("segments", "repetitions", "audio_events")
 EVIDENCE_COLLECTIONS = ("scenes", "scene_boundaries", "activity_regions", "candidate_dead_time")
@@ -237,6 +239,8 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                         has_low_motion = True
                 if not has_low_motion:
                     errors.append(f"{prefix}/signal_ids: candidate requires covering low-motion support")
+
+    errors.extend(validate_visual(document, seen))
 
     plan = document.get("retention_plan", {})
     beat_ids: set[str] = set()

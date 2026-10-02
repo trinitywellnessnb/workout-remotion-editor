@@ -1,0 +1,36 @@
+name: Manual local tracking smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      enterprise_terms_confirmed:
+        description: Applicable Ultralytics Enterprise terms cover this use
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+jobs:
+  cpu-smoke:
+    if: inputs.enterprise_terms_confirmed
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install explicitly selected optional test dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check jsonschema -r workout-remotion-editor/scripts/requirements-tracking.txt
+      - name: Explicit setup acquisition of a small separately licensed model
+        run: |
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/yolo26n.pt" https://github.com/ultralytics/assets/releases/download/v8.4.0/yolo26n.pt
+      - name: Exercise real CPU API without runtime downloads
+        env:
+          WORKOUT_TRACKING_MODEL: ${{ runner.temp }}/yolo26n.pt
+        run: python -m unittest discover -s tests -p 'test_tracking_smoke.py' -v

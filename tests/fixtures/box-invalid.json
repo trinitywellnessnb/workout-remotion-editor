@@ -1,0 +1,162 @@
+{
+  "schema_version": "2.5",
+  "project": {
+    "title": "Tracked athlete fixture",
+    "mode": "standard"
+  },
+  "sources": [
+    {
+      "id": "s",
+      "path": "fixture.mp4",
+      "duration": 2,
+      "width": 1920,
+      "height": 1080
+    }
+  ],
+  "segments": [],
+  "evidence": {
+    "runs": [
+      {
+        "id": "tracking",
+        "source_id": "s",
+        "category": "object_tracking",
+        "provider": "fixture_detector",
+        "version": "1",
+        "upstream": "fixture",
+        "status": "success",
+        "fallback": false,
+        "configuration": {
+          "coordinate_space": "display_normalized_xyxy"
+        },
+        "warnings": [],
+        "errors": []
+      }
+    ],
+    "tracking_intervals": [
+      {
+        "id": "interval",
+        "source_id": "s",
+        "run_id": "tracking",
+        "start": 0,
+        "end": 2,
+        "sample_interval": 0.2,
+        "scene_id": null,
+        "reason": "Fixture tracking lifecycle."
+      }
+    ],
+    "detections": [
+      {
+        "source_id": "s",
+        "run_id": "tracking",
+        "interval_id": "interval",
+        "id": "d",
+        "time": 0,
+        "sample_index": 0,
+        "frame_index": 0,
+        "class_id": 0,
+        "class_name": "person",
+        "category": "person",
+        "bbox": {
+          "x1": 0.2,
+          "y1": 0.1,
+          "x2": 0.1,
+          "y2": 0.9
+        },
+        "confidence": 0.8,
+        "entity_id": "e"
+      }
+    ],
+    "tracked_entities": [
+      {
+        "source_id": "s",
+        "run_id": "tracking",
+        "interval_id": "interval",
+        "id": "e",
+        "provider_track_id": "1",
+        "category": "person",
+        "class_name": "person",
+        "first_seen": 0,
+        "last_seen": 0,
+        "detection_ids": [
+          "d"
+        ],
+        "observation_count": 1,
+        "sample_coverage": 1,
+        "gaps": [],
+        "issues": []
+      }
+    ],
+    "subject_candidates": [
+      {
+        "source_id": "s",
+        "run_id": "tracking",
+        "interval_id": "interval",
+        "id": "c",
+        "start": 0,
+        "end": 2,
+        "entity_id": "e",
+        "role": "primary_athlete_candidate",
+        "state": "unresolved",
+        "score": 0.45,
+        "score_semantics": "uncalibrated_heuristic",
+        "confidence": null,
+        "signals": {
+          "persistence": 1,
+          "duration": 0,
+          "box_motion": 0,
+          "object_proximity": 0,
+          "prominence": 0.32
+        },
+        "reasons": [
+          "Only one observation; insufficient identity support."
+        ]
+      }
+    ],
+    "visual_regions": [
+      {
+        "source_id": "s",
+        "run_id": "tracking",
+        "interval_id": "interval",
+        "id": "r",
+        "time": 0,
+        "kind": "athlete",
+        "bbox": {
+          "x1": 0.2,
+          "y1": 0.1,
+          "x2": 0.6,
+          "y2": 0.9
+        },
+        "entity_ids": [
+          "e"
+        ],
+        "detection_ids": [
+          "d"
+        ],
+        "reason": "Observed person box; selection unresolved."
+      }
+    ],
+    "crop_constraints": [
+      {
+        "source_id": "s",
+        "run_id": "tracking",
+        "interval_id": "interval",
+        "id": "crop",
+        "time": 0,
+        "region_ids": [
+          "r"
+        ],
+        "risk_flags": [
+          "primary_athlete_ambiguous"
+        ],
+        "reason": "Sample only; review subject.",
+        "coverage_scope": "sample_only",
+        "minimum_visible_region": {
+          "x1": 0.2,
+          "y1": 0.1,
+          "x2": 0.6,
+          "y2": 0.9
+        }
+      }
+    ]
+  }
+}

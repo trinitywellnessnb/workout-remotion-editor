@@ -1,0 +1,4 @@
+# Optional only. Enterprise terms must cover intended use before enabling Ultralytics.
+# Provision trusted model weights separately; none are downloaded by the analyzer.
+ultralytics==8.4.171
+av==18.0.0

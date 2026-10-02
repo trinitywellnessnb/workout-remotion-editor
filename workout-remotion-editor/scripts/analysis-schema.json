@@ -14,7 +14,8 @@
     "schema_version": {
       "enum": [
         "2.3",
-        "2.4"
+        "2.4",
+        "2.5"
       ]
     },
     "project": {
@@ -313,6 +314,42 @@
           "items": {
             "$ref": "#/$defs/deadTimeCandidate"
           }
+        },
+        "tracking_intervals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackingInterval"
+          }
+        },
+        "detections": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/detection"
+          }
+        },
+        "tracked_entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/trackedEntity"
+          }
+        },
+        "subject_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/subjectCandidate"
+          }
+        },
+        "visual_regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/visualRegion"
+          }
+        },
+        "crop_constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/cropConstraint"
+          }
         }
       }
     }
@@ -567,6 +604,9 @@
           "items": {
             "type": "string"
           }
+        },
+        "statistics": {
+          "$ref": "#/$defs/runStatistics"
         }
       }
     },
@@ -807,6 +847,613 @@
           }
         }
       }
+    },
+    "normalizedBox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "x1",
+        "y1",
+        "x2",
+        "y2"
+      ],
+      "properties": {
+        "x1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y1": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "x2": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "y2": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "trackingInterval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "start",
+        "end",
+        "sample_interval",
+        "scene_id",
+        "reason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sample_interval": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "scene_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "minLength": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "detection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "interval_id",
+        "time",
+        "sample_index",
+        "frame_index",
+        "class_id",
+        "class_name",
+        "category",
+        "bbox",
+        "confidence"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sample_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "frame_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "class_id": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "class_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "person",
+            "object",
+            "equipment",
+            "unknown_equipment"
+          ]
+        },
+        "bbox": {
+          "$ref": "#/$defs/normalizedBox"
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "trackedEntity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "interval_id",
+        "provider_track_id",
+        "category",
+        "class_name",
+        "first_seen",
+        "last_seen",
+        "detection_ids",
+        "observation_count",
+        "sample_coverage",
+        "gaps",
+        "issues"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provider_track_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "person",
+            "object",
+            "equipment",
+            "unknown_equipment"
+          ]
+        },
+        "class_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "first_seen": {
+          "type": "number",
+          "minimum": 0
+        },
+        "last_seen": {
+          "type": "number",
+          "minimum": 0
+        },
+        "detection_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "observation_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sample_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "start",
+              "end",
+              "reason"
+            ],
+            "properties": {
+              "start": {
+                "type": "number",
+                "minimum": 0
+              },
+              "end": {
+                "type": "number",
+                "minimum": 0
+              },
+              "reason": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "issues": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "subjectCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "interval_id",
+        "start",
+        "end",
+        "entity_id",
+        "role",
+        "state",
+        "score",
+        "score_semantics",
+        "confidence",
+        "signals",
+        "reasons"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "minimum": 0
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "const": "primary_athlete_candidate"
+        },
+        "state": {
+          "enum": [
+            "candidate",
+            "ambiguous",
+            "unresolved"
+          ]
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "score_semantics": {
+          "const": "uncalibrated_heuristic"
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "signals": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "persistence",
+            "duration",
+            "box_motion",
+            "object_proximity",
+            "prominence"
+          ],
+          "properties": {
+            "persistence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "duration": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "box_motion": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "object_proximity": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "prominence": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "reasons": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "visualRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "interval_id",
+        "time",
+        "kind",
+        "bbox",
+        "entity_ids",
+        "detection_ids",
+        "reason"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "kind": {
+          "enum": [
+            "athlete",
+            "equipment_candidate",
+            "crop_required_union"
+          ]
+        },
+        "bbox": {
+          "$ref": "#/$defs/normalizedBox"
+        },
+        "entity_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "detection_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "cropConstraint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "interval_id",
+        "time",
+        "region_ids",
+        "risk_flags",
+        "reason",
+        "coverage_scope"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "region_ids": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "risk_flags": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "primary_athlete_ambiguous",
+              "athlete_track_lost",
+              "subject_unresolved",
+              "athlete_outside_crop",
+              "athlete_bottom_cutoff",
+              "tracked_equipment_outside_crop",
+              "required_region_outside_crop"
+            ]
+          }
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coverage_scope": {
+          "const": "sample_only"
+        },
+        "minimum_visible_region": {
+          "$ref": "#/$defs/normalizedBox"
+        },
+        "proposed_crop": {
+          "$ref": "#/$defs/normalizedBox"
+        },
+        "box_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "runStatistics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "source_duration": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "samples_analyzed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "frames_decoded": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "samples_skipped": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model_sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "device_requested": {
+          "type": "string",
+          "minLength": 1
+        },
+        "device_used": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requested_sample_fps": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "effective_sample_fps": {
+          "type": "number",
+          "minimum": 0
+        },
+        "inference_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "elapsed_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "display_width": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "display_height": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
     }
   },
   "allOf": [
@@ -835,6 +1482,41 @@
                 "metadata": {
                   "not": {}
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": "2.4"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "properties": {
+              "tracking_intervals": {
+                "not": {}
+              },
+              "detections": {
+                "not": {}
+              },
+              "tracked_entities": {
+                "not": {}
+              },
+              "subject_candidates": {
+                "not": {}
+              },
+              "visual_regions": {
+                "not": {}
+              },
+              "crop_constraints": {
+                "not": {}
               }
             }
           }

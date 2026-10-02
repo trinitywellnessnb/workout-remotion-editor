@@ -14,6 +14,7 @@ from typing import Any
 from analyzers.base import Provider, run_provider
 from analyzers.media_probe import MediaProbe
 from analyzers.motion_activity import MotionActivity
+from analyzers.object_tracking import ObjectTracking
 from analyzers.scene import Scene
 from validate_analysis import validate_document
 
@@ -23,7 +24,7 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
             supplied_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
     """Director-callable workflow; failures are represented in the shared document."""
     document: dict[str, Any] = {
-        "schema_version": "2.4", "project": {"title": title, "mode": mode},
+        "schema_version": "2.5", "project": {"title": title, "mode": mode},
         "sources": [], "segments": [], "evidence": {"runs": []},
         "notes": ["Machine evidence only. Workout Remotion Editor must review footage before editing."],
     }
@@ -33,7 +34,8 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
         pipeline = [MediaProbe(supplied_metadata), *(providers if providers is not None else [Scene(), MotionActivity()])]
         for invocation, provider in enumerate(pipeline):
             before = copy.deepcopy(document)
-            run, result = run_provider(provider, source, timeout, invocation=invocation)
+            run, result = run_provider(provider, source, timeout, invocation=invocation,
+                                       context=document["evidence"])
             document["evidence"]["runs"].append(run)
             source.update(result.metadata)
             if provider.category == "media_probe":
@@ -45,6 +47,7 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
                 # Quarantine malformed provider output, preserving all prior valid evidence.
                 document = before
                 source = document["sources"][-1]
+                run.pop("statistics", None)
                 run.update(status="failed", fallback=True, errors=errors, warnings=run["warnings"] + [
                     "Invalid provider output discarded; continue existing visual/manual analysis."])
                 document["evidence"]["runs"].append(run)
@@ -96,9 +99,26 @@ def main() -> int:
     parser.add_argument("--minimum-candidate-seconds", type=positive, default=2.0)
     parser.add_argument("--timeout", type=positive, default=300, help="timeout per tool invocation")
     parser.add_argument("--duration", type=positive, help="manual duration fallback; single input only")
+    parser.add_argument("--object-tracking", action="store_true", help="opt-in local visual evidence")
+    parser.add_argument("--model", type=Path, help="existing local detector weights; never downloaded")
+    parser.add_argument("--device", default="cpu", help="cpu, mps, or explicit CUDA device")
+    parser.add_argument("--tracker", choices=["bytetrack", "botsort", "ocsort", "deepocsort",
+                                             "fasttrack", "tracktrack"], default="bytetrack")
+    parser.add_argument("--sample-fps", type=positive, default=5.0)
+    parser.add_argument("--full-frame-tracking", action="store_true")
+    parser.add_argument("--equipment-class", action="append", default=[],
+                        help="explicit equipment label supported by the supplied custom model")
+    parser.add_argument("--crop-region", type=float, nargs=4, metavar=("X1", "Y1", "X2", "Y2"),
+                        help="Editor-proposed normalized display-space crop")
     parser.add_argument("--skip-scene", action="store_true")
     parser.add_argument("--skip-activity", action="store_true")
     args = parser.parse_args()
+    if args.object_tracking and args.model is None:
+        parser.error("--object-tracking requires --model with existing local weights")
+    if args.crop_region is not None:
+        from analyzers.visual_evidence import valid_box
+        if not valid_box(args.crop_region):
+            parser.error("--crop-region must be a positive normalized xyxy box")
     if args.duration is not None and len(args.videos) != 1:
         parser.error("--duration requires exactly one input")
     for video in args.videos:
@@ -114,6 +134,10 @@ def main() -> int:
     if not args.skip_activity:
         providers.append(MotionActivity(args.motion_threshold, args.audio_threshold,
                                         args.timebase, args.minimum_candidate_seconds))
+    if args.object_tracking:
+        providers.append(ObjectTracking(args.model, device=args.device, tracker=args.tracker,
+                                        sample_fps=args.sample_fps, full_frame=args.full_frame_tracking,
+                                        equipment_classes=args.equipment_class, crop=args.crop_region))
     try:
         document = analyze(args.videos, title=args.title, mode=args.mode, providers=providers,
                            timeout=args.timeout,

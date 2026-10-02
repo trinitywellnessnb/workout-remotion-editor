@@ -23,6 +23,7 @@ jobs:
       - name: Validate schema, semantic fixtures, adapters, and CLI fallback
         run: |
           python -m unittest discover -s tests -p 'test_analysis.py' -v
+          python -m unittest discover -s tests -p 'test_object_tracking.py' -v
           python -m compileall -q workout-remotion-editor/scripts
           ruff check workout-remotion-editor/scripts tests
           git diff --check HEAD^ HEAD
@@ -48,7 +49,7 @@ jobs:
           rm -f skill.zip
           cd workout-remotion-editor
           zip ../skill.zip SKILL.md
-          zip -r ../skill.zip agents references scripts assets -x '**/__pycache__/*' '*.pyc'
+          zip -r ../skill.zip agents references scripts assets -x '**/__pycache__/*' '*.pyc' '*.pt' '*.onnx' '*.engine' '**/.cache/*'
           cd ..
           zip -j skill.zip LICENSE THIRD_PARTY_NOTICES.md
           unzip -t skill.zip

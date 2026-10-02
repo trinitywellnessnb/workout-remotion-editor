@@ -45,3 +45,13 @@ The project's auditable paper-edit and timeline-lint approach is conceptually in
 ## Downstream responsibility
 
 Users must inventory and clear all dependencies and assets in their own editing/rendering project, including footage, likeness/permissions, music, fonts, logos, stock media, code, models, and datasets. Preserve required copyright notices, attribution, source offers, and license texts.
+
+## Ultralytics YOLO — optional Phase 2 integration
+
+The original adapter invokes the public Python API of separately installed Ultralytics 8.4.171. It uses detection checkpoints and supported tracking backends only. No Ultralytics source, YAML configuration, package, model weights, or binaries are copied, modified, or bundled.
+
+Upstream code is [AGPL-3.0](https://github.com/ultralytics/ultralytics/blob/v8.4.171/LICENSE). Ultralytics states that default trained models are AGPL-3.0 as well; [Enterprise terms](https://www.ultralytics.com/license) provide an alternative. The project selected an Enterprise integration route: obtain terms covering the actual use/distribution before enabling this optional dependency. This notice does not establish an existing purchase or confer downstream license rights.
+
+Original editor/adapter material remains MIT. Optional API/CLI/subprocess use does not automatically remove copyleft implications for a covered combined work. AGPL-compliant distribution can be possible, including commercial use, but requires review of corresponding-source, notices, and modified network-service obligations. Merely being MIT/open source is not sufficient to declare the combined integration compliant. Redistribution of weights/code or training custom weights requires artifact-specific licensing review.
+
+Users provision trusted local weights separately. No models/dependencies are downloaded during analysis. No footage or telemetry is transmitted. Optional installation brings PyTorch, torchvision, NumPy, OpenCV, tracker requirements, PyAV/FFmpeg and other separately licensed dependencies; review their exact artifacts before redistribution. Existing PyAV and FFmpeg notices above apply. See the bundled references/object-tracking.md for supported classes and limitations.

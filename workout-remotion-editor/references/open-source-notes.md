@@ -20,3 +20,7 @@ v2.2 explicitly composes with the current official Remotion Agent Skill categori
 These upstream skills are routing targets rather than bundled dependencies. Workout Remotion Editor decides the workout-specific editorial plan, then delegates generic Remotion implementation details to the appropriate official skill when it is installed or available. This keeps the package compact and lets current Remotion guidance remain authoritative for composition creation, markup, media handling, captions, editable Studio structure, preview, rendering, API lookup, upgrades, product architecture, and map content.
 
 Record dependency name, version, source URL, license, purpose, and modifications in each downstream project. User footage, music, fonts, logos, stock assets, models, and generated assets require separate rights review.
+
+## Phase 2 Ultralytics provenance
+
+Optional Ultralytics 8.4.171 uses public Python detect/track results through an isolated worker. Upstream code and default trained models are AGPL-3.0 or separately Enterprise licensed; this project selected the Enterprise route. Obtain applicable terms before use. Optional subprocess invocation is not a blanket licensing exemption. Original integration code remains MIT; no upstream code/config/weights are copied. See object-tracking.md and THIRD_PARTY_NOTICES.md for obligations and local-only controls.

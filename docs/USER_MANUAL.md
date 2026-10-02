@@ -177,3 +177,9 @@ v2.3 integrates the current official Remotion Agent Skill categories as routing 
 
 ## 25. One-Sentence Starting Point
 > **Make these workout clips social-media ready with a strong truthful hook, smart rep-aware pacing, clean 9:16 reframing, muted source audio, and any counters/coaching/captions I specify—analyze first, then route implementation through the appropriate official Remotion skills, preview if available, and render the finished edit.**
+
+## Phase 2 optional visual evidence
+
+Opt-in local detection/tracking now extends the same analysis workflow and schema (2.5). It supplies scene-local athlete candidates, actual model labels, bounding histories, and crop-risk evidence; the Editor retains judgment. Legacy 2.3/2.4 analysis remains supported. Ultralytics is separately installed and licensed; local weights are not bundled or downloaded at runtime.
+
+See [Phase 2 tracking documentation](../workout-remotion-editor/references/object-tracking.md) for Enterprise licensing, installation, models/devices, sampling, schema, limitations, and fallback.

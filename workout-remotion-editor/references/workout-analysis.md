@@ -36,3 +36,9 @@ Use seconds as non-negative numbers. End times must exceed start times and fit k
 Read analysis-pipeline.md for scripts/analyze_video.py, optional installation, normalized evidence, and provider fallback. Store metadata once and keep all detector timing in source seconds. Scene boundaries are not set boundaries. Full-frame low motion or quiet audio does not establish rest, coaching absence, or disposable footage. Evaluate candidate regions visually before retaining, removing, shortening, or speed-ramping them. Never copy machine candidates directly into editorial segments.
 
 The canonical schema is scripts/analysis-schema.json within the Skill, or workout-remotion-editor/scripts/analysis-schema.json from the repository root. Version 2.4 adds optional evidence and analyzer provenance while the validator continues accepting legacy 2.3 documents.
+
+## Phase 2 optional visual evidence
+
+Opt-in local detection/tracking now extends the same analysis workflow and schema (2.5). It supplies scene-local athlete candidates, actual model labels, bounding histories, and crop-risk evidence; the Editor retains judgment. Legacy 2.3/2.4 analysis remains supported. Ultralytics is separately installed and licensed; local weights are not bundled or downloaded at runtime.
+
+See [object-tracking.md](object-tracking.md) for Enterprise licensing, installation, models/devices, sampling, schema, limitations, and fallback.

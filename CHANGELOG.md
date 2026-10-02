@@ -2,6 +2,15 @@
 
 All notable changes to Workout Remotion Editor are documented here.
 
+## Unreleased — Phase 2 visual evidence
+
+- Add opt-in local Ultralytics 8.4.171 detection/tracking through the existing provider/CLI architecture.
+- Add source-time display-normalized detections, scene-local entities, ambiguity-preserving athlete candidates, visual regions, crop risks, and run statistics in schema 2.5; preserve 2.3/2.4 validation.
+- Add isolated prior-evidence context and reference normalization without altering editorial segments.
+- Preserve optional dependency/model/device/inference fallback and block runtime downloads/telemetry.
+- Add lightweight multi-person/geometry/worker coverage and separately invoked real-model smoke testing.
+- Document the selected Enterprise licensing route; bundle no upstream code, configurations, or weights.
+
 ## Unreleased — Phase 1 media evidence
 
 - Add optional ffprobe/media metadata, PySceneDetect 0.7.1 scene evidence, and Auto-Editor 31.6.0 motion/audio levels adapters.
