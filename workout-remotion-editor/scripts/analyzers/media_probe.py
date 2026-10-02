@@ -25,7 +25,10 @@ def normalize_ffprobe(data: dict[str, Any]) -> dict[str, Any]:
     metadata: dict[str, Any] = {"duration": duration, "width": int(video["width"]),
                                 "height": int(video["height"]), "video_codec": video["codec_name"]}
     rate = video.get("avg_frame_rate", "0/1")
-    fps = float(Fraction(rate))
+    try:
+        fps = float(Fraction(rate))
+    except (ValueError, ZeroDivisionError):
+        fps = 0
     if fps > 0:
         metadata["fps"] = fps
     if audio:

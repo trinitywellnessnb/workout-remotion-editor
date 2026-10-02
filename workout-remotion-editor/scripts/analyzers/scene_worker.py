@@ -21,6 +21,10 @@ def main() -> None:
     backend = config["backend"]
     if backend not in AVAILABLE_BACKENDS:
         raise ValueError(f"{backend} backend is not installed; install requirements-scene.txt or select opencv")
+    if backend == "pyav":
+        import av
+        if not av.__version__.startswith("18."):
+            raise ValueError("PyAV 18.x is required with PySceneDetect 0.7.1; install requirements-scene.txt")
     # Instantiate the documented backend directly: open_video/detect can silently
     # substitute OpenCV, which would misstate provenance for timestamp-sensitive inputs.
     video = AVAILABLE_BACKENDS[backend](sys.argv[1])

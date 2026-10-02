@@ -6,6 +6,10 @@ Workout Remotion Editor's original material is licensed under MIT. **No third-pa
 
 Phase 1 calls the public Python API of optional PySceneDetect 0.7.1 to collect scene ranges and boundary candidates. The upstream software is BSD-3-Clause, copyright Brandon Castellano. See the [versioned license](https://github.com/Breakthrough/PySceneDetect/blob/v0.7.1/LICENSE) and [upstream third-party notices](https://github.com/Breakthrough/PySceneDetect/blob/v0.7.1/THIRD-PARTY.md). No PySceneDetect code or package is bundled or modified. Optional installation brings its own OpenCV/NumPy and other dependencies.
 
+## PyAV
+
+The optional scene installation uses PyAV 18.0.0, pinned for compatibility with PySceneDetect 0.7.1. PyAV source is BSD-3-Clause; see its [versioned license](https://github.com/PyAV-Org/PyAV/blob/v18.0.0/LICENSE.txt). PyAV wheels also include FFmpeg libraries with their own licensing/notices. No PyAV package, source, or binary is bundled in this repository or Skill ZIP.
+
 ## Auto-Editor
 
 Phase 1 invokes optional Auto-Editor 31.6.0 through its documented levels and info CLI interfaces. It never invokes editing/rendering commands. Upstream repository source is public domain under the [Unlicense](https://github.com/WyattBlue/auto-editor/blob/31.6.0/LICENSE). Official release binaries include dependencies that can have different licenses; consult the exact binary and dependency notices before redistribution. No source or binary is bundled or modified here.

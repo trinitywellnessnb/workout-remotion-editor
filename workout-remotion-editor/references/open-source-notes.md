@@ -3,6 +3,7 @@
 This skill contains original project guidance under MIT. It does not vendor or copy third-party repositories. External projects remain under their respective licenses; review the exact version's license and notices before installing, distributing, or embedding it.
 
 - **PySceneDetect 0.7.1** — optional public-API scene evidence adapter; [upstream](https://github.com/Breakthrough/PySceneDetect/tree/v0.7.1), [BSD-3-Clause license](https://github.com/Breakthrough/PySceneDetect/blob/v0.7.1/LICENSE). No code is copied.
+- **PyAV 18.0.0** — optional PySceneDetect decoding backend, BSD-3-Clause; [license](https://github.com/PyAV-Org/PyAV/blob/v18.0.0/LICENSE.txt). Wheels include separately licensed FFmpeg libraries. Pinned for compatibility with PySceneDetect 0.7.1.
 - **Auto-Editor 31.6.0** — optional analysis-only levels/info subprocess adapter; [upstream](https://github.com/WyattBlue/auto-editor/tree/31.6.0), [Unlicense](https://github.com/WyattBlue/auto-editor/blob/31.6.0/LICENSE). Release binaries include dependencies with separate licenses. No code or binaries are bundled.
 - **FFmpeg/ffprobe** — optional metadata probe and integration-test video generator; [upstream licensing](https://ffmpeg.org/legal.html). Build options affect LGPL/GPL licensing. No executable is bundled.
 - **TensorFlow.js MoveNet and BlazePose** — optional pose-estimation approaches/models. TensorFlow.js, model artifacts, and BlazePose-related implementations may have distinct terms; verify each artifact.

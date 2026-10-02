@@ -50,7 +50,7 @@ Optional scene detection, tested with PySceneDetect 0.7.1:
 python -m pip install -r workout-remotion-editor/scripts/requirements-scene.txt
 ~~~
 
-This installs scenedetect-headless with PyAV, OpenCV, and NumPy, only when requested. It exposes the same scenedetect module as the desktop package; install one variant, not both. PyAV is the default scene backend for reliable source presentation timestamps, including VFR. --scene-backend opencv is also supported. If the selected backend is missing or fails, the provider reports failure and falls back to visual analysis rather than silently substituting another backend. Some OpenCV/VFR combinations can produce an invalid terminal shot time; strict validation discards such results.
+This installs scenedetect-headless with PyAV 18.0.0, OpenCV, and NumPy, only when requested. It exposes the same scenedetect module as the desktop package; install one variant, not both. PyAV 18.0.0 is pinned because PyAV 19 changed rational types that PySceneDetect 0.7.1 does not handle. PyAV is the default scene backend for reliable source presentation timestamps, including VFR. --scene-backend opencv is also supported. If the selected backend is missing or fails, the provider reports failure and falls back to visual analysis rather than silently substituting another backend. Some OpenCV/VFR combinations can produce an invalid terminal shot time; strict validation discards such results.
 
 For Auto-Editor, install the tested 31.6.0 official binary from
 https://github.com/WyattBlue/auto-editor/releases/tag/31.6.0, or an equivalent platform package of that version. Place auto-editor on PATH. Current upstream no longer publishes its CLI on pip; an old pip release is not the supported interface.

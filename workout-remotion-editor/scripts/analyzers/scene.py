@@ -31,6 +31,11 @@ class Scene:
                 break
             except metadata.PackageNotFoundError:
                 continue
+        if self.configuration["backend"] == "pyav":
+            try:
+                self.configuration["backend_version"] = metadata.version("av")
+            except metadata.PackageNotFoundError:
+                self.configuration["backend_version"] = None
         if source["duration"] is None:
             return Result(status="skipped", warnings=["Scene analysis requires known duration."])
         worker = Path(__file__).with_name("scene_worker.py")
