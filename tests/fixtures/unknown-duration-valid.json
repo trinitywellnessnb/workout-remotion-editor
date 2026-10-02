@@ -1,0 +1,31 @@
+{
+  "schema_version": "2.4",
+  "project": {
+    "title": "Legacy workout",
+    "mode": "standard"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "fixture.mp4",
+      "duration": null
+    }
+  ],
+  "segments": [],
+  "evidence": {
+    "runs": [
+      {
+        "id": "scene",
+        "source_id": "source-1",
+        "category": "scene",
+        "provider": "pyscenedetect",
+        "version": "fixture",
+        "status": "unavailable",
+        "fallback": true,
+        "configuration": {},
+        "warnings": [],
+        "errors": []
+      }
+    ]
+  }
+}

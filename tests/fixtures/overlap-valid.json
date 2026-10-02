@@ -1,0 +1,84 @@
+{
+  "schema_version": "2.4",
+  "project": {
+    "title": "Legacy workout",
+    "mode": "standard"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "fixture.mp4",
+      "duration": 10
+    }
+  ],
+  "segments": [],
+  "evidence": {
+    "runs": [
+      {
+        "id": "motion_activity",
+        "source_id": "source-1",
+        "category": "motion_activity",
+        "provider": "auto-editor",
+        "version": "fixture",
+        "status": "success",
+        "fallback": false,
+        "configuration": {},
+        "warnings": [],
+        "errors": []
+      }
+    ],
+    "activity_regions": [
+      {
+        "id": "low-1",
+        "source_id": "source-1",
+        "run_id": "motion_activity",
+        "start": 1,
+        "end": 5,
+        "type": "low_motion",
+        "threshold": 0.02,
+        "mean_level": 0.01,
+        "stream": 0,
+        "reason": "Below threshold",
+        "confidence": 0.6
+      },
+      {
+        "id": "audio-1",
+        "source_id": "source-1",
+        "run_id": "motion_activity",
+        "start": 2,
+        "end": 4,
+        "type": "audio_active",
+        "threshold": 0.04,
+        "mean_level": 0.1,
+        "stream": 0,
+        "reason": "Audio level above threshold"
+      },
+      {
+        "id": "low-2",
+        "source_id": "source-1",
+        "run_id": "motion_activity",
+        "start": 3,
+        "end": 6,
+        "type": "low_motion",
+        "threshold": 0.02,
+        "mean_level": 0.01,
+        "stream": 0,
+        "reason": "Below threshold",
+        "confidence": 0.6
+      }
+    ],
+    "candidate_dead_time": [
+      {
+        "id": "candidate-1",
+        "source_id": "source-1",
+        "run_id": "motion_activity",
+        "start": 1,
+        "end": 5,
+        "signal_ids": [
+          "low-1"
+        ],
+        "reason": "Review only"
+      }
+    ]
+  }
+}

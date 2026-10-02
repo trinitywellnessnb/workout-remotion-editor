@@ -2,6 +2,14 @@
 
 All notable changes to Workout Remotion Editor are documented here.
 
+## Unreleased — Phase 1 media evidence
+
+- Add optional ffprobe/media metadata, PySceneDetect 0.7.1 scene evidence, and Auto-Editor 31.6.0 motion/audio levels adapters.
+- Add a Director-callable analysis CLI without source editing or automated workout editorial decisions.
+- Extend the single analysis schema with 2.4 evidence/provenance while preserving legacy 2.3 documents.
+- Add semantic fixtures, dependency-free validation coverage, optional real-tool integration tests, and lightweight core CI.
+- Correct the Skill's schema path and document installation, fallback, timing, licensing, and future provider extensions.
+
 ## [2.3.0] - 2026-09-17
 
 ### Added

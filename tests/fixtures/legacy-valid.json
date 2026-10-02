@@ -1,0 +1,35 @@
+{
+  "schema_version": "2.3",
+  "project": {
+    "title": "Legacy workout",
+    "mode": "standard"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "fixture.mp4",
+      "duration": 10
+    }
+  ],
+  "segments": [
+    {
+      "id": "set-1",
+      "source_id": "source-1",
+      "start": 1,
+      "end": 9,
+      "type": "exercise",
+      "confidence": "high"
+    }
+  ],
+  "repetitions": [
+    {
+      "id": "rep-1",
+      "source_id": "source-1",
+      "segment_id": "set-1",
+      "start": 2,
+      "end": 3,
+      "complete": true,
+      "confidence": "high"
+    }
+  ]
+}

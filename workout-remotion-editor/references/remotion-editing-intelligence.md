@@ -81,3 +81,7 @@ In particular:
 - use `remotion-maps` only when the workout content genuinely needs geographic visualization
 
 Workout Remotion Editor should decide *what* the workout edit should be. The official Remotion skills should remain authoritative for *how* that edit is implemented in Remotion.
+
+## Phase 1 evidence handoff
+
+Treat normalized machine evidence as source-time input to the Editor's paper edit. The Director may invoke scripts/analyze_video.py before editorial review and inspect provider statuses. Remotion implements the reviewed blueprint; it does not render Auto-Editor cuts or equate scene boundaries with sets. Reuse probed metadata when available and convert accepted seconds to composition frames once. See analysis-pipeline.md for the canonical schema and fallback workflow.

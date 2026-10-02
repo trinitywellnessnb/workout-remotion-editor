@@ -1,0 +1,63 @@
+{
+  "schema_version": "2.4",
+  "project": {
+    "title": "Legacy workout",
+    "mode": "standard"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "fixture.mp4",
+      "duration": 10
+    }
+  ],
+  "segments": [],
+  "evidence": {
+    "runs": [
+      {
+        "id": "scene",
+        "source_id": "source-1",
+        "category": "scene",
+        "provider": "pyscenedetect",
+        "version": "fixture",
+        "status": "success",
+        "fallback": false,
+        "configuration": {},
+        "warnings": [],
+        "errors": []
+      }
+    ],
+    "scenes": [
+      {
+        "id": "shot-1",
+        "source_id": "source-1",
+        "run_id": "scene",
+        "start": 0,
+        "end": 11,
+        "detector": "adaptive",
+        "reason": "Shot range"
+      },
+      {
+        "id": "shot-2",
+        "source_id": "source-1",
+        "run_id": "scene",
+        "start": 4,
+        "end": 10,
+        "detector": "adaptive",
+        "reason": "Shot range"
+      }
+    ],
+    "scene_boundaries": [
+      {
+        "id": "cut-1",
+        "source_id": "source-1",
+        "run_id": "scene",
+        "time": 4,
+        "detector": "adaptive",
+        "kind": "hard_cut_candidate",
+        "reason": "Visual discontinuity",
+        "confidence": null
+      }
+    ]
+  }
+}

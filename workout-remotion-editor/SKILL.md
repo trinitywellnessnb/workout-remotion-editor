@@ -69,7 +69,7 @@ Interpret natural language without requiring the user to restate the rules.
 
 ## Analysis integration rule
 
-When structured analysis is created, normalize it to the bundled `assets/analysis-schema.json` vocabulary where practical. Keep source-relative timing separate from final timeline timing. If a machine-readable analysis/edit JSON is produced, run `scripts/validate_analysis.py` before final rendering. Do not require optional third-party analyzers when they are unavailable; fall back to visual analysis. Read `references/open-source-notes.md` when provenance or integration details matter. When Remotion is available, also use `references/remotion-skill-routing.md` so the workout-specific editorial layer composes cleanly with the official Remotion Agent Skills.
+For optional automated evidence, read `references/analysis-pipeline.md` and run `scripts/analyze_video.py` when available. Scene boundaries are not set boundaries, and low-motion regions are not automatically disposable. The Editor evaluates evidence; the Director orchestrates; Remotion composes and renders. When structured analysis is created, normalize it to the bundled `scripts/analysis-schema.json` vocabulary where practical. Keep source-relative timing separate from final timeline timing. If a machine-readable analysis/edit JSON is produced, run `scripts/validate_analysis.py` before final rendering. Do not require optional third-party analyzers when they are unavailable; fall back to visual analysis. Read `references/open-source-notes.md` when provenance or integration details matter. When Remotion is available, also use `references/remotion-skill-routing.md` so the workout-specific editorial layer composes cleanly with the official Remotion Agent Skills.
 
 ## Confidence rule
 
