@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import math
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -171,6 +172,12 @@ class CoreTests(unittest.TestCase):
             {s["signal_type"] for s in derive_movement_signals(tiny)},
         )
 
+    def test_movement_state_resets_after_long_observation_gap(self):
+        raw = normalize_pose_samples(
+            [sample(0, wrist_y=70), sample(1.5, wrist_y=120)], SOURCE
+        )
+        self.assertEqual(derive_movement_signals(raw), [])
+
     def test_pose_crop_risk(self):
         evidence = build_pose_evidence([sample()], SOURCE)
         self.assertIn(
@@ -205,6 +212,63 @@ class ProviderTests(unittest.TestCase):
             run, _ = run_provider(MMPoseProvider("c.py", "m.pth"), SOURCE, 1)
         self.assertEqual(run["status"], "failed")
         self.assertIn("model load", run["errors"][0])
+
+    def test_empty_model_predictions_are_no_results(self):
+        class EmptyInstances:
+            keypoints = []
+            keypoint_scores = []
+
+        class APIs:
+            init_model = staticmethod(lambda *a, **k: object())
+            inference_topdown = staticmethod(
+                lambda *a, **k: [type("Prediction", (), {"pred_instances": EmptyInstances()})()]
+            )
+
+        class Capture:
+            def isOpened(self):
+                return True
+
+            def set(self, *args):
+                return True
+
+            def read(self):
+                return True, object()
+
+            def get(self, *args):
+                return 0
+
+            def release(self):
+                pass
+
+        cv2 = type(
+            "CV2",
+            (),
+            {
+                "CAP_PROP_POS_MSEC": 0,
+                "VideoCapture": staticmethod(lambda path: Capture()),
+            },
+        )
+
+        def module(name):
+            if name == "mmpose":
+                return type("M", (), {"__version__": "fixture"})
+            if name == "mmpose.apis":
+                return APIs
+            if name == "cv2":
+                return cv2
+            raise ImportError(name)
+
+        with tempfile.TemporaryDirectory() as directory:
+            config = Path(directory, "model.py")
+            checkpoint = Path(directory, "model.pth")
+            config.write_text("# fixture\n", encoding="utf-8")
+            checkpoint.write_bytes(b"fixture")
+            with patch("analyzers.pose.importlib.import_module", side_effect=module):
+                run, result = run_provider(
+                    MMPoseProvider(str(config), str(checkpoint)), SOURCE, 1
+                )
+        self.assertEqual(run["status"], "no_results")
+        self.assertEqual(result.evidence["pose_samples"], [])
 
 
 class IdentityRegressionTests(unittest.TestCase):
