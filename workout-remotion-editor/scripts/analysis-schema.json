@@ -14,7 +14,8 @@
     "schema_version": {
       "enum": [
         "2.3",
-        "2.4"
+        "2.4",
+        "2.5"
       ]
     },
     "project": {
@@ -367,6 +368,44 @@
           "items": {
             "$ref": "#/$defs/poseCropConstraint"
           }
+        },
+        "interval_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/intervalCandidate"
+          }
+        },
+        "exercise_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/exerciseCandidate"
+          }
+        }
+      }
+    },
+    "context": {
+      "$ref": "#/$defs/exerciseContext"
+    },
+    "taxonomy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "canonical_ids"
+      ],
+      "properties": {
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     }
@@ -569,7 +608,8 @@
             "object_tracking",
             "pose",
             "action_recognition",
-            "quality"
+            "quality",
+            "context_fusion"
           ]
         },
         "provider": {
@@ -1628,6 +1668,390 @@
         },
         "advisory_only": {
           "const": true
+        }
+      }
+    },
+    "exerciseContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "taxonomy_version",
+        "assertions",
+        "ordered_plan"
+      ],
+      "properties": {
+        "taxonomy_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assertions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/contextAssertion"
+          }
+        },
+        "ordered_plan": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": true,
+            "required": [
+              "canonical_exercise_id",
+              "order"
+            ],
+            "properties": {
+              "canonical_exercise_id": {
+                "type": "string"
+              },
+              "order": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      }
+    },
+    "contextAssertion": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "id",
+        "source_id",
+        "supplied_label",
+        "source",
+        "assertion_type",
+        "scope",
+        "user_confirmed"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "entity_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "end": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "canonical_exercise_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "supplied_label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "normalized_label": {
+          "type": "string"
+        },
+        "mapping_status": {
+          "enum": [
+            "mapped",
+            "ambiguous",
+            "unmapped"
+          ]
+        },
+        "mapping_candidates": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "source": {
+          "enum": [
+            "user_provided",
+            "registry",
+            "imported_workout",
+            "filename_hint",
+            "free_text_hint"
+          ]
+        },
+        "assertion_type": {
+          "enum": [
+            "explicit_identity",
+            "candidate_constraint",
+            "manual_label",
+            "hint"
+          ]
+        },
+        "scope": {
+          "enum": [
+            "source",
+            "interval",
+            "entity"
+          ]
+        },
+        "user_confirmed": {
+          "type": "boolean"
+        }
+      }
+    },
+    "intervalCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "scene_id",
+        "entity_id",
+        "start",
+        "end",
+        "type",
+        "supporting_evidence_refs",
+        "exclusion_states"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "entity_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "type": {
+          "enum": [
+            "interval_candidate",
+            "set_like_interval_candidate"
+          ]
+        },
+        "supporting_evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "exclusion_states": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "setup",
+              "transition",
+              "walking",
+              "reracking",
+              "camera_setup",
+              "stretch_or_warmup",
+              "insufficient_motion",
+              "insufficient_pose",
+              "background_entity",
+              "partial_movement",
+              "unknown_nonexercise_activity"
+            ]
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "exerciseCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "scene_id",
+        "entity_id",
+        "start",
+        "end",
+        "label",
+        "canonical_exercise_id",
+        "taxonomy_version",
+        "source_type",
+        "provider",
+        "model",
+        "rank",
+        "confidence",
+        "score_type",
+        "user_confirmed",
+        "ambiguity",
+        "supporting_evidence_refs",
+        "conflicting_evidence_refs",
+        "conflict_status"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "entity_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_exercise_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "taxonomy_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_type": {
+          "enum": [
+            "user_provided",
+            "context_heuristic",
+            "action_model",
+            "fused"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "model": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "score_type": {
+          "enum": [
+            "confidence",
+            "fusion_score"
+          ]
+        },
+        "user_confirmed": {
+          "type": "boolean"
+        },
+        "ambiguity": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "status",
+            "margin"
+          ],
+          "properties": {
+            "status": {
+              "enum": [
+                "none",
+                "unresolved",
+                "unresolved_variant",
+                "unmapped"
+              ]
+            },
+            "margin": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 1
+            }
+          }
+        },
+        "supporting_evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "conflicting_evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "uniqueItems": true
+        },
+        "conflict_status": {
+          "enum": [
+            "none",
+            "retained",
+            "unresolved"
+          ]
         }
       }
     }

@@ -1,5 +1,9 @@
 # Third-Party Notices
 
+## Phase 4 action recognition
+
+Phase 4 includes no production action-recognition framework, model code, or checkpoint. Before a future backend is added, verify framework/dependency/native-runtime licenses, model config and checkpoint terms, training-dataset and derivative-model terms, and fixture rights. Checkpoints must not be downloaded automatically.
+
 Workout Remotion Editor's original material is licensed under MIT. **No third-party repository, package, model, or source code is vendored or copied in this repository.** The names below identify optional integrations or conceptual influences. External projects remain under their respective licenses and terms; users must review the license for the exact version, artifact, model, and intended use.
 
 ## PySceneDetect
