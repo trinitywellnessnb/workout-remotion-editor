@@ -1,5 +1,8 @@
 # Workout analysis
 
+Schema 2.6 separates machine `evidence.rep_candidates` from reviewed top-level `repetitions`; never promote or render them automatically. See [repetition-evidence.md](repetition-evidence.md).
+
+
 ## Complete-pass method
 
 1. Probe containers and streams; note rotation and variable frame rate.

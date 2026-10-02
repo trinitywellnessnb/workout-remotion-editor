@@ -15,7 +15,8 @@
       "enum": [
         "2.3",
         "2.4",
-        "2.5"
+        "2.5",
+        "2.6"
       ]
     },
     "project": {
@@ -380,6 +381,18 @@
           "items": {
             "$ref": "#/$defs/exerciseCandidate"
           }
+        },
+        "rep_analysis_intervals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repAnalysisInterval"
+          }
+        },
+        "rep_candidates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repCandidate"
+          }
         }
       }
     },
@@ -609,7 +622,8 @@
             "pose",
             "action_recognition",
             "quality",
-            "context_fusion"
+            "context_fusion",
+            "repetition_analysis"
           ]
         },
         "provider": {
@@ -1812,6 +1826,12 @@
         },
         "user_confirmed": {
           "type": "boolean"
+        },
+        "working_side": {
+          "enum": [
+            "left",
+            "right"
+          ]
         }
       }
     },
@@ -2052,6 +2072,344 @@
             "retained",
             "unresolved"
           ]
+        }
+      }
+    },
+    "repAnalysisInterval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "scene_id",
+        "entity_id",
+        "exercise_candidate_id",
+        "canonical_exercise_id",
+        "rep_rule_id",
+        "rep_rule_version",
+        "side",
+        "start",
+        "end",
+        "eligible",
+        "gate_results",
+        "ineligibility_reasons",
+        "warnings"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "entity_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "exercise_candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_exercise_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rep_rule_id": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "rep_rule_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "side": {
+          "enum": [
+            "left",
+            "right",
+            null
+          ]
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "eligible": {
+          "type": "boolean"
+        },
+        "gate_results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "gate",
+              "passed",
+              "reason"
+            ],
+            "properties": {
+              "gate": {
+                "type": "string",
+                "minLength": 1
+              },
+              "passed": {
+                "type": "boolean"
+              },
+              "reason": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            }
+          }
+        },
+        "ineligibility_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "repCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "scene_id",
+        "entity_id",
+        "exercise_candidate_id",
+        "canonical_exercise_id",
+        "rep_rule_id",
+        "rep_rule_version",
+        "rep_analysis_interval_id",
+        "working_side",
+        "sequence_index",
+        "start",
+        "end",
+        "status",
+        "completion_reason",
+        "incompletion_reason",
+        "phases",
+        "quality",
+        "quality_components",
+        "uncertainty_reasons",
+        "supporting_evidence_refs",
+        "warnings",
+        "measured_metrics",
+        "observed_amplitude",
+        "phase_durations",
+        "temporal_coverage",
+        "gap_penalty"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scene_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "entity_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exercise_candidate_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonical_exercise_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rep_rule_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rep_rule_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "rep_analysis_interval_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "working_side": {
+          "enum": [
+            "left",
+            "right"
+          ]
+        },
+        "sequence_index": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "status": {
+          "enum": [
+            "completed",
+            "incomplete",
+            "uncertain"
+          ]
+        },
+        "completion_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "incompletion_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "phases": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "initial_bottom_confirmation": {
+              "type": "number",
+              "minimum": 0
+            },
+            "pull_departure": {
+              "type": "number",
+              "minimum": 0
+            },
+            "top_entry": {
+              "type": "number",
+              "minimum": 0
+            },
+            "top_confirmation": {
+              "type": "number",
+              "minimum": 0
+            },
+            "return_departure": {
+              "type": "number",
+              "minimum": 0
+            },
+            "bottom_reentry": {
+              "type": "number",
+              "minimum": 0
+            },
+            "final_completion_confirmation": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "quality": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "quality_components": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        "uncertainty_reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "supporting_evidence_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "uniqueItems": true
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "measured_metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "observed_amplitude": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "phase_durations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "temporal_coverage": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "gap_penalty": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
         }
       }
     }

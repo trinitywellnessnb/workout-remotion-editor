@@ -1,5 +1,8 @@
 # Pose evidence (Phase 3)
 
+Rep analysis has a separate dense-sampling gate (about 6 usable samples/s minimum; median interval ≤0.167 s), so ordinary 2 Hz evidence is ineligible. See [repetition-evidence.md](repetition-evidence.md).
+
+
 ## Role and boundary
 
 MMPose is an optional evidence provider in the existing analyzer pipeline. It estimates 2D image landmarks; it is not the Workout Remotion Editor and does not identify exercises, assess technique or safety, diagnose injury or pain, infer load/effort/failure, or emit repetitions. The normalized collections are `pose_samples`, `derived_joint_metrics`, `movement_signals`, and advisory `pose_crop_constraints`. Provider, model, local asset identity, and runtime belong in analyzer provenance rather than collection names.

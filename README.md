@@ -156,6 +156,10 @@ It can help Remotion:
 
 The goal is not to replace Remotion. It is to make Remotion **workout-aware and social-edit aware**.
 
+## Optional Phase 5 repetition evidence
+
+Schema 2.6 adds opt-in, non-editorial repetition evidence for the exact `dumbbell_row_single_arm` → `single_arm_dumbbell_row_v1` mapping. Use `--pose --rep-analysis` with dense pose sampling (8–12 Hz recommended). Ineligible attempts remain auditable; candidates are not promoted to top-level `repetitions` and create no visible counters. See the [repetition evidence reference](workout-remotion-editor/references/repetition-evidence.md).
+
 ## What v2.3 adds
 
 ### Research-informed social editing intelligence
