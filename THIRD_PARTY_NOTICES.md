@@ -45,3 +45,7 @@ The project's auditable paper-edit and timeline-lint approach is conceptually in
 ## Downstream responsibility
 
 Users must inventory and clear all dependencies and assets in their own editing/rendering project, including footage, likeness/permissions, music, fonts, logos, stock media, code, models, and datasets. Preserve required copyright notices, attribution, source offers, and license texts.
+
+## Ultralytics YOLO and trackers
+
+Phase 2 optionally calls the public Python API of Ultralytics (`ultralytics>=8.3,<9`) for local YOLO inference with its supported ByteTrack or BoT-SORT integration. Ultralytics publishes its open-source package under **AGPL-3.0** and offers a separate enterprise license; these terms can conflict with proprietary distribution or network-service use. Users must review and satisfy the license for the exact package, model weights, tracker configuration, dependencies, and deployment, or obtain an appropriate commercial license. This repository does not vendor Ultralytics source, packages, tracker code, or model weights, does not redistribute a model, and does not install it in the core dependency path. Model artifacts and training datasets may have additional terms. Explicit `--allow-model-download` opt-in may download weights from upstream; it never uploads user footage through this adapter.

@@ -14,6 +14,8 @@ from typing import Any
 SCHEMA_PATH = Path(__file__).with_name("analysis-schema.json")
 COLLECTIONS = ("segments", "repetitions", "audio_events")
 EVIDENCE_COLLECTIONS = ("scenes", "scene_boundaries", "activity_regions", "candidate_dead_time")
+OBJECT_COLLECTIONS = ("object_detections", "tracked_entities", "entity_roles",
+                      "visual_regions", "crop_constraints")
 
 
 def load_json(path: Path) -> Any:
@@ -85,6 +87,8 @@ def basic_schema_errors(document: Any, schema: Any = None) -> list[str]:
         if isinstance(value, list):
             if len(value) < spec.get("minItems", 0):
                 errors.append(f"{path}: too few items")
+            if "maxItems" in spec and len(value) > spec["maxItems"]:
+                errors.append(f"{path}: too many items")
             if spec.get("uniqueItems") and len({json.dumps(x, sort_keys=True) for x in value}) != len(value):
                 errors.append(f"{path}: duplicate items")
             for index, item in enumerate(value):
@@ -237,6 +241,77 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                         has_low_motion = True
                 if not has_low_motion:
                     errors.append(f"{prefix}/signal_ids: candidate requires covering low-motion support")
+
+    detections = {item["id"]: item for item in evidence.get("object_detections", [])}
+    entities = {item["id"]: item for item in evidence.get("tracked_entities", [])}
+    regions_by_id = {item["id"]: item for item in evidence.get("visual_regions", [])}
+    last_detection_time: dict[tuple[str, str, str], float] = {}
+    for collection in OBJECT_COLLECTIONS:
+        for index, item in enumerate(evidence.get(collection, [])):
+            prefix = f"/evidence/{collection}/{index}"
+            unique(item, prefix)
+            source = sources.get(item["source_id"])
+            run = runs.get(item["run_id"])
+            if run is None or run["source_id"] != item["source_id"] or run["category"] != "object_tracking":
+                errors.append(f"{prefix}/run_id: incompatible object-tracking run")
+            elif run["status"] in {"unavailable", "failed", "skipped"}:
+                errors.append(f"{prefix}: unusable analyzer cannot supply evidence")
+            if source is None:
+                errors.append(f"{prefix}/source_id: unknown source")
+            if "bounding_box" in item:
+                x1, y1, x2, y2 = item["bounding_box"]
+                if x2 <= x1 or y2 <= y1:
+                    errors.append(f"{prefix}/bounding_box: normalized xyxy bounds must have positive area")
+            if collection == "object_detections":
+                if source is not None and (source["duration"] is None or item["timestamp"] > source["duration"] + 1e-6):
+                    errors.append(f"{prefix}/timestamp: exceeds source duration")
+                if item.get("entity_id") is not None and item["entity_id"] not in entities:
+                    errors.append(f"{prefix}/entity_id: unknown tracked entity")
+                elif item.get("entity_id") is not None:
+                    entity = entities[item["entity_id"]]
+                    if (entity["source_id"], entity["run_id"], entity["scene_id"], entity["track_id"]) != (
+                            item["source_id"], item["run_id"], item["scene_id"], item["track_id"]):
+                        errors.append(f"{prefix}/entity_id: detection and entity provenance disagree")
+                    if not entity["start"] - 1e-6 <= item["timestamp"] <= entity["end"] + 1e-6:
+                        errors.append(f"{prefix}/timestamp: outside tracked entity range")
+                order_key = (item["source_id"], item["run_id"], item["scene_id"])
+                if item["timestamp"] < last_detection_time.get(order_key, -1):
+                    errors.append(f"{prefix}: detections must be ordered by source time within a scene")
+                last_detection_time[order_key] = item["timestamp"]
+            elif collection == "tracked_entities":
+                if item["end"] < item["start"]:
+                    errors.append(f"{prefix}: entity end precedes start")
+                if source is not None and (source["duration"] is None or item["end"] > source["duration"] + 1e-6):
+                    errors.append(f"{prefix}: entity range exceeds source duration")
+                for ref in item["detection_ids"]:
+                    detection = detections.get(ref)
+                    if detection is None or detection.get("entity_id") != item["id"]:
+                        errors.append(f"{prefix}/detection_ids: invalid entity detection reference")
+            elif collection == "entity_roles":
+                entity = entities.get(item["entity_id"])
+                if entity is None:
+                    errors.append(f"{prefix}/entity_id: unknown tracked entity")
+                elif (entity["source_id"], entity["run_id"], entity["scene_id"]) != (
+                        item["source_id"], item["run_id"], item["scene_id"]):
+                    errors.append(f"{prefix}/entity_id: role and entity provenance disagree")
+            elif collection == "visual_regions":
+                if item["end"] < item["start"]:
+                    errors.append(f"{prefix}: region end precedes start")
+                for ref in item["entity_ids"]:
+                    entity = entities.get(ref)
+                    if entity is None:
+                        errors.append(f"{prefix}/entity_ids: unknown tracked entity")
+                    elif (entity["source_id"], entity["run_id"]) != (item["source_id"], item["run_id"]):
+                        errors.append(f"{prefix}/entity_ids: region and entity provenance disagree")
+            elif collection == "crop_constraints":
+                entity = entities.get(item["entity_id"])
+                if entity is None:
+                    errors.append(f"{prefix}/entity_id: unknown tracked entity")
+                region = regions_by_id.get(item["region_id"])
+                if region is None or item["entity_id"] not in region["entity_ids"]:
+                    errors.append(f"{prefix}/region_id: invalid visual-region reference")
+                elif (region["source_id"], region["run_id"]) != (item["source_id"], item["run_id"]):
+                    errors.append(f"{prefix}/region_id: constraint and region provenance disagree")
 
     plan = document.get("retention_plan", {})
     beat_ids: set[str] = set()

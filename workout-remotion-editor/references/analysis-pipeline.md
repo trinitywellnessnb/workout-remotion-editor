@@ -1,4 +1,6 @@
-# Phase 1 optional media analysis
+# Optional media analysis
+
+Phase 2 preserves the ordered evidence pipeline: media probe, scene analysis, motion/activity analysis, then optional object detection/tracking. The normalized output collections are provider-agnostic (`object_detections`, `tracked_entities`, `entity_roles`, `visual_regions`, and `crop_constraints`); provider/model details stay in provenance. See [object-tracking.md](object-tracking.md) for configuration and limitations.
 
 External analyzers provide evidence. Workout Remotion Editor makes workout-specific editorial decisions, Workout Remotion Director orchestrates when available, and Remotion implements the accepted edit and renders it.
 

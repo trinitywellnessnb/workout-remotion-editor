@@ -187,6 +187,10 @@ v2.3 also:
 - uses comparable first-party analytics for diagnosis while avoiding virality or retention guarantees; and
 - adds schema and semantic validation for structured retention plans.
 
+### Optional Phase 2 local object tracking
+
+The analysis CLI can optionally add local Ultralytics YOLO detection and scene-local tracking evidence with `--object-tracking`. This evidence uses normalized boxes and shared tracked entities; it remains advisory and cannot recognize exercises, count reps, evaluate technique, or make final crop decisions. The default path is CPU-first and requires local weights so normal analysis never downloads a model unexpectedly. See the [object-tracking architecture, configuration, limitations, fallback behavior, and Phase 3 extension path](workout-remotion-editor/references/object-tracking.md).
+
 ### Read and extend the research
 
 The research behind this addition is included in the repository so users and contributors can inspect it, use it as a reference, challenge assumptions, and extend the evidence base:

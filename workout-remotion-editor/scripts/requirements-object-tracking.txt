@@ -1,0 +1,2 @@
+# Optional only. Ultralytics code is AGPL-3.0 unless separately licensed.
+ultralytics>=8.3,<9
