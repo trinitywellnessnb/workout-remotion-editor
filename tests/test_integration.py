@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import importlib.util
+import json
 import os
 import shutil
 import subprocess
@@ -72,6 +73,27 @@ class RealToolTests(unittest.TestCase):
         self.assertTrue(any(item["start"] < 0.1 and 2.8 < item["end"] < 3.1 for item in candidates), candidates)
         self.assertEqual(hashlib.sha256(self.video.read_bytes()).hexdigest(), self.original_hash)
         self.assertEqual(sorted(path.name for path in self.video.parent.iterdir()), ["raw.mp4"])
+
+    def test_actual_cli_on_generated_video(self):
+        output = self.video.parent / "analysis.json"
+        try:
+            result = subprocess.run(
+                [sys.executable, str(SCRIPTS / "analyze_video.py"), str(self.video),
+                 "--scene-detector", "content", "--timeout", "60", "-o", str(output)],
+                capture_output=True, text=True, timeout=180)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            document = json.loads(output.read_text())
+            self.assertEqual(validate_document(document), [])
+            self.assertTrue(all(run["status"] == "success" for run in document["evidence"]["runs"]))
+            self.assertTrue(document["evidence"]["scene_boundaries"])
+            self.assertTrue(document["evidence"]["candidate_dead_time"])
+            validation = subprocess.run(
+                [sys.executable, str(SCRIPTS / "validate_analysis.py"), str(output)],
+                capture_output=True, text=True, timeout=10)
+            self.assertEqual(validation.returncode, 0, validation.stderr)
+            self.assertEqual(hashlib.sha256(self.video.read_bytes()).hexdigest(), self.original_hash)
+        finally:
+            output.unlink(missing_ok=True)
 
     def test_real_adaptive_and_fade_detectors(self):
         for detector in ("adaptive", "threshold"):

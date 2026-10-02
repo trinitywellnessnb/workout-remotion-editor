@@ -115,6 +115,164 @@ class ValidationTests(unittest.TestCase):
             self.assertTrue(validate_document(fixture("timestamps-invalid.json")))
 
 
+class ReviewRegressionTests(unittest.TestCase):
+    def test_custom_schema_does_not_run_workout_semantics(self):
+        for basic in (False, True):
+            self.assertEqual(validate_document({}, {}, basic=basic), [])
+            self.assertTrue(validate_document({"value": float("nan")}, {}, basic=basic))
+        with tempfile.TemporaryDirectory() as directory:
+            analysis_path = Path(directory) / "custom.json"
+            schema_path = Path(directory) / "schema.json"
+            analysis_path.write_text("{}")
+            schema_path.write_text("{}")
+            result = subprocess.run(
+                [sys.executable, str(SCRIPTS / "validate_analysis.py"), str(analysis_path),
+                 "--schema", str(schema_path)], capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+
+    def test_lowercase_rfc3339(self):
+        schema = {"type": "string", "format": "date-time"}
+        for basic in (False, True):
+            self.assertEqual(validate_document("2026-10-02t12:00:00z", schema, basic=basic), [])
+            for invalid in ("not-a-date", "2026-10-02T12:00:00+00:60", "2026-10-02T12:00:00+24:00"):
+                self.assertTrue(validate_document(invalid, schema, basic=basic))
+
+    def test_activity_order_across_states(self):
+        for low, active in (("low_motion", "motion_active"), ("audio_inactive", "audio_active")):
+            data = fixture("activity-valid.json")
+            first = data["evidence"]["activity_regions"][0]
+            first.update(type=low, start=5, end=7)
+            second = {**first, "id": "earlier", "type": active, "start": 1, "end": 3}
+            data["evidence"]["activity_regions"] = [first, second]
+            data["evidence"]["candidate_dead_time"] = []
+            for basic in (False, True):
+                errors = validate_document(data, basic=basic)
+                self.assertTrue(any("ordered by source time" in error for error in errors), errors)
+
+    def test_quiet_audio_requires_low_motion_support(self):
+        data = fixture("activity-valid.json")
+        audio = data["evidence"]["activity_regions"][1]
+        audio.update(type="audio_inactive", start=1, end=5, mean_level=0)
+        candidate = data["evidence"]["candidate_dead_time"][0]
+        candidate["signal_ids"] = [audio["id"]]
+        for basic in (False, True):
+            self.assertTrue(validate_document(data, basic=basic))
+        candidate["signal_ids"].append("low-1")
+        for basic in (False, True):
+            self.assertEqual(validate_document(data, basic=basic), [])
+
+    def test_malformed_result_containers_are_isolated(self):
+        class Malformed:
+            name, category, upstream, version, configuration = "malformed", "scene", "fixture", "1", {}
+
+            def analyze(self, source, timeout):
+                source["duration"] = -1
+                return self.result
+
+        malformed = Malformed()
+        for result in (None, Result(metadata=[]), Result(evidence=[]),
+                       Result(evidence={"scenes": None}), Result(evidence={"scenes": [None]}),
+                       Result(evidence={"scenes": ["bad"]}), Result(warnings="bad"),
+                       Result(status="invalid"), Result(metadata={"value": object()}),
+                       Result(evidence={"candidate_dead_time": [{"signal_ids": [None]}]})):
+            malformed.result = result
+            source = {"id": "s", "duration": 10}
+            run, evidence = run_provider(malformed, source, 1)
+            self.assertEqual(source["duration"], 10)
+            self.assertEqual(run["status"], "failed")
+            self.assertTrue(run["fallback"])
+            self.assertFalse(evidence.evidence)
+            with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")):
+                document = analyze([Path("raw.mp4")], supplied_metadata={"duration": 10},
+                                   providers=[malformed])
+            self.assertEqual(document["evidence"]["runs"][-1]["status"], "failed")
+            self.assertEqual(validate_document(document), [])
+
+    def test_malformed_provenance_is_isolated(self):
+        for version in (["0.7.1"], {"bad": "version"}):
+            with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")), patch(
+                "analyzers.scene.importlib.util.find_spec", return_value=object()), patch(
+                "analyzers.scene.command", return_value=json.dumps({"version": version, "scenes": []})):
+                document = analyze([Path("raw.mp4")], supplied_metadata={"duration": 4}, providers=[Scene()])
+            run = document["evidence"]["runs"][-1]
+            self.assertEqual(run["status"], "failed")
+            self.assertIsNone(run["version"])
+            self.assertEqual(validate_document(document), [])
+        for configuration in ([], {"threshold": float("nan")}, {"bad": object()}):
+            provider = Scene()
+            provider.configuration = configuration
+            run, result = run_provider(provider, {"id": "s", "path": "raw.mp4"}, 1)
+            self.assertEqual(run["status"], "failed")
+            self.assertEqual(run["configuration"], {})
+            self.assertFalse(result.evidence)
+
+    def test_provenance_configuration_is_a_snapshot(self):
+        class Reused:
+            name, category, upstream, version = "reused", "scene", "fixture", "1"
+
+            def __init__(self):
+                self.configuration = {"nested": {"attempt": 0}}
+
+            def analyze(self, source, timeout):
+                self.configuration["nested"]["attempt"] += 1
+                return Result(status="no_results")
+
+        provider = Reused()
+        first, _ = run_provider(provider, {"id": "s"}, 1, invocation=0)
+        second, _ = run_provider(provider, {"id": "s"}, 1, invocation=1)
+        self.assertEqual(first["configuration"]["nested"]["attempt"], 1)
+        self.assertEqual(second["configuration"]["nested"]["attempt"], 2)
+
+    def test_one_optional_analyzer_unavailable_preserves_other_evidence(self):
+        for missing_scene in (False, True):
+            with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")), patch(
+                "analyzers.scene.importlib.util.find_spec", return_value=None if missing_scene else object()), patch(
+                "analyzers.scene.command", return_value='{"version":"0.7.1","scenes":[[0,2],[2,4]]}'), patch(
+                "analyzers.motion_activity.executable",
+                side_effect=None if missing_scene else Unavailable("missing"), return_value="/auto-editor"), patch(
+                "analyzers.motion_activity.command", side_effect=["31.6.0", "@start\n" + "0\n" * 120]):
+                document = analyze(
+                    [Path("raw.mp4")], supplied_metadata={"duration": 4, "metadata": {
+                        "timestamp_origin_verified": True, "audio_streams": 0}})
+            runs = document["evidence"]["runs"][1:]
+            self.assertEqual([run["status"] for run in runs],
+                             ["unavailable", "success"] if missing_scene else ["success", "unavailable"])
+            self.assertTrue(document["evidence"]["activity_regions" if missing_scene else "scenes"])
+            self.assertEqual(document["segments"], [])
+            self.assertEqual(validate_document(document), [])
+
+    def test_repeated_scene_invocations_and_failure_preserve_prior_evidence(self):
+        with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")), patch(
+            "analyzers.scene.importlib.util.find_spec", return_value=object()), patch(
+            "analyzers.scene.command", side_effect=[
+                '{"version":"0.7.1","scenes":[[0,2],[2,4]]}',
+                '{"version":"0.7.1","scenes":[[0,1],[1,4]]}',
+                '{"version":"0.7.1","scenes":[[0,3],[3,2]]}']):
+            document = analyze([Path("raw.mp4")], supplied_metadata={"duration": 4},
+                               providers=[Scene("content"), Scene("threshold"), Scene("content")])
+        self.assertEqual([run["status"] for run in document["evidence"]["runs"]][1:],
+                         ["success", "success", "failed"])
+        runs = document["evidence"]["runs"]
+        self.assertEqual(len({run["id"] for run in runs}), len(runs))
+        self.assertEqual(len(document["evidence"]["scenes"]), 4)
+        self.assertEqual(validate_document(document), [])
+
+    def test_repeated_activity_invocations_namespace_candidate_references(self):
+        with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")), patch(
+            "analyzers.motion_activity.executable", return_value="/auto-editor"), patch(
+            "analyzers.motion_activity.command", side_effect=[
+                "31.6.0", "@start\n" + "0\n" * 120, "31.6.0", "@start\n" + "0\n" * 120]):
+            document = analyze(
+                [Path("raw.mp4")], supplied_metadata={"duration": 4, "metadata": {
+                    "timestamp_origin_verified": True, "audio_streams": 0}},
+                providers=[MotionActivity(), MotionActivity()])
+        self.assertEqual(validate_document(document), [])
+        self.assertEqual(len(document["evidence"]["candidate_dead_time"]), 2)
+        signals = {item["id"] for item in document["evidence"]["activity_regions"]}
+        for candidate in document["evidence"]["candidate_dead_time"]:
+            self.assertTrue(set(candidate["signal_ids"]) <= signals)
+
+
 class NormalizationTests(unittest.TestCase):
     def test_levels_format_and_signal_values(self):
         self.assertEqual(parse_levels("\n@start\n0\n0.125\n1\n\n"), [0, 0.125, 1])

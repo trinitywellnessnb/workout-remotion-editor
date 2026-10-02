@@ -105,20 +105,20 @@ Neither current adapter invents confidence probabilities. Signal magnitudes and 
 
 Source time always remains in seconds. Remotion converts accepted editorial timing to composition frames once at implementation, separately from source time. Machine evidence never uses final-timeline timestamps.
 
-Validation checks source bounds, finite numbers, IDs, references, provider status, candidate support, and ordering within each source/provider/signal/stream. Overlapping signals and candidate ranges are legal; scenes from the same detector cannot overlap. Unavailable/failed/skipped providers cannot supply evidence.
+Validation checks source bounds, finite numbers, IDs, references, provider status, candidate support, and ordering within each source/provider/signal/stream. Overlapping signals and candidate ranges are legal; scenes from the same detector invocation cannot overlap. Active/inactive states of the same motion or audio stream share chronological ordering. Candidate dead time requires covering low-motion evidence; inactive audio can only supplement that support. Unavailable/failed/skipped providers cannot supply evidence.
 
 ## Fallback and exit behavior
 
 A run records success, partial, no_results, unavailable, failed, or skipped.
 Failed/unavailable/skipped runs explicitly advertise fallback.
 Failures cannot silently become high-confidence editorial claims.
-Malformed output is quarantined while prior valid evidence is preserved.
+Malformed output, including invalid result containers and evidence items, is quarantined while prior valid evidence is preserved. Each provider invocation has a unique run namespace, including its evidence IDs and candidate references; multiple detector configurations can analyze the same source independently.
 
 ffprobe is preferred. Auto-Editor info --json can supply metadata if probing fails; it does not verify stream timestamp origins. For one input, --duration SECONDS supplies a manual duration fallback. If all metadata routes fail, a 2.4 source can have duration: null. No timed evidence or editorial events are accepted until duration is known.
 
 The CLI exits 0 when it writes a valid evidence package, even if all optional providers fail or are missing. Read run statuses to determine available evidence. Invalid arguments, output failures, or an invalid final package return an error. --skip-scene and --skip-activity allow deliberate opt-out.
 
-Without jsonschema, the validator performs dependency-free structural checks for the bundled schema and the same semantic checks. Use jsonschema for full JSON Schema handling, especially custom --schema files.
+Without jsonschema, the validator performs dependency-free structural checks for the bundled schema and the same semantic checks. Use jsonschema for full JSON Schema handling, especially custom --schema files. Bundled workout semantic checks apply only to the bundled schema (including an identical supplied copy); unrelated custom schemas use their own structural contract. All documents still reject non-finite numbers.
 
 ## Extending later
 

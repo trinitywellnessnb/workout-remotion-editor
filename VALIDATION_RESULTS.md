@@ -1,5 +1,21 @@
 # Validation results — Phase 1 media evidence
 
+## Independent review repairs
+
+The original Phase 1 implementation was already merged in PR #7 when this follow-up started. Its GitHub review identified six unresolved issues. This branch repairs them and the additional defects found by separate independent review and QA.
+
+Code and tests verified at commit ce9ff1d40a2fee755677cdb511df8ee35cd6268a on 2026-10-02:
+- [Core validation and packaging: PASS](https://github.com/trinitywellnessnb/workout-remotion-editor/actions/runs/37012244371): 41 tests, Ruff, Python compilation, schema checks, skill metadata, ZIP integrity, license inclusion, and commit whitespace checks.
+- [Real optional analyzers: PASS](https://github.com/trinitywellnessnb/workout-remotion-editor/actions/runs/37012244562): five tests, including actual CLI and standalone validator subprocesses on generated video, source SHA256 preservation, scene/motion/audio signals, VFR timing, and unsupported-media fallback.
+
+New regressions cover malformed result containers/items/provenance, non-finite configuration, source mutation isolation, repeated detector invocations, namespaced candidate references, immutable provenance snapshots, both mixed analyzer availability directions, custom-schema behavior, lowercase date-time markers, and invalid timezone offsets.
+
+Separate independent code review and QA inspected the repair branch. Review findings (malformed version/configuration escaping fallback, mutable provenance, and invalid offset acceptance) and QA's mixed-capability coverage gap were repaired and rechecked. Final review and QA reported no outstanding actionable defects. Final file-scope inspection found only analyzer workflow/boundary, validation, tests, documentation, and this verification record; no future analyzer was introduced.
+
+Execution used GitHub Actions because this session has no local shell. No Node/Remotion application build or static typecheck target exists here. Optional dependency versions and existing licensing notices remain unchanged. Providers continue to emit source-relative evidence only; future analyzers require evidence/schema additions, without changes to workout editorial logic.
+
+## Original Phase 1 verification
+
 Verified on 2026-10-02 through GitHub Actions. This editing session exposes GitHub tools without a local shell, so execution evidence comes from the repository's runners.
 
 Implementation tested at commit 7b1f6f5265037532748d5f180935bcb63f9b049d:

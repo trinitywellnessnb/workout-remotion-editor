@@ -23,6 +23,17 @@ def load_json(path: Path) -> Any:
         raise ValueError(f"cannot read JSON from {path}: {exc}") from exc
 
 
+def valid_datetime(value: str) -> bool:
+    normalized = value.upper()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-](?:[01]\d|2[0-3]):[0-5]\d)",
+                    normalized) is None:
+        return False
+    try:
+        return datetime.fromisoformat(normalized.replace("Z", "+00:00")).tzinfo is not None
+    except ValueError:
+        return False
+
+
 def basic_schema_errors(document: Any, schema: Any = None) -> list[str]:
     """Dependency-free checks for the keywords used by the bundled schema.
 
@@ -83,13 +94,8 @@ def basic_schema_errors(document: Any, schema: Any = None) -> list[str]:
                 errors.append(f"{path}: string is too short")
             if "pattern" in spec and re.search(spec["pattern"], value) is None:
                 errors.append(f"{path}: invalid pattern")
-            if spec.get("format") == "date-time":
-                try:
-                    parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-                    if parsed.tzinfo is None or "T" not in value.upper():
-                        raise ValueError
-                except ValueError:
-                    errors.append(f"{path}: invalid date-time")
+            if spec.get("format") == "date-time" and not valid_datetime(value):
+                errors.append(f"{path}: invalid date-time")
         if number:
             if "minimum" in spec and value < spec["minimum"]:
                 errors.append(f"{path}: below minimum")
@@ -107,7 +113,13 @@ def schema_errors(document: Any, schema: Any) -> list[str]:
         from jsonschema import Draft202012Validator, FormatChecker
     except ImportError:
         return basic_schema_errors(document, schema)
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    formats = FormatChecker()
+
+    @formats.checks("date-time")
+    def datetime_format(value: Any) -> bool:
+        return not isinstance(value, str) or valid_datetime(value)
+
+    validator = Draft202012Validator(schema, format_checker=formats)
     return [
         f"/{'/'.join(str(part) for part in error.absolute_path)}: {error.message}"
         for error in sorted(validator.iter_errors(document), key=lambda item: str(list(item.absolute_path)))
@@ -200,7 +212,10 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                 errors.append(f"{prefix}: unusable analyzer cannot supply evidence")
             start = item["time"] if point else item["start"]
             end = start if point else item["end"]
-            group = (collection, item["source_id"], item["run_id"], item.get("type", ""), item.get("stream", 0))
+            signal_family = item.get("type", "")
+            if collection == "activity_regions":
+                signal_family = "motion" if signal_family in {"low_motion", "motion_active"} else "audio"
+            group = (collection, item["source_id"], item["run_id"], signal_family, item.get("stream", 0))
             previous = ordered.get(group)
             if previous is not None:
                 if start < previous[0]:
@@ -209,6 +224,7 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                     errors.append(f"{prefix}: scenes from one detector must not overlap")
             ordered[group] = (start, end)
             if collection == "candidate_dead_time":
+                has_low_motion = False
                 for signal_id in item["signal_ids"]:
                     signal = activity.get(signal_id)
                     if signal is None:
@@ -217,6 +233,10 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                           or signal["type"] not in {"low_motion", "audio_inactive"}
                           or signal["start"] > start + 1e-6 or signal["end"] < end - 1e-6):
                         errors.append(f"{prefix}/signal_ids: signal must support this candidate range")
+                    elif signal["type"] == "low_motion":
+                        has_low_motion = True
+                if not has_low_motion:
+                    errors.append(f"{prefix}/signal_ids: candidate requires covering low-motion support")
 
     plan = document.get("retention_plan", {})
     beat_ids: set[str] = set()
@@ -236,9 +256,11 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
 
 
 def validate_document(document: Any, schema: Any = None, *, basic: bool = False) -> list[str]:
-    schema = load_json(SCHEMA_PATH) if schema is None else schema
+    bundled = load_json(SCHEMA_PATH)
+    schema = bundled if schema is None else schema
     errors = basic_schema_errors(document, schema) if basic else schema_errors(document, schema)
-    if not errors and isinstance(document, dict):
+    errors.extend(finite_errors(document))
+    if not errors and schema == bundled and isinstance(document, dict):
         errors.extend(semantic_errors(document))
     return errors
 
