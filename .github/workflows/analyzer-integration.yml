@@ -1,0 +1,39 @@
+name: Optional analyzer integrations
+
+on:
+  push:
+    paths:
+      - 'workout-remotion-editor/scripts/**'
+      - 'tests/**'
+      - '.github/workflows/analyzer-integration.yml'
+  pull_request:
+    paths:
+      - 'workout-remotion-editor/scripts/**'
+      - 'tests/**'
+      - '.github/workflows/analyzer-integration.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  media-tools:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install optional media tools only
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          python -m pip install --disable-pip-version-check jsonschema -r workout-remotion-editor/scripts/requirements-scene.txt
+          curl --fail --location --retry 3 --output "$RUNNER_TEMP/auto-editor" https://github.com/WyattBlue/auto-editor/releases/download/31.6.0/auto-editor-linux-x86_64
+          chmod +x "$RUNNER_TEMP/auto-editor"
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - name: Test real signals, source timing, and graceful fallback
+        env:
+          REQUIRE_ANALYZERS: "1"
+        run: python -m unittest discover -s tests -p 'test_integration.py' -v

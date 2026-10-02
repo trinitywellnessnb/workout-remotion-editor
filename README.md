@@ -307,6 +307,21 @@ The Markdown manual is intended for fast browsing directly on GitHub. The v2.2 D
 
 > Make these clips into one fast TikTok workout optimized for retention and shares. Start with my hardest-looking successful rep and make the reason to keep watching clear immediately. Mute the raw camera audio. Glitch through a few reps from the first two exercises, but show most of my final set. Count the final-set reps in the upper left. Put the exercise name up when each exercise starts. During my squat eccentric put “Control the descent” on screen and when I start driving up put “Drive!” Add “Finish Strong” over my last two reps. Keep overlays out of the way of my joints and equipment. Use cyberpunk vertical-slice glitch transitions between exercises, but no RGB/static glitch effects. Keep movement comprehension more important than beat sync. Use the official Remotion skills for implementation, preview the composition in Studio if available, then render the final MP4.
 
+## Phase 1 optional media evidence
+
+The new analysis CLI probes raw footage, collects optional PySceneDetect shot boundaries and Auto-Editor motion/audio signals, and writes validated source-relative evidence. It preserves all source footage and leaves workout editing decisions to Workout Remotion Editor.
+
+~~~sh
+python workout-remotion-editor/scripts/analyze_video.py raw.mp4 -o analysis.json
+python workout-remotion-editor/scripts/validate_analysis.py analysis.json
+~~~
+
+Both tools are optional. Missing tools, unsupported media, empty results, and failures are recorded in the JSON and fall back to visual/manual analysis. Existing version 2.3 analysis documents continue validating; new evidence documents use 2.4.
+
+See [Phase 1 analysis pipeline](workout-remotion-editor/references/analysis-pipeline.md) for installation, detector selection, schema/provenance, timing, fallback, tests, and future provider extension points. The canonical schema is [workout-remotion-editor/scripts/analysis-schema.json](workout-remotion-editor/scripts/analysis-schema.json).
+
+The Director responsibilities described above remain the orchestration contract. The linked agent/ blueprint files are absent from this checkout; the new CLI provides a callable analysis workflow without claiming a Director implementation is included.
+
 ## For developers
 
 The package includes a semantic validator for structured analysis/edit JSON. CI/package validation also checks the Skill structure before publishing `skill.zip`.

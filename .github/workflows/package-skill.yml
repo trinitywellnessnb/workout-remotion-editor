@@ -2,7 +2,6 @@ name: Package skill
 
 on:
   push:
-    branches: [main]
   pull_request:
   workflow_dispatch:
 
@@ -18,28 +17,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install validators
-        run: python -m pip install --disable-pip-version-check jsonschema PyYAML
-      - name: Validate JSON Schema and Python
+        run: python -m pip install --disable-pip-version-check jsonschema PyYAML ruff
+      - name: Validate schema, semantic fixtures, adapters, and CLI fallback
         run: |
-          python -m json.tool workout-remotion-editor/scripts/analysis-schema.json >/dev/null
-          python -m py_compile workout-remotion-editor/scripts/validate_analysis.py
-      - name: Smoke-test analysis validator
-        run: |
-          cat > /tmp/valid-analysis.json <<'JSON'
-          {"schema_version":"2.3","project":{"title":"CI fixture","mode":"quick"},"sources":[{"id":"source-1","path":"fixture.mp4","duration":10}],"segments":[{"id":"segment-1","source_id":"source-1","start":1,"end":5,"type":"exercise","confidence":"high"}],"repetitions":[{"id":"rep-1","source_id":"source-1","segment_id":"segment-1","start":2,"end":3,"complete":true,"confidence":"high"}]}
-          JSON
-          python workout-remotion-editor/scripts/validate_analysis.py /tmp/valid-analysis.json
-          python - <<'PY'
-          import json
-          path = "/tmp/valid-analysis.json"
-          data = json.load(open(path))
-          data["segments"][0]["end"] = 11
-          json.dump(data, open("/tmp/invalid-analysis.json", "w"))
-          PY
-          if python workout-remotion-editor/scripts/validate_analysis.py /tmp/invalid-analysis.json; then
-            echo "invalid fixture unexpectedly passed" >&2
-            exit 1
-          fi
+          python -m unittest discover -s tests -p 'test_analysis.py' -v
+          python -m compileall -q workout-remotion-editor/scripts
+          ruff check workout-remotion-editor/scripts tests
+          git diff --check
       - name: Validate skill metadata
         run: |
           python - <<'PY'

@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/trinitywellnessnb/workout-remotion-editor/blob/main/workout-remotion-editor/scripts/analysis-schema.json",
-  "title": "Workout Remotion Editor analysis",
+  "title": "Workout Remotion Editor analysis and optional evidence",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,7 +12,10 @@
   ],
   "properties": {
     "schema_version": {
-      "const": "2.3"
+      "enum": [
+        "2.3",
+        "2.4"
+      ]
     },
     "project": {
       "type": "object",
@@ -89,8 +92,12 @@
             "minLength": 1
           },
           "duration": {
-            "type": "number",
-            "exclusiveMinimum": 0
+            "type": [
+              "number",
+              "null"
+            ],
+            "exclusiveMinimum": 0,
+            "description": "Seconds; null only in 2.4 when metadata is unavailable."
           },
           "fps": {
             "type": "number",
@@ -119,6 +126,32 @@
           },
           "notes": {
             "type": "string"
+          },
+          "probe_run_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "metadata": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "time_base": {
+                "type": "string"
+              },
+              "start_time": {
+                "type": "number"
+              },
+              "audio_streams": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "variable_frame_rate": {
+                "type": "boolean"
+              },
+              "timestamp_origin_verified": {
+                "type": "boolean"
+              }
+            }
           }
         }
       }
@@ -240,6 +273,45 @@
           "minItems": 1,
           "items": {
             "$ref": "#/$defs/retentionBeat"
+          }
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "runs"
+      ],
+      "properties": {
+        "runs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/analyzerRun"
+          }
+        },
+        "scenes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sceneEvidence"
+          }
+        },
+        "scene_boundaries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/sceneBoundary"
+          }
+        },
+        "activity_regions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/activityRegion"
+          }
+        },
+        "candidate_dead_time": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/deadTimeCandidate"
           }
         }
       }
@@ -409,6 +481,365 @@
           ]
         }
       }
+    },
+    "analyzerRun": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "category",
+        "provider",
+        "version",
+        "status",
+        "fallback",
+        "configuration",
+        "warnings",
+        "errors"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "enum": [
+            "media_probe",
+            "scene",
+            "motion_activity",
+            "transcript",
+            "object_tracking",
+            "pose",
+            "action_recognition",
+            "quality"
+          ]
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "upstream": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "enum": [
+            "success",
+            "partial",
+            "no_results",
+            "unavailable",
+            "failed",
+            "skipped"
+          ]
+        },
+        "fallback": {
+          "type": "boolean"
+        },
+        "configuration": {
+          "type": "object"
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "sceneEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "start",
+        "end",
+        "reason",
+        "detector"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "detector": {
+          "enum": [
+            "content",
+            "adaptive",
+            "threshold"
+          ]
+        }
+      }
+    },
+    "sceneBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "time",
+        "reason",
+        "kind",
+        "detector"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "time": {
+          "type": "number",
+          "minimum": 0
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "kind": {
+          "enum": [
+            "hard_cut_candidate",
+            "fade_candidate"
+          ]
+        },
+        "detector": {
+          "enum": [
+            "content",
+            "adaptive",
+            "threshold"
+          ]
+        }
+      }
+    },
+    "activityRegion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "start",
+        "end",
+        "reason",
+        "type",
+        "threshold",
+        "mean_level",
+        "stream"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "type": {
+          "enum": [
+            "motion_active",
+            "low_motion",
+            "audio_active",
+            "audio_inactive"
+          ]
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "mean_level": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "stream": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "deadTimeCandidate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "source_id",
+        "run_id",
+        "start",
+        "end",
+        "reason",
+        "signal_ids"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "run_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "start": {
+          "type": "number",
+          "minimum": 0
+        },
+        "end": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        },
+        "confidence": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 1
+        },
+        "signal_ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "schema_version": {
+            "const": "2.3"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "evidence": {
+            "not": {}
+          },
+          "sources": {
+            "items": {
+              "properties": {
+                "duration": {
+                  "type": "number"
+                },
+                "probe_run_id": {
+                  "not": {}
+                },
+                "metadata": {
+                  "not": {}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }

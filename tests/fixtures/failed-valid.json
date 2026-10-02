@@ -1,0 +1,33 @@
+{
+  "schema_version": "2.4",
+  "project": {
+    "title": "Legacy workout",
+    "mode": "standard"
+  },
+  "sources": [
+    {
+      "id": "source-1",
+      "path": "fixture.mp4",
+      "duration": 10
+    }
+  ],
+  "segments": [],
+  "evidence": {
+    "runs": [
+      {
+        "id": "motion_activity",
+        "source_id": "source-1",
+        "category": "motion_activity",
+        "provider": "auto-editor",
+        "version": "fixture",
+        "status": "failed",
+        "fallback": true,
+        "configuration": {},
+        "warnings": [],
+        "errors": [
+          "unsupported codec"
+        ]
+      }
+    ]
+  }
+}

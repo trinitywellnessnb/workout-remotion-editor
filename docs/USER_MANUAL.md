@@ -78,6 +78,12 @@ Default: mute all source audio. Do not add replacement music automatically. If a
 ## 15. Optional Intelligent Analysis Signals
 When available, use scene boundaries, pose/keypoint data, rep state machines, beat/onset analysis, motion evidence, and crop evidence as supporting evidence—not authority. Never claim an analyzer was used unless its signal actually exists.
 
+### Phase 1 implemented evidence
+
+Optional [PySceneDetect and Auto-Editor adapters](../workout-remotion-editor/references/analysis-pipeline.md) now collect shot boundaries, motion/activity intervals, quiet audio intervals, and candidate dead-time ranges. The tools do not identify exercises, count reps, decide set boundaries, or remove footage. Low motion may contain valuable setup, coaching, recovery, or static holds; the Editor reviews it before deciding an edit.
+
+The developer CLI writes a normalized analysis.json and validates it against the single [analysis schema](../workout-remotion-editor/scripts/analysis-schema.json). It detects optional tools, records provenance/status/errors, and falls back to visual/manual review when tools are missing or fail. Legacy 2.3 analysis still validates; new machine evidence uses 2.4. Future analyzers can extend the same provider contract; they are not installed in Phase 1.
+
 ## 16. Internal Edit Blueprint
 Before implementation, build a paper edit containing source clip, source start/end, purpose, exercise/set/rep/phase, playback speed, crop, transition, overlay timing/style, and confidence. Keep source-relative time separate from final timeline time.
 
