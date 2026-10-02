@@ -5,14 +5,14 @@
 An open-source workout-video editing project for ChatGPT and Remotion. The project now has two complementary intelligence layers:
 
 - **Workout Remotion Editor v2.3** — the ChatGPT Skill for workout-specific analysis and research-informed social editing intelligence.
-- **Workout Remotion Director v1.0** — the optional ChatGPT Workspace Agent blueprint for autonomous, one-and-done orchestration from uploaded footage through QA and final render.
+- **Workout Remotion Director v1.1** — the optional ChatGPT Workspace Agent blueprint for autonomous, one-and-done orchestration from uploaded footage through QA and final render.
 
 [Remotion](https://www.remotion.dev/) remains the recommended video implementation and rendering layer.
 
 The layers are intentionally separate:
 
 ```text
-Workout Remotion Director v1.0
+Workout Remotion Director v1.1
 Autonomous workflow + creative direction + QA/repair orchestration
                          ↓
 Workout Remotion Editor v2.3
@@ -56,7 +56,7 @@ Use this option if you primarily want the specialized workout-video intelligence
 
 The distributable Skill source lives under [`workout-remotion-editor/`](workout-remotion-editor/). See the [v2.3 User Manual](docs/USER_MANUAL.md) for detailed prompting and feature guidance.
 
-### 2. Agent blueprint — Workout Remotion Director v1.0
+### 2. Agent blueprint — Workout Remotion Director v1.1
 
 Use the **Agent blueprint** when you want an autonomous workflow director that makes routine creative and production decisions itself.
 
@@ -98,7 +98,7 @@ Use **Workout Remotion Director + Workout Remotion Editor + Remotion** together 
 YOU
 Upload workout footage + describe the outcome
         ↓
-WORKOUT REMOTION DIRECTOR v1.0
+WORKOUT REMOTION DIRECTOR v1.1
 Runs the job autonomously and makes routine creative decisions
         ↓
 WORKOUT REMOTION EDITOR v2.3
@@ -320,7 +320,13 @@ Both tools are optional. Missing tools, unsupported media, empty results, and fa
 
 See [Phase 1 analysis pipeline](workout-remotion-editor/references/analysis-pipeline.md) for installation, detector selection, schema/provenance, timing, fallback, tests, and future provider extension points. The canonical schema is [workout-remotion-editor/scripts/analysis-schema.json](workout-remotion-editor/scripts/analysis-schema.json).
 
-The Director responsibilities described above remain the orchestration contract. The linked agent/ blueprint files are absent from this checkout; the new CLI provides a callable analysis workflow without claiming a Director implementation is included.
+The [Director blueprint](agent/WORKOUT_REMOTION_DIRECTOR.md) is included. Its v1.1 orchestration command prepares evidence and an explicit Editor handoff during INSPECT:
+
+~~~sh
+python agent/scripts/prepare_analysis.py raw.mp4 --output-dir runs/workout-001
+~~~
+
+Use a new job directory. Read its handoff.json for per-provider status and review requirements; missing optional analyzers continue through visual/manual analysis. The Editor reviews footage and prepares the accepted blueprint before Remotion composition/rendering. See [Director analysis handoff](agent/analysis-handoff.md) for setup, artifacts, failure behavior, and tests. The command prepares evidence; a configured Workspace Agent still performs delegation and rendering.
 
 ## For developers
 
@@ -328,7 +334,7 @@ The package includes a semantic validator for structured analysis/edit JSON. CI/
 
 The distributable Skill is under `workout-remotion-editor/`. Public documentation and research remain outside the Skill ZIP; LICENSE and THIRD_PARTY_NOTICES.md are included with the distributable code. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
 
-The Director and Editor use independent version numbers. The current documented pairing is **Workout Remotion Director v1.0 + Workout Remotion Editor v2.3**.
+The Director and Editor use independent version numbers. The current documented pairing is **Workout Remotion Director v1.1 + Workout Remotion Editor v2.3**.
 
 ## License
 

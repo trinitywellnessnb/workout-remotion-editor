@@ -5,11 +5,13 @@ on:
     paths:
       - 'workout-remotion-editor/scripts/**'
       - 'tests/**'
+      - 'agent/scripts/**'
       - '.github/workflows/analyzer-integration.yml'
   pull_request:
     paths:
       - 'workout-remotion-editor/scripts/**'
       - 'tests/**'
+      - 'agent/scripts/**'
       - '.github/workflows/analyzer-integration.yml'
   workflow_dispatch:
 
