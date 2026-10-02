@@ -149,8 +149,8 @@ def run(payload: dict[str, Any]) -> dict[str, Any]:
             previous_sample_time = timestamp
             if not config["full_frame"]:
                 # Advance the requested grid; observations retain actual PTS.
-                while next_time <= timestamp + 1e-9:
-                    next_time += 1 / config["sample_fps"]
+                grid_index = math.floor((timestamp - interval["start"] + 1e-9) * config["sample_fps"]) + 1
+                next_time = interval["start"] + grid_index / config["sample_fps"]
     except Exception as exc:
         errors.append(str(exc))
     finally:

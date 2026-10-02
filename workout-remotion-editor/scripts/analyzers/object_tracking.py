@@ -85,8 +85,8 @@ class ObjectTracking:
         if config["tracker"] not in TRACKERS:
             raise ValueError("unsupported tracker")
         rate = config["sample_fps"]
-        if isinstance(rate, bool) or not isinstance(rate, (float, int)) or not math.isfinite(rate) or rate <= 0:
-            raise ValueError("sample_fps must be finite and positive")
+        if isinstance(rate, bool) or not isinstance(rate, (float, int)) or not math.isfinite(rate) or not 0 < rate <= 120:
+            raise ValueError("sample_fps must be finite and in (0, 120]")
         if config["crop"] is not None and not valid_box(config["crop"]):
             raise ValueError("invalid normalized proposed crop")
         intervals, warnings = tracking_intervals(source, context or {}, rate, config["full_frame"])

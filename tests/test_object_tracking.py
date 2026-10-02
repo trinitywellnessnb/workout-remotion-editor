@@ -302,7 +302,7 @@ class Tensor:
 
 
 class WorkerTests(unittest.TestCase):
-    def worker(self, *, fail_at=None, device="cpu", rotation=0, times=None):
+    def worker(self, *, fail_at=None, device="cpu", rotation=0, times=None, spans=None, load_failure=False):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         model_path = Path(temporary.name) / "tiny.pt"
@@ -318,7 +318,8 @@ class WorkerTests(unittest.TestCase):
             names, task = {0: "person", 13: "bench"}, "detect"
 
             def __init__(self, *args, **kwargs):
-                pass
+                if load_failure:
+                    raise RuntimeError("checkpoint cannot load")
 
             def track(self, image, **kwargs):
                 calls.append(kwargs)
@@ -336,7 +337,7 @@ class WorkerTests(unittest.TestCase):
         payload = {"source": {"path": "raw.mp4", "duration": 2, "rotation": rotation},
                    "configuration": {"model": str(model_path), "device": device, "tracker": "bytetrack",
                                      "equipment_classes": [], "sample_fps": 5, "full_frame": False,
-                                     "imgsz": 640, "detector_confidence": 0.1}, "intervals": intervals()}
+                                     "imgsz": 640, "detector_confidence": 0.1}, "intervals": spans or intervals()}
         with patch.dict(sys.modules, modules), patch.object(socket, "socket"), patch.object(
             socket, "create_connection"), patch.object(socket, "getaddrinfo"):
             # A real socket class is needed by the worker's blocking subclass.
@@ -374,6 +375,22 @@ class WorkerTests(unittest.TestCase):
         self.assertFalse(calls[2]["persist"])
         self.assertNotEqual(result["samples"][0]["detections"][0]["track_id"],
                             result["samples"][2]["detections"][0]["track_id"])
+
+    def test_worker_model_load_failure_is_diagnostic(self):
+        result, calls = self.worker(load_failure=True)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("Model load", result["errors"][0])
+        self.assertFalse(calls)
+
+    def test_real_worker_scene_lifecycle_resets(self):
+        spans = intervals()
+        spans[0]["end"] = 1
+        spans.append({**spans[0], "id": "interval:1", "start": 1, "end": 2})
+        result, calls = self.worker(spans=spans)
+        self.assertFalse(calls[0]["persist"])
+        self.assertFalse(calls[5]["persist"])
+        self.assertTrue(calls[6]["persist"])
+        self.assertNotEqual(result["samples"][0]["interval_id"], result["samples"][5]["interval_id"])
 
     def test_rotation_supported_and_nonright_angle_rejected(self):
         self.assertEqual(rotation_degrees(-90), 270)
