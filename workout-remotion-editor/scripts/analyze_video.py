@@ -16,6 +16,7 @@ from analyzers.media_probe import MediaProbe
 from analyzers.motion_activity import MotionActivity
 from analyzers.scene import Scene
 from analyzers.object_tracking import YoloObjectTracking
+from analyzers.pose import MMPoseProvider
 from validate_analysis import validate_document
 
 
@@ -35,11 +36,15 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
         for invocation, provider in enumerate(pipeline):
             before = copy.deepcopy(document)
             provider_source = source
-            if provider.category == "object_tracking":
+            if provider.category in {"object_tracking", "pose"}:
                 provider_source = {**source, "_analysis_context": {
                     "scenes": [item for item in document["evidence"].get("scenes", [])
                                if item["source_id"] == source["id"]],
                     "activity_regions": [item for item in document["evidence"].get("activity_regions", [])
+                                         if item["source_id"] == source["id"]],
+                    "object_detections": [item for item in document["evidence"].get("object_detections", [])
+                                          if item["source_id"] == source["id"]],
+                    "tracked_entities": [item for item in document["evidence"].get("tracked_entities", [])
                                          if item["source_id"] == source["id"]]}}
             run, result = run_provider(provider, provider_source, timeout, invocation=invocation)
             document["evidence"]["runs"].append(run)
@@ -116,6 +121,14 @@ def main() -> int:
     parser.add_argument("--yolo-confidence", type=unit, default=.25)
     parser.add_argument("--allow-model-download", action="store_true",
                         help="permit Ultralytics to fetch a named model (may access the network)")
+    parser.add_argument("--pose", action="store_true", help="enable optional local MMPose evidence")
+    parser.add_argument("--pose-config", help="local MMPose model config path")
+    parser.add_argument("--pose-checkpoint", help="local MMPose checkpoint path")
+    parser.add_argument("--pose-device", default="cpu", help="explicit MMPose device (default: cpu)")
+    parser.add_argument("--pose-sample-rate", type=positive, default=2.0)
+    parser.add_argument("--pose-mode", choices=["cpu_basic", "balanced", "high_accuracy"], default="cpu_basic")
+    parser.add_argument("--pose-keypoint-threshold", type=unit, default=.25)
+    parser.add_argument("--pose-all-persons", action="store_true")
     args = parser.parse_args()
     if args.duration is not None and len(args.videos) != 1:
         parser.error("--duration requires exactly one input")
@@ -136,6 +149,11 @@ def main() -> int:
         providers.append(YoloObjectTracking(args.yolo_model, args.yolo_device, args.yolo_sample_rate,
                                             args.yolo_tracker, args.yolo_confidence,
                                             args.allow_model_download))
+    if args.pose:
+        providers.append(MMPoseProvider(args.pose_config, args.pose_checkpoint, args.pose_device,
+                                        args.pose_sample_rate, args.pose_mode,
+                                        args.pose_keypoint_threshold, args.pose_all_persons,
+                                        args.allow_model_download))
     try:
         document = analyze(args.videos, title=args.title, mode=args.mode, providers=providers,
                            timeout=args.timeout,
