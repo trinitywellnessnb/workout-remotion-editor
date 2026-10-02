@@ -1,0 +1,22 @@
+{
+  "taxonomy_version": "1",
+  "exercises": [
+    {"canonical_id":"unknown_exercise","display_name":"Unknown Exercise","aliases":["unknown"],"family":"unknown","movement_pattern":"unknown","equipment":[],"laterality":"unspecified","body_position":"unspecified","rep_rule_id":null},
+    {"canonical_id":"row_unspecified","display_name":"Row","aliases":["row","rowing exercise"],"family":"row","movement_pattern":"horizontal_pull","equipment":[],"laterality":"unspecified","body_position":"unspecified","rep_rule_id":null},
+    {"canonical_id":"dumbbell_row_single_arm","display_name":"Single-Arm Dumbbell Row","aliases":["one arm db row","one arm dumbbell row","single arm dumbbell row","lawnmower row"],"family":"row","movement_pattern":"horizontal_pull","equipment":["dumbbell"],"laterality":"unilateral","body_position":"hinged","parent_id":"row_unspecified","rep_rule_id":null},
+    {"canonical_id":"barbell_row","display_name":"Barbell Row","aliases":["bent over barbell row","bb row"],"family":"row","movement_pattern":"horizontal_pull","equipment":["barbell"],"laterality":"bilateral","body_position":"hinged","parent_id":"row_unspecified","rep_rule_id":null},
+    {"canonical_id":"seated_cable_row","display_name":"Seated Cable Row","aliases":["cable row","seated row"],"family":"row","movement_pattern":"horizontal_pull","equipment":["cable_machine"],"laterality":"bilateral","body_position":"seated","parent_id":"row_unspecified","rep_rule_id":null},
+    {"canonical_id":"lat_pulldown","display_name":"Lat Pulldown","aliases":["lat pull down","pulldown"],"family":"vertical_pull","movement_pattern":"vertical_pull","equipment":["cable_machine"],"laterality":"bilateral","body_position":"seated","rep_rule_id":null},
+    {"canonical_id":"curl","display_name":"Curl","aliases":["bicep curl","arm curl"],"family":"curl","movement_pattern":"elbow_flexion","equipment":[],"laterality":"unspecified","body_position":"unspecified","rep_rule_id":null},
+    {"canonical_id":"lateral_raise","display_name":"Lateral Raise","aliases":["side raise"],"family":"raise","movement_pattern":"shoulder_abduction","equipment":[],"laterality":"bilateral","body_position":"standing","rep_rule_id":null},
+    {"canonical_id":"overhead_press","display_name":"Overhead Press","aliases":["shoulder press","ohp"],"family":"press","movement_pattern":"vertical_push","equipment":[],"laterality":"bilateral","body_position":"unspecified","rep_rule_id":null},
+    {"canonical_id":"squat","display_name":"Squat","aliases":["squats"],"family":"squat","movement_pattern":"squat","equipment":[],"laterality":"bilateral","body_position":"standing","rep_rule_id":null},
+    {"canonical_id":"romanian_deadlift","display_name":"Romanian Deadlift","aliases":["rdl"],"family":"hinge","movement_pattern":"hinge","equipment":[],"laterality":"bilateral","body_position":"standing","rep_rule_id":null},
+    {"canonical_id":"bench_press","display_name":"Bench Press","aliases":["bench"],"family":"press","movement_pattern":"horizontal_push","equipment":["bench"],"laterality":"bilateral","body_position":"supine","rep_rule_id":null},
+    {"canonical_id":"push_up","display_name":"Push-Up","aliases":["pushup","push up"],"family":"press","movement_pattern":"horizontal_push","equipment":[],"laterality":"bilateral","body_position":"prone","rep_rule_id":null},
+    {"canonical_id":"lunge","display_name":"Lunge","aliases":["lunges"],"family":"lunge","movement_pattern":"lunge","equipment":[],"laterality":"alternating","body_position":"standing","rep_rule_id":null},
+    {"canonical_id":"machine_movement","display_name":"Machine Movement","aliases":["machine exercise"],"family":"machine","movement_pattern":"unknown","equipment":["machine"],"laterality":"unspecified","body_position":"unspecified","rep_rule_id":null},
+    {"canonical_id":"bodyweight_movement","display_name":"Bodyweight Movement","aliases":["body weight exercise"],"family":"bodyweight","movement_pattern":"unknown","equipment":[],"laterality":"unspecified","body_position":"unspecified","rep_rule_id":null}
+  ],
+  "ambiguous_aliases": {"rows":["row_unspecified","seated_cable_row"]}
+}

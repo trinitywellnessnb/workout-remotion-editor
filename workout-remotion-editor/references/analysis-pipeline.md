@@ -1,12 +1,12 @@
 # Optional media analysis
 
-Phase 3 preserves the ordered evidence pipeline: media probe, scene analysis, motion/activity analysis, optional object detection/tracking, then optional pose. The normalized output collections remain provider-agnostic; provider/model details stay in provenance. See [object-tracking.md](object-tracking.md) and [pose-evidence.md](pose-evidence.md).
+Phase 4 preserves the ordered evidence pipeline and adds explicit exercise context, interval proposals, and deterministic candidate fusion after optional pose. The normalized output remains provider-agnostic; provider/model details stay in provenance. See [object-tracking.md](object-tracking.md), [pose-evidence.md](pose-evidence.md), and [exercise-recognition.md](exercise-recognition.md).
 
 External analyzers provide evidence. Workout Remotion Editor makes workout-specific editorial decisions, Workout Remotion Director orchestrates when available, and Remotion implements the accepted edit and renders it.
 
 ## Pipeline
 
-RAW VIDEO → media probe → scenes → activity → YOLO tracking → MMPose pose → normalized evidence → Editor → Director → Remotion → QA
+RAW VIDEO → media probe → scenes/activity → YOLO identity → MMPose pose/movement → interval candidates → exercise context → deterministic fusion → normalized exercise candidates → Editor → Director → Remotion → QA
 
 Pose remains optional and locally configured. No exercise recognition, rep counting, transcription, segmentation, or visual-quality model is installed by the core environment.
 

@@ -313,18 +313,21 @@ The Markdown manual is intended for fast browsing directly on GitHub. The v2.2 D
 
 ## Phase 1 optional media evidence
 
-The new analysis CLI probes raw footage, collects optional PySceneDetect shot boundaries and Auto-Editor motion/audio signals, and writes validated source-relative evidence. It preserves all source footage and leaves workout editing decisions to Workout Remotion Editor.
+The analysis CLI probes raw footage, collects optional scene/activity, YOLO, and MMPose evidence, and writes validated source-relative evidence. Phase 4 also accepts explicit exercise context and produces deterministic, provenance-rich exercise candidates without counting repetitions or loading an action model. It preserves all source footage and leaves workout editing decisions to Workout Remotion Editor.
 
 ~~~sh
 python workout-remotion-editor/scripts/analyze_video.py raw.mp4 -o analysis.json
+python workout-remotion-editor/scripts/analyze_video.py row.mp4 --exercise-label "One Arm DB Row" -o analysis.json
 python workout-remotion-editor/scripts/validate_analysis.py analysis.json
 ~~~
 
-Both tools are optional. Missing tools, unsupported media, empty results, and failures are recorded in the JSON and fall back to visual/manual analysis. Existing version 2.3 analysis documents continue validating; new evidence documents use 2.4.
+Both tools are optional. Missing tools, unsupported media, empty results, and failures are recorded in the JSON and fall back to visual/manual analysis. Existing version 2.3/2.4 analysis documents continue validating; new evidence documents use 2.5.
 
 See [Phase 1 analysis pipeline](workout-remotion-editor/references/analysis-pipeline.md) for installation, detector selection, schema/provenance, timing, fallback, tests, and future provider extension points. The canonical schema is [workout-remotion-editor/scripts/analysis-schema.json](workout-remotion-editor/scripts/analysis-schema.json).
 
 Phase 3 adds optional, local MMPose pose evidence without adding exercise recognition or rep counting. It reuses YOLO person identities when available, preserves raw and smoothed landmarks separately, and emits provider-neutral joint, movement, and advisory crop evidence. MMPose is lazy-loaded and requires explicit local config/checkpoint paths; see [pose evidence](workout-remotion-editor/references/pose-evidence.md).
+
+Phase 4 adds a small versioned taxonomy, explicit user context, conservative interval proposals, deterministic context fusion, top-k ambiguity/conflict preservation, and a provider-neutral future action-adapter contract. Basic mode remains dependency-free and no production action classifier is included. See [exercise recognition](workout-remotion-editor/references/exercise-recognition.md).
 
 The Director responsibilities described above remain the orchestration contract. The linked agent/ blueprint files are absent from this checkout; the new CLI provides a callable analysis workflow without claiming a Director implementation is included.
 

@@ -17,21 +17,30 @@ from analyzers.motion_activity import MotionActivity
 from analyzers.scene import Scene
 from analyzers.object_tracking import YoloObjectTracking
 from analyzers.pose import MMPoseProvider
+from analyzers.exercise_recognition import DEFAULT_TAXONOMY, WEIGHTS, Taxonomy, fuse, load_context
 from validate_analysis import validate_document
 
 
 def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str = "standard",
             providers: list[Provider] | None = None, timeout: float = 300,
-            supplied_metadata: dict[str, Any] | None = None) -> dict[str, Any]:
+            supplied_metadata: dict[str, Any] | None = None,
+            exercise_context: dict[str, Any] | None = None,
+            taxonomy: Taxonomy | None = None, exercise_top_k: int = 3,
+            action_mode: str = "basic") -> dict[str, Any]:
     """Director-callable workflow; failures are represented in the shared document."""
     document: dict[str, Any] = {
-        "schema_version": "2.4", "project": {"title": title, "mode": mode},
+        "schema_version": "2.5", "project": {"title": title, "mode": mode},
         "sources": [], "segments": [], "evidence": {"runs": []},
         "notes": ["Machine evidence only. Workout Remotion Editor must review footage before editing."],
     }
-    for index, path in enumerate(sources):
-        source: dict[str, Any] = {"id": f"source-{index + 1}", "path": str(path.resolve()), "duration": None}
-        document["sources"].append(source)
+    taxonomy = taxonomy or Taxonomy.load()
+    document["taxonomy"] = {"version": taxonomy.version,
+                            "canonical_ids": sorted(taxonomy.entries)}
+    document["context"] = exercise_context or {
+        "taxonomy_version": taxonomy.version, "assertions": [], "ordered_plan": []}
+    document["sources"] = [{"id": f"source-{index + 1}", "path": str(path.resolve()), "duration": None}
+                           for index, path in enumerate(sources)]
+    for source in document["sources"]:
         pipeline = [MediaProbe(supplied_metadata), *(providers if providers is not None else [Scene(), MotionActivity()])]
         for invocation, provider in enumerate(pipeline):
             before = copy.deepcopy(document)
@@ -57,11 +66,33 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
             if errors:
                 # Quarantine malformed provider output, preserving all prior valid evidence.
                 document = before
-                source = document["sources"][-1]
+                source = next(item for item in document["sources"] if item["id"] == run["source_id"])
                 run.update(status="failed", fallback=True, errors=errors, warnings=run["warnings"] + [
                     "Invalid provider output discarded; continue existing visual/manual analysis."])
                 document["evidence"]["runs"].append(run)
         # These lists are intentionally independent of editorial segments and timeline timing.
+    raw_action_candidates = [item for item in document["evidence"].get("exercise_candidates", [])
+                             if item.get("source_type") == "action_model"]
+    intervals, candidates = fuse(document, taxonomy, document["context"], raw_action_candidates,
+                                 top_k=exercise_top_k)
+    for source in document["sources"]:
+        run_id = f"{source['id']}:context_fusion:deterministic-context-fusion"
+        relevant_intervals = [item for item in intervals if item["source_id"] == source["id"]]
+        relevant_candidates = [item for item in candidates if item["source_id"] == source["id"]]
+        # Preserve the Phase 1–3 document/run shape when Phase 4 has no result.
+        if not relevant_candidates:
+            continue
+        document["evidence"]["runs"].append({
+            "id": run_id, "source_id": source["id"], "category": "context_fusion",
+            "provider": "deterministic-context-fusion", "version": "1", "upstream": "built-in",
+            "status": "success" if relevant_candidates else "no_results", "configuration": {
+                "taxonomy_version": taxonomy.version, "top_k": exercise_top_k,
+                "performance_mode": action_mode, "weights": WEIGHTS},
+            "performance": {}, "fallback": not bool(relevant_candidates), "warnings": [], "errors": []})
+        for item in relevant_intervals + relevant_candidates:
+            item["run_id"] = run_id
+        document["evidence"].setdefault("interval_candidates", []).extend(relevant_intervals)
+        document["evidence"].setdefault("exercise_candidates", []).extend(relevant_candidates)
     errors = validate_document(document)
     if errors:
         raise ValueError("Analysis package failed validation: " + "; ".join(errors))
@@ -129,9 +160,22 @@ def main() -> int:
     parser.add_argument("--pose-mode", choices=["cpu_basic", "balanced", "high_accuracy"], default="cpu_basic")
     parser.add_argument("--pose-keypoint-threshold", type=unit, default=.25)
     parser.add_argument("--pose-all-persons", action="store_true")
+    parser.add_argument("--exercise-context", type=Path, help="JSON context assertions and ordered plan")
+    parser.add_argument("--exercise-label", action="append", default=[],
+                        help="source-scoped, user-confirmed label (single source only)")
+    parser.add_argument("--exercise-taxonomy", type=Path, help="versioned taxonomy JSON")
+    parser.add_argument("--exercise-top-k", type=int, choices=range(1, 6), default=3)
+    parser.add_argument("--action-mode", choices=["basic", "balanced", "high_accuracy"], default="basic",
+                        help="scheduling policy; Phase 4 runs no production action classifier")
     args = parser.parse_args()
     if args.duration is not None and len(args.videos) != 1:
         parser.error("--duration requires exactly one input")
+    try:
+        taxonomy = Taxonomy.load(args.exercise_taxonomy or DEFAULT_TAXONOMY)
+        context = load_context(args.exercise_context, args.exercise_label,
+                               [f"source-{i + 1}" for i in range(len(args.videos))], taxonomy)
+    except (OSError, ValueError, json.JSONDecodeError) as exc:
+        parser.error(f"invalid exercise context/taxonomy: {exc}")
     for video in args.videos:
         if not video.is_file():
             parser.error(f"input video does not exist: {video}")
@@ -157,7 +201,9 @@ def main() -> int:
     try:
         document = analyze(args.videos, title=args.title, mode=args.mode, providers=providers,
                            timeout=args.timeout,
-                           supplied_metadata={"duration": args.duration} if args.duration else None)
+                           supplied_metadata={"duration": args.duration} if args.duration else None,
+                           exercise_context=context, taxonomy=taxonomy, exercise_top_k=args.exercise_top_k,
+                           action_mode=args.action_mode)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         # Validate before writing; atomic replacement avoids a partial analysis file.
         from tempfile import NamedTemporaryFile
