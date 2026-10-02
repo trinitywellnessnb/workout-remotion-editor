@@ -23,6 +23,17 @@ def load_json(path: Path) -> Any:
         raise ValueError(f"cannot read JSON from {path}: {exc}") from exc
 
 
+def valid_datetime(value: str) -> bool:
+    normalized = value.upper()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})",
+                    normalized) is None:
+        return False
+    try:
+        return datetime.fromisoformat(normalized.replace("Z", "+00:00")).tzinfo is not None
+    except ValueError:
+        return False
+
+
 def basic_schema_errors(document: Any, schema: Any = None) -> list[str]:
     """Dependency-free checks for the keywords used by the bundled schema.
 
@@ -83,13 +94,8 @@ def basic_schema_errors(document: Any, schema: Any = None) -> list[str]:
                 errors.append(f"{path}: string is too short")
             if "pattern" in spec and re.search(spec["pattern"], value) is None:
                 errors.append(f"{path}: invalid pattern")
-            if spec.get("format") == "date-time":
-                try:
-                    parsed = datetime.fromisoformat(value.upper().replace("Z", "+00:00"))
-                    if parsed.tzinfo is None or "T" not in value.upper():
-                        raise ValueError
-                except ValueError:
-                    errors.append(f"{path}: invalid date-time")
+            if spec.get("format") == "date-time" and not valid_datetime(value):
+                errors.append(f"{path}: invalid date-time")
         if number:
             if "minimum" in spec and value < spec["minimum"]:
                 errors.append(f"{path}: below minimum")
@@ -107,7 +113,13 @@ def schema_errors(document: Any, schema: Any) -> list[str]:
         from jsonschema import Draft202012Validator, FormatChecker
     except ImportError:
         return basic_schema_errors(document, schema)
-    validator = Draft202012Validator(schema, format_checker=FormatChecker())
+    formats = FormatChecker()
+
+    @formats.checks("date-time")
+    def datetime_format(value: Any) -> bool:
+        return not isinstance(value, str) or valid_datetime(value)
+
+    validator = Draft202012Validator(schema, format_checker=formats)
     return [
         f"/{'/'.join(str(part) for part in error.absolute_path)}: {error.message}"
         for error in sorted(validator.iter_errors(document), key=lambda item: str(list(item.absolute_path)))
