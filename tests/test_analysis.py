@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -342,6 +343,29 @@ class WorkflowTests(unittest.TestCase):
             with patch("sys.argv", ["analyze_video.py", str(source), "-o", str(source)]):
                 with self.assertRaises(SystemExit):
                     main()
+
+    def test_real_cli_and_validator_without_any_optional_dependencies(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "raw.mp4"
+            output = Path(directory) / "analysis.json"
+            source.write_bytes(b"source remains intact")
+            environment = {**os.environ, "PATH": str(Path(directory) / "no-tools"), "PYTHONPATH": ""}
+            # -S removes site packages, verifying actual dependency-free operation.
+            result = subprocess.run(
+                [sys.executable, "-S", str(SCRIPTS / "analyze_video.py"), str(source), "-o", str(output)],
+                env=environment, capture_output=True, text=True, timeout=10)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            data = load_json(output)
+            self.assertEqual(data["segments"], [])
+            self.assertIsNone(data["sources"][0]["duration"])
+            self.assertEqual([run["status"] for run in data["evidence"]["runs"]], ["unavailable"] * 3)
+            self.assertTrue(all(run["fallback"] for run in data["evidence"]["runs"]))
+            self.assertEqual(validate_document(data), [])
+            validation = subprocess.run(
+                [sys.executable, "-S", str(SCRIPTS / "validate_analysis.py"), str(output)],
+                env=environment, capture_output=True, text=True, timeout=10)
+            self.assertEqual(validation.returncode, 0, validation.stderr)
+            self.assertEqual(source.read_bytes(), b"source remains intact")
 
     def test_multiple_sources_and_legacy_sections_untouched(self):
         with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")):

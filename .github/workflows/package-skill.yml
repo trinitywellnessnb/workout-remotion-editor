@@ -50,6 +50,7 @@ jobs:
           zip ../skill.zip SKILL.md
           zip -r ../skill.zip agents references scripts assets -x '**/__pycache__/*' '*.pyc'
           cd ..
+          zip -j skill.zip LICENSE THIRD_PARTY_NOTICES.md
           unzip -t skill.zip
           test "$(unzip -Z1 skill.zip | head -1)" = "SKILL.md"
       - uses: actions/upload-artifact@v4

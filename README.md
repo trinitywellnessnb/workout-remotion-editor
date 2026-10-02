@@ -326,7 +326,7 @@ The Director responsibilities described above remain the orchestration contract.
 
 The package includes a semantic validator for structured analysis/edit JSON. CI/package validation also checks the Skill structure before publishing `skill.zip`.
 
-The distributable Skill is under `workout-remotion-editor/`. The optional Workspace Agent blueprint is under `agent/`. Public documentation, research, and governance files remain outside the Skill ZIP. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
+The distributable Skill is under `workout-remotion-editor/`. The optional Workspace Agent blueprint is under `agent/`. Public documentation and research remain outside the Skill ZIP; LICENSE and THIRD_PARTY_NOTICES.md are included with the distributable code. No third-party repository is vendored or copied. See [third-party notices](THIRD_PARTY_NOTICES.md) and [open-source notes](workout-remotion-editor/references/open-source-notes.md).
 
 The Director and Editor use independent version numbers. The current documented pairing is **Workout Remotion Director v1.0 + Workout Remotion Editor v2.3**.
 
