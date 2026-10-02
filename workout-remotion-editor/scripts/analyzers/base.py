@@ -1,6 +1,7 @@
 """Small provider contract and bounded subprocess execution."""
 from __future__ import annotations
 
+import copy
 import json
 import math
 import shutil
@@ -66,14 +67,45 @@ def number(value: Any) -> float:
     return result
 
 
-def run_provider(provider: Provider, source: dict[str, Any], timeout: float) -> tuple[dict[str, Any], Result]:
+def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
+                 invocation: int | None = None) -> tuple[dict[str, Any], Result]:
+    def identifier() -> str:
+        prefix = f"{source['id']}:{provider.category}:{provider.name}"
+        return prefix if invocation is None else f"{prefix}:{invocation}"
+
     try:
-        result = provider.analyze(source, timeout)
+        result = copy.deepcopy(provider.analyze(copy.deepcopy(source), timeout))
+        run_id = identifier()
+        if not isinstance(result, Result):
+            raise ValueError("provider must return Result")
+        if result.status not in {"success", "partial", "no_results", "unavailable", "failed", "skipped"}:
+            raise ValueError("invalid provider status")
+        if not isinstance(result.metadata, dict) or not isinstance(result.evidence, dict):
+            raise ValueError("provider metadata and evidence must be objects")
+        for messages in (result.warnings, result.errors):
+            if not isinstance(messages, list) or any(not isinstance(item, str) for item in messages):
+                raise ValueError("provider diagnostics must be lists of strings")
+        for collection, items in result.evidence.items():
+            if not isinstance(collection, str) or not isinstance(items, list):
+                raise ValueError("provider evidence collections must be lists")
+            for item in items:
+                if not isinstance(item, dict):
+                    raise ValueError("provider evidence items must be objects")
+                if isinstance(item.get("id"), str):
+                    item["id"] = f"{run_id}:{item['id']}"
+                if "signal_ids" in item:
+                    references = item["signal_ids"]
+                    if not isinstance(references, list) or any(not isinstance(ref, str) for ref in references):
+                        raise ValueError("signal_ids must be a list of strings")
+                    item["signal_ids"] = [f"{run_id}:{ref}" for ref in references]
+                item.update(source_id=source["id"], run_id=run_id)
+        # Non-JSON values must not escape the isolation boundary.
+        json.dumps({"metadata": result.metadata, "evidence": result.evidence}, allow_nan=False)
     except Unavailable as exc:
         result = Result(status="unavailable", warnings=[str(exc)])
-    except Exception as exc:  # Provider isolation: optional tools cannot abort the workflow.
+    except Exception as exc:  # Provider isolation includes normalization, not only tool execution.
         result = Result(status="failed", errors=[str(exc)])
-    run_id = f"{source['id']}:{provider.category}:{provider.name}"
+    run_id = identifier()
     run = {
         "id": run_id, "source_id": source["id"], "category": provider.category,
         "provider": provider.name, "version": provider.version, "upstream": provider.upstream,
@@ -81,9 +113,6 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float) -> 
         "fallback": result.status != "success",
         "warnings": result.warnings, "errors": result.errors,
     }
-    for items in result.evidence.values():
-        for item in items:
-            item.update(source_id=source["id"], run_id=run_id)
     return run, result
 
 

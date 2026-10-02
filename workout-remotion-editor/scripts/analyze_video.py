@@ -31,9 +31,9 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
         source: dict[str, Any] = {"id": f"source-{index + 1}", "path": str(path.resolve()), "duration": None}
         document["sources"].append(source)
         pipeline = [MediaProbe(supplied_metadata), *(providers if providers is not None else [Scene(), MotionActivity()])]
-        for provider in pipeline:
+        for invocation, provider in enumerate(pipeline):
             before = copy.deepcopy(document)
-            run, result = run_provider(provider, source, timeout)
+            run, result = run_provider(provider, source, timeout, invocation=invocation)
             document["evidence"]["runs"].append(run)
             source.update(result.metadata)
             if provider.category == "media_probe":
