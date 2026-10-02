@@ -134,7 +134,8 @@ class ReviewRegressionTests(unittest.TestCase):
         schema = {"type": "string", "format": "date-time"}
         for basic in (False, True):
             self.assertEqual(validate_document("2026-10-02t12:00:00z", schema, basic=basic), [])
-            self.assertTrue(validate_document("not-a-date", schema, basic=basic))
+            for invalid in ("not-a-date", "2026-10-02T12:00:00+00:60", "2026-10-02T12:00:00+24:00"):
+                self.assertTrue(validate_document(invalid, schema, basic=basic))
 
     def test_activity_order_across_states(self):
         for low, active in (("low_motion", "motion_active"), ("audio_inactive", "audio_active")):
@@ -185,6 +186,59 @@ class ReviewRegressionTests(unittest.TestCase):
                 document = analyze([Path("raw.mp4")], supplied_metadata={"duration": 10},
                                    providers=[malformed])
             self.assertEqual(document["evidence"]["runs"][-1]["status"], "failed")
+            self.assertEqual(validate_document(document), [])
+
+    def test_malformed_provenance_is_isolated(self):
+        for version in (["0.7.1"], {"bad": "version"}):
+            with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")), patch(
+                "analyzers.scene.importlib.util.find_spec", return_value=object()), patch(
+                "analyzers.scene.command", return_value=json.dumps({"version": version, "scenes": []})):
+                document = analyze([Path("raw.mp4")], supplied_metadata={"duration": 4}, providers=[Scene()])
+            run = document["evidence"]["runs"][-1]
+            self.assertEqual(run["status"], "failed")
+            self.assertIsNone(run["version"])
+            self.assertEqual(validate_document(document), [])
+        for configuration in ([], {"threshold": float("nan")}, {"bad": object()}):
+            provider = Scene()
+            provider.configuration = configuration
+            run, result = run_provider(provider, {"id": "s", "path": "raw.mp4"}, 1)
+            self.assertEqual(run["status"], "failed")
+            self.assertEqual(run["configuration"], {})
+            self.assertFalse(result.evidence)
+
+    def test_provenance_configuration_is_a_snapshot(self):
+        class Reused:
+            name, category, upstream, version = "reused", "scene", "fixture", "1"
+
+            def __init__(self):
+                self.configuration = {"nested": {"attempt": 0}}
+
+            def analyze(self, source, timeout):
+                self.configuration["nested"]["attempt"] += 1
+                return Result(status="no_results")
+
+        provider = Reused()
+        first, _ = run_provider(provider, {"id": "s"}, 1, invocation=0)
+        second, _ = run_provider(provider, {"id": "s"}, 1, invocation=1)
+        self.assertEqual(first["configuration"]["nested"]["attempt"], 1)
+        self.assertEqual(second["configuration"]["nested"]["attempt"], 2)
+
+    def test_one_optional_analyzer_unavailable_preserves_other_evidence(self):
+        for missing_scene in (False, True):
+            with patch("analyzers.media_probe.executable", side_effect=Unavailable("missing")), patch(
+                "analyzers.scene.importlib.util.find_spec", return_value=None if missing_scene else object()), patch(
+                "analyzers.scene.command", return_value='{"version":"0.7.1","scenes":[[0,2],[2,4]]}'), patch(
+                "analyzers.motion_activity.executable",
+                side_effect=None if missing_scene else Unavailable("missing"), return_value="/auto-editor"), patch(
+                "analyzers.motion_activity.command", side_effect=["31.6.0", "@start\n" + "0\n" * 120]):
+                document = analyze(
+                    [Path("raw.mp4")], supplied_metadata={"duration": 4, "metadata": {
+                        "timestamp_origin_verified": True, "audio_streams": 0}})
+            runs = document["evidence"]["runs"][1:]
+            self.assertEqual([run["status"] for run in runs],
+                             ["unavailable", "success"] if missing_scene else ["success", "unavailable"])
+            self.assertTrue(document["evidence"]["activity_regions" if missing_scene else "scenes"])
+            self.assertEqual(document["segments"], [])
             self.assertEqual(validate_document(document), [])
 
     def test_repeated_scene_invocations_and_failure_preserve_prior_evidence(self):

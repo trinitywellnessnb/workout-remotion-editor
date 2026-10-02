@@ -69,6 +69,9 @@ def number(value: Any) -> float:
 
 def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
                  invocation: int | None = None) -> tuple[dict[str, Any], Result]:
+    configuration: dict[str, Any] = {}
+    version: str | None = None
+
     def identifier() -> str:
         prefix = f"{source['id']}:{provider.category}:{provider.name}"
         return prefix if invocation is None else f"{prefix}:{invocation}"
@@ -105,11 +108,22 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
         result = Result(status="unavailable", warnings=[str(exc)])
     except Exception as exc:  # Provider isolation includes normalization, not only tool execution.
         result = Result(status="failed", errors=[str(exc)])
+    # Provenance can also contain malformed upstream values after a tool failure.
+    try:
+        if provider.version is not None and not isinstance(provider.version, str):
+            raise ValueError("provider version must be a string or null")
+        version = provider.version
+        if not isinstance(provider.configuration, dict):
+            raise ValueError("provider configuration must be an object")
+        json.dumps(provider.configuration, allow_nan=False)
+        configuration = copy.deepcopy(provider.configuration)
+    except Exception as exc:
+        result = Result(status="failed", errors=result.errors + [f"Invalid provider provenance: {exc}"])
     run_id = identifier()
     run = {
         "id": run_id, "source_id": source["id"], "category": provider.category,
-        "provider": provider.name, "version": provider.version, "upstream": provider.upstream,
-        "status": result.status, "configuration": provider.configuration,
+        "provider": provider.name, "version": version, "upstream": provider.upstream,
+        "status": result.status, "configuration": configuration,
         "fallback": result.status != "success",
         "warnings": result.warnings, "errors": result.errors,
     }
