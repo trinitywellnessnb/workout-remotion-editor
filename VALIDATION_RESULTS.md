@@ -1,4 +1,27 @@
-# Validation results — Workout Remotion Editor v2.3
+# Validation results — Phase 1 media evidence
+
+Verified on 2026-10-02 through GitHub Actions. This editing session exposes GitHub tools without a local shell, so execution evidence comes from the repository's runners.
+
+Implementation tested at commit 7b1f6f5265037532748d5f180935bcb63f9b049d:
+- [Core schema/validator/lint/package run](https://github.com/trinitywellnessnb/workout-remotion-editor/actions/runs/37007139576)
+- [Optional real-tool integration run](https://github.com/trinitywellnessnb/workout-remotion-editor/actions/runs/37007139596)
+
+| Result | Verification | Evidence |
+| --- | --- | --- |
+| PASS | Core semantic/provider/workflow tests | 31 unittest tests, including all representative fixtures, both validation paths, provider failures, and actual CLI operation with no site packages or executables. |
+| PASS | JSON Schema | Draft202012Validator.check_schema; legacy 2.3 and new 2.4 fixtures, source bounds, confidence, ordering, legal overlaps, and provenance references. |
+| PASS | Real optional tools | Four integration tests with ffmpeg/ffprobe, PySceneDetect 0.7.1, PyAV 18.0.0, and Auto-Editor 31.6.0. |
+| PASS | Signal semantics | Content/adaptive/threshold boundaries, motion and audio regions, candidate support, VFR source timing, and unchanged source bytes. |
+| PASS | Fallback | Missing dependencies, unsupported media, timeout, decoder errors, partial audio failures, and invalid provider output. |
+| PASS | Lint/compilation | Ruff and compileall for scripts; no Node/Remotion app build or existing static typecheck target exists in this repository. |
+| PASS | Packaging | Skill metadata, ZIP integrity, analyzer modules, one schema, LICENSE, and THIRD_PARTY_NOTICES.md included; tests and external packages excluded. |
+| PASS | Diff review | Committed-diff whitespace check and separate implementation review. |
+
+Review corrections include per-audio-stream ordering, unknown timestamp-origin handling, final scene endpoint bounds, explicit decoding backend provenance, and a compatible PyAV pin. OpenCV may report invalid terminal timing for VFR media; validation rejects that evidence and preserves the manual workflow. PyAV is the recommended/default optional backend.
+
+All integrations remain evidence only. No exercise identity, set or rep count, footage deletion, timeline selection, or later-phase model integration is introduced.
+
+## Archived v2.3 validation
 
 Validated on 2026-09-17 in the supplied repository environment.
 
