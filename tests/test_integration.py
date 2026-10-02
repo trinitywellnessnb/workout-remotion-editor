@@ -87,6 +87,7 @@ class RealToolTests(unittest.TestCase):
         try:
             data = analyze([video], providers=[Scene("content"), MotionActivity()], timeout=60)
             self.assertEqual(validate_document(data), [])
+            self.assertEqual(data["evidence"]["runs"][1]["status"], "success", data["evidence"]["runs"])
             self.assertTrue(any(abs(item["time"] - 3) < 0.2
                                 for item in data["evidence"]["scene_boundaries"]))
             self.assertEqual(data["evidence"]["runs"][-1]["status"], "success")

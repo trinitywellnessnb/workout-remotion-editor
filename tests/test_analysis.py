@@ -196,6 +196,16 @@ class ProviderTests(unittest.TestCase):
             self.assertEqual(result.evidence["scene_boundaries"][0]["kind"], kind)
             self.assertEqual(result.evidence["scenes"][0]["run_id"], run["id"])
 
+    def test_vfr_final_scene_estimate_is_bounded_and_reported(self):
+        source = self.source()
+        source["fps"] = 24
+        with patch("analyzers.scene.importlib.util.find_spec", return_value=object()), patch(
+            "analyzers.scene.command", return_value=json.dumps({"version": "0.7.1",
+                                                                "scenes": [[0, 2], [2, 4.01]]})):
+            run, result = run_provider(Scene(), source, 1)
+        self.assertEqual(result.evidence["scenes"][-1]["end"], 4)
+        self.assertTrue(any("bounded to probed duration" in warning for warning in run["warnings"]))
+
     def test_scene_no_results_and_unsupported_format(self):
         with patch("analyzers.scene.importlib.util.find_spec", return_value=object()), patch(
             "analyzers.scene.command", return_value='{"version":"0.7.1","scenes":[]}'):
@@ -259,6 +269,14 @@ class ProviderTests(unittest.TestCase):
         self.assertEqual(run["provider"], "supplied-metadata")
         self.assertEqual(result.metadata["duration"], 4)
         self.assertTrue(run["fallback"])
+
+    def test_probe_failure_is_distinct_from_missing_tool(self):
+        with patch("analyzers.media_probe.executable", return_value="/tool"), patch(
+            "analyzers.media_probe.command", side_effect=RuntimeError("unsupported container")):
+            run, result = run_provider(MediaProbe(), self.source(), 1)
+        self.assertEqual(run["status"], "failed")
+        self.assertTrue(run["errors"])
+        self.assertEqual(result.metadata, {})
 
     def test_timeout_and_crashing_provider_do_not_abort(self):
         with patch("analyzers.motion_activity.executable", return_value="/auto-editor"), patch(

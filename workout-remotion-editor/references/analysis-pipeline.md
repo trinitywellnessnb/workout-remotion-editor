@@ -73,7 +73,7 @@ python workout-remotion-editor/scripts/analyze_video.py raw.mp4 --scene-detector
 --min-scene-seconds specifies minimum shot duration in seconds.
 Threshold boundaries are candidates, not precise fade envelopes or general dissolve detection.
 A shot boundary never automatically establishes a workout set or a decoding defect.
-No boundaries is a valid no_results state.
+No boundaries is a valid no_results state. For VFR, PySceneDetect estimates the final scene end as the last timestamp plus a nominal frame; an overshoot of at most one nominal-frame period is bounded to the probed video duration with a warning. Larger out-of-bounds results fail validation.
 
 Auto-Editor uses only levels, with separate motion and audio measurements:
 - motion_active and low_motion describe full-frame pixel changes;

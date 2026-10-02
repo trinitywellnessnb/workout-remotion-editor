@@ -67,13 +67,13 @@ def number(value: Any) -> float:
 
 
 def run_provider(provider: Provider, source: dict[str, Any], timeout: float) -> tuple[dict[str, Any], Result]:
-    run_id = f"{source['id']}:{provider.category}:{provider.name}"
     try:
         result = provider.analyze(source, timeout)
     except Unavailable as exc:
         result = Result(status="unavailable", warnings=[str(exc)])
     except Exception as exc:  # Provider isolation: optional tools cannot abort the workflow.
         result = Result(status="failed", errors=[str(exc)])
+    run_id = f"{source['id']}:{provider.category}:{provider.name}"
     run = {
         "id": run_id, "source_id": source["id"], "category": provider.category,
         "provider": provider.name, "version": provider.version, "upstream": provider.upstream,

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import importlib.util
+from importlib import metadata
 import json
 import sys
 from pathlib import Path
@@ -24,6 +25,12 @@ class Scene:
     def analyze(self, source: dict[str, Any], timeout: float) -> Result:
         if importlib.util.find_spec("scenedetect") is None:
             raise Unavailable("PySceneDetect is not installed")
+        for distribution in ("scenedetect-headless", "scenedetect"):
+            try:
+                self.version = metadata.version(distribution)
+                break
+            except metadata.PackageNotFoundError:
+                continue
         if source["duration"] is None:
             return Result(status="skipped", warnings=["Scene analysis requires known duration."])
         worker = Path(__file__).with_name("scene_worker.py")
@@ -34,7 +41,17 @@ class Scene:
             raise ValueError(f"unsupported PySceneDetect version: {self.version}; install 0.7.1")
         detector = self.configuration["detector"]
         scenes, boundaries = [], []
+        warnings = ["Scene boundaries are evidence only; neither sets nor confirmed decoding defects."]
         for index, (start, end) in enumerate(data["scenes"]):
+            # PySceneDetect ends its final range at last PTS + one nominal frame.
+            # For VFR this can exceed the probed video end by a fraction of a sample.
+            if index == len(data["scenes"]) - 1 and end > source["duration"]:
+                tolerance = 1 / source["fps"] if source.get("fps") else 1e-3
+                if end <= source["duration"] + tolerance + 1e-6:
+                    warnings.append(
+                        f"Final scene end {end:.6f}s bounded to probed duration "
+                        f"{source['duration']:.6f}s (nominal-frame end estimate).")
+                    end = source["duration"]
             scenes.append({"id": f"{source['id']}:scene:{index}", "start": start, "end": end,
                            "detector": detector, "reason": "Detected shot range; not a workout set."})
             if index:
@@ -43,7 +60,6 @@ class Scene:
                                    "kind": "fade_candidate" if detector == "threshold" else "hard_cut_candidate",
                                    "reason": "Brightness threshold transition." if detector == "threshold"
                                    else "Visual discontinuity candidate; confirm against footage."})
-        warnings = ["Scene boundaries are evidence only; neither sets nor confirmed decoding defects."]
         if not boundaries:
             warnings.append("No useful internal shot boundaries detected; continue visual analysis.")
         return Result(status="success" if boundaries else "no_results",

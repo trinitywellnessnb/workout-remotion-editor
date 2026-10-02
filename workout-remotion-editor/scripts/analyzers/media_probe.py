@@ -6,7 +6,7 @@ import subprocess
 from fractions import Fraction
 from typing import Any
 
-from .base import Result, command, executable, number
+from .base import Result, Unavailable, command, executable, number
 
 
 def normalize_ffprobe(data: dict[str, Any]) -> dict[str, Any]:
@@ -16,7 +16,10 @@ def normalize_ffprobe(data: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("no readable video stream")
     video = videos[0]
     audio = [stream for stream in data["streams"] if stream.get("codec_type") == "audio"]
-    duration = number(video.get("duration", data.get("format", {}).get("duration")))
+    try:
+        duration = number(video.get("duration"))
+    except (TypeError, ValueError):
+        duration = number(data.get("format", {}).get("duration"))
     if duration <= 0:
         raise ValueError("source duration is unknown or non-positive")
     metadata: dict[str, Any] = {"duration": duration, "width": int(video["width"]),
@@ -79,6 +82,7 @@ class MediaProbe:
 
     def analyze(self, source: dict[str, Any], timeout: float) -> Result:
         warnings: list[str] = []
+        errors: list[str] = []
         try:
             binary = executable("ffprobe")
             self.name = "ffprobe"
@@ -91,6 +95,8 @@ class MediaProbe:
             return Result(metadata=metadata, warnings=warnings)
         except (OSError, ValueError, RuntimeError, KeyError, TypeError, subprocess.SubprocessError) as exc:
             warnings.append(f"ffprobe unavailable/failed: {exc}")
+            if not isinstance(exc, Unavailable):
+                errors.append(f"ffprobe: {exc}")
         try:
             binary = executable("auto-editor")
             self.name = "auto-editor-info"
@@ -99,14 +105,16 @@ class MediaProbe:
             metadata = normalize_auto_info(json.loads(command(
                 [binary, "info", source["path"], "--json"], timeout)))
             warnings.append("Auto-Editor info cannot verify stream timestamp origins; motion/audio evidence skipped.")
-            return Result(status="partial", metadata=metadata, warnings=warnings)
+            return Result(status="partial", metadata=metadata, warnings=warnings, errors=errors)
         except (OSError, ValueError, RuntimeError, KeyError, TypeError, subprocess.SubprocessError) as exc:
             warnings.append(f"Auto-Editor metadata unavailable/failed: {exc}")
+            if not isinstance(exc, Unavailable):
+                errors.append(f"Auto-Editor info: {exc}")
         if self.supplied:
             self.name = "supplied-metadata"
             self.version = None
             self.upstream = "https://github.com/trinitywellnessnb/workout-remotion-editor"
-            return Result(status="partial", metadata=self.supplied, warnings=warnings + [
+            return Result(status="partial", metadata=self.supplied, errors=errors, warnings=warnings + [
                 "Using supplied metadata; timestamps require manual verification."])
-        return Result(status="unavailable", warnings=warnings + [
+        return Result(status="failed" if errors else "unavailable", errors=errors, warnings=warnings + [
             "No media metadata available. Continue visual/manual analysis; duration remains unknown."])
