@@ -26,6 +26,8 @@ class RealToolTests(unittest.TestCase):
         missing = [tool for tool in ("ffmpeg", "ffprobe", "auto-editor") if not shutil.which(tool)]
         if importlib.util.find_spec("scenedetect") is None:
             missing.append("scenedetect")
+        if importlib.util.find_spec("av") is None:
+            missing.append("av")
         if missing:
             message = "optional integrations unavailable: " + ", ".join(missing)
             if os.environ.get("REQUIRE_ANALYZERS") == "1":

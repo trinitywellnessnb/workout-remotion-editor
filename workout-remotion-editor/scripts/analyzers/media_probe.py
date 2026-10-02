@@ -36,12 +36,18 @@ def normalize_ffprobe(data: dict[str, Any]) -> dict[str, Any]:
             rotation = side["rotation"]
     if rotation is not None:
         metadata["rotation"] = number(rotation)
-    starts = [number(stream.get("start_time", 0)) for stream in [video, *audio]]
+    starts: list[float | None] = []
+    for stream in [video, *audio]:
+        try:
+            starts.append(number(stream.get("start_time")))
+        except (TypeError, ValueError):
+            starts.append(None)
     metadata["metadata"] = {
-        "time_base": video.get("time_base", ""), "start_time": starts[0],
-        "audio_streams": len(audio),
-        "timestamp_origin_verified": all(abs(start) <= 1e-6 for start in starts),
+        "time_base": video.get("time_base", ""), "audio_streams": len(audio),
+        "timestamp_origin_verified": all(start is not None and abs(start) <= 1e-6 for start in starts),
     }
+    if starts[0] is not None:
+        metadata["metadata"]["start_time"] = starts[0]
     # Different nominal/average rates are a warning signal, not proof of VFR.
     return metadata
 
@@ -91,7 +97,7 @@ class MediaProbe:
                                        "-of", "json", source["path"]], timeout))
             metadata = normalize_ffprobe(data)
             if not metadata["metadata"]["timestamp_origin_verified"]:
-                warnings.append("Non-zero stream start times: Auto-Editor activity timing will be skipped.")
+                warnings.append("Non-zero or unknown stream start times: Auto-Editor activity timing will be skipped.")
             return Result(metadata=metadata, warnings=warnings)
         except (OSError, ValueError, RuntimeError, KeyError, TypeError, subprocess.SubprocessError) as exc:
             warnings.append(f"ffprobe unavailable/failed: {exc}")

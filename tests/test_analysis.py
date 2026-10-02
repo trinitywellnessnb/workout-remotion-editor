@@ -150,13 +150,15 @@ class NormalizationTests(unittest.TestCase):
     def test_ffprobe_media_metadata(self):
         data = {"format": {"duration": "10"}, "streams": [
             {"codec_type": "video", "codec_name": "h264", "width": 1920, "height": 1080,
-             "avg_frame_rate": "30000/1001", "time_base": "1/30000",
+             "avg_frame_rate": "30000/1001", "time_base": "1/30000", "start_time": "0",
              "side_data_list": [{"rotation": 90}]},
-            {"codec_type": "audio", "codec_name": "aac"}]}
+            {"codec_type": "audio", "codec_name": "aac", "start_time": "0"}]}
         result = normalize_ffprobe(data)
         self.assertAlmostEqual(result["fps"], 30000 / 1001)
         self.assertEqual(result["rotation"], 90)
         self.assertTrue(result["metadata"]["timestamp_origin_verified"])
+        del data["streams"][1]["start_time"]
+        self.assertFalse(normalize_ffprobe(data)["metadata"]["timestamp_origin_verified"])
         data["streams"][1]["start_time"] = "0.1"
         self.assertFalse(normalize_ffprobe(data)["metadata"]["timestamp_origin_verified"])
         with self.assertRaises(ValueError):

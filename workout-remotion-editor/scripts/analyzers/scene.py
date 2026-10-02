@@ -18,7 +18,7 @@ class Scene:
     version: str | None = None
 
     def __init__(self, detector: str = "adaptive", threshold: float | None = None,
-                 min_scene_seconds: float = 0.5, backend: str = "opencv"):
+                 min_scene_seconds: float = 0.5, backend: str = "pyav"):
         self.configuration = {"detector": detector, "threshold": threshold,
                               "min_scene_seconds": min_scene_seconds, "backend": backend}
 
@@ -46,7 +46,7 @@ class Scene:
             # PySceneDetect ends its final range at last PTS + one nominal frame.
             # For VFR this can exceed the probed video end by a fraction of a sample.
             if index == len(data["scenes"]) - 1 and end > source["duration"]:
-                tolerance = 1 / source["fps"] if source.get("fps") else 1e-3
+                tolerance = data.get("nominal_frame_seconds", 1 / source["fps"] if source.get("fps") else 1e-3)
                 if end <= source["duration"] + tolerance + 1e-6:
                     warnings.append(
                         f"Final scene end {end:.6f}s bounded to probed duration "
@@ -60,7 +60,9 @@ class Scene:
                                    "kind": "fade_candidate" if detector == "threshold" else "hard_cut_candidate",
                                    "reason": "Brightness threshold transition." if detector == "threshold"
                                    else "Visual discontinuity candidate; confirm against footage."})
+        if data.get("decode_failures", 0):
+            warnings.append(f"{data['decode_failures']} frames failed to decode; evidence may be incomplete.")
         if not boundaries:
             warnings.append("No useful internal shot boundaries detected; continue visual analysis.")
-        return Result(status="success" if boundaries else "no_results",
+        return Result(status="partial" if data.get("decode_failures", 0) else "success" if boundaries else "no_results",
                       evidence={"scenes": scenes, "scene_boundaries": boundaries}, warnings=warnings)

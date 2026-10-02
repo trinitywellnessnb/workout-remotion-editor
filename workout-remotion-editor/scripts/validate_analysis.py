@@ -152,7 +152,7 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
         if not point and end <= start:
             errors.append(f"{prefix}: end must be greater than start")
         if start < 0 or end > duration + 1e-6:
-            errors.append(f"{prefix}: exceeds source bounds")
+            errors.append(f"{prefix}: range {start:g}–{end:g}s exceeds source duration {duration:g}s")
 
     segments = {item["id"]: item for item in document["segments"]}
     for collection in COLLECTIONS:

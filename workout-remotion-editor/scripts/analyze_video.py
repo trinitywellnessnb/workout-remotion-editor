@@ -88,7 +88,7 @@ def main() -> int:
     parser.add_argument("--scene-detector", choices=["adaptive", "content", "threshold"], default="adaptive")
     parser.add_argument("--scene-threshold", type=positive)
     parser.add_argument("--min-scene-seconds", type=positive, default=0.5)
-    parser.add_argument("--scene-backend", choices=["opencv", "pyav"], default="opencv")
+    parser.add_argument("--scene-backend", choices=["opencv", "pyav"], default="pyav")
     parser.add_argument("--motion-threshold", type=unit, default=0.02)
     parser.add_argument("--audio-threshold", type=unit, default=0.04)
     parser.add_argument("--timebase", type=sampling_rate, default="30/1",

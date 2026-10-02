@@ -1,1 +1,1 @@
-scenedetect-headless==0.7.1
+scenedetect-headless[pyav]==0.7.1

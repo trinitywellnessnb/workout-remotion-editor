@@ -50,7 +50,7 @@ Optional scene detection, tested with PySceneDetect 0.7.1:
 python -m pip install -r workout-remotion-editor/scripts/requirements-scene.txt
 ~~~
 
-This installs scenedetect-headless, including OpenCV and NumPy, only when requested. It exposes the same scenedetect module as the desktop package; install one variant, not both. The optional PyAV backend can be installed separately with pip install av and selected with --scene-backend pyav.
+This installs scenedetect-headless with PyAV, OpenCV, and NumPy, only when requested. It exposes the same scenedetect module as the desktop package; install one variant, not both. PyAV is the default scene backend for reliable source presentation timestamps, including VFR. --scene-backend opencv is also supported. If the selected backend is missing or fails, the provider reports failure and falls back to visual analysis rather than silently substituting another backend. Some OpenCV/VFR combinations can produce an invalid terminal shot time; strict validation discards such results.
 
 For Auto-Editor, install the tested 31.6.0 official binary from
 https://github.com/WyattBlue/auto-editor/releases/tag/31.6.0, or an equivalent platform package of that version. Place auto-editor on PATH. Current upstream no longer publishes its CLI on pip; an old pip release is not the supported interface.
@@ -59,7 +59,7 @@ Providers detect packages/executables, record versions, and reject unsupported t
 
 ## What the tools contribute
 
-PySceneDetect uses its public detect API and source-time seconds from its 0.7 timecodes:
+PySceneDetect uses its public SceneManager and backend APIs and source-time seconds from its 0.7 timecodes:
 - adaptive is the default for footage with substantial movement/camera motion;
 - content proposes hard-cut/visual-discontinuity candidates;
 - threshold proposes brightness/fade-to-black or fade-from-black boundaries.
@@ -141,7 +141,7 @@ python -m compileall -q workout-remotion-editor/scripts
 
 Core CI installs jsonschema, PyYAML, and Ruff only, runs semantic fixtures and adapter/CLI fallback tests, and validates/packages skill.zip.
 
-A separate optional integration workflow installs ffmpeg, PySceneDetect, and the pinned Auto-Editor binary. It generates tiny synthetic videos to check actual scene/motion/audio signals, VFR timing, unsupported-media fallback, and unchanged input bytes. It installs no ML stacks.
+A separate optional integration workflow installs ffmpeg, PySceneDetect with PyAV, and the pinned Auto-Editor binary. It generates tiny synthetic videos to check actual scene/motion/audio signals, VFR timing, unsupported-media fallback, and unchanged input bytes. It installs no ML stacks.
 
 ~~~sh
 REQUIRE_ANALYZERS=1 python -m unittest discover -s tests -p 'test_integration.py' -v
