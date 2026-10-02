@@ -26,6 +26,7 @@ class Result:
 
 
 class Provider(Protocol):
+    """Legacy providers accept source/timeout; consumes_context providers accept isolated prior evidence."""
     name: str
     category: str
     upstream: str
@@ -121,10 +122,10 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
                 if isinstance(item.get("id"), str):
                     item["id"] = f"{run_id}:{item['id']}"
                 if "signal_ids" in item:
-                    references = item["signal_ids"]
-                    if not isinstance(references, list) or any(not isinstance(ref, str) for ref in references):
+                    signal_refs = item["signal_ids"]
+                    if not isinstance(signal_refs, list) or any(not isinstance(ref, str) for ref in signal_refs):
                         raise ValueError("signal_ids must be a list of strings")
-                    item["signal_ids"] = [f"{run_id}:{ref}" for ref in references]
+                    item["signal_ids"] = [f"{run_id}:{ref}" for ref in signal_refs]
                 normalized = references(item)
                 item.clear()
                 item.update(normalized, source_id=source["id"], run_id=run_id)

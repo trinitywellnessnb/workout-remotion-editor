@@ -24,7 +24,7 @@ def validate_visual(document: dict[str, Any], seen: set[str]) -> list[str]:
     person_at_sample = set()
 
     def compatible(a, b):
-        return b is not None and a["source_id"] == b["source_id"] and a["run_id"] == b["run_id"]
+        return b is not None and a["source_id"] == b["source_id"] and a["run_id"] == b.get("run_id", b["id"])
 
     def box_errors(item, prefix):
         for key in ("bbox", "minimum_visible_region", "proposed_crop"):
