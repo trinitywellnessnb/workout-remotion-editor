@@ -2,6 +2,12 @@
 
 All notable changes to Workout Remotion Editor are documented here.
 
+## Phase 5 — schema 2.6 repetition evidence
+
+- Added an opt-in exact-rule repetition analyzer for single-arm dumbbell rows.
+- Added auditable intervals and completed/incomplete/uncertain machine candidates, validation, conservative gates, and deterministic tests.
+- Preserved editorial repetitions, rendering behavior, and Phase 1–4 schemas.
+
 ## Unreleased — Phase 1 media evidence
 
 - Add optional ffprobe/media metadata, PySceneDetect 0.7.1 scene evidence, and Auto-Editor 31.6.0 motion/audio levels adapters.

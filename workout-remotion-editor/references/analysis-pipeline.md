@@ -1,5 +1,8 @@
 # Optional media analysis
 
+Phase 5 adds opt-in schema 2.6 repetition evidence after pose and exercise fusion. It never changes editorial `repetitions` or rendering; see [repetition-evidence.md](repetition-evidence.md).
+
+
 Phase 4 preserves the ordered evidence pipeline and adds explicit exercise context, interval proposals, and deterministic candidate fusion after optional pose. The normalized output remains provider-agnostic; provider/model details stay in provenance. See [object-tracking.md](object-tracking.md), [pose-evidence.md](pose-evidence.md), and [exercise-recognition.md](exercise-recognition.md).
 
 External analyzers provide evidence. Workout Remotion Editor makes workout-specific editorial decisions, Workout Remotion Director orchestrates when available, and Remotion implements the accepted edit and renders it.

@@ -45,8 +45,9 @@ class Taxonomy:
         if not self.version or not self.entries:
             raise ValueError("taxonomy requires a version and exercises")
         for key, entry in self.entries.items():
-            if key != entry["canonical_id"] or entry.get("rep_rule_id") is not None:
-                raise ValueError("canonical IDs must be unique and Phase 4 rep rules must be inactive")
+            expected_rule = "single_arm_dumbbell_row_v1" if key == "dumbbell_row_single_arm" else None
+            if key != entry["canonical_id"] or entry.get("rep_rule_id") != expected_rule:
+                raise ValueError("canonical IDs must be unique and rep rules must match the exact registry")
             if entry.get("parent_id") and entry["parent_id"] not in self.entries:
                 raise ValueError(f"unknown taxonomy parent: {entry['parent_id']}")
         for ids in self.aliases.values():

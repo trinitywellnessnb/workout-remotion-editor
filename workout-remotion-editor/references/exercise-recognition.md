@@ -1,5 +1,8 @@
 # Exercise recognition: context first (Phase 4)
 
+Phase 5 activates exactly `dumbbell_row_single_arm` → `single_arm_dumbbell_row_v1`; no generic-row or family fallback exists. See [repetition-evidence.md](repetition-evidence.md).
+
+
 ## Purpose and boundary
 
 Phase 4 turns source-relative context and existing visual evidence into normalized, entity-associated exercise candidates. The flow is **video → probe → scenes/activity → identity/equipment → pose/movement → interval candidates → user context → deterministic fusion → exercise candidates → Editor**. Candidates are evidence, not editorial decisions. This phase does **not** run MMAction2, an RGB classifier, a skeleton classifier, a repetition state machine, set confirmation, form/ROM grading, effort or medical inference.

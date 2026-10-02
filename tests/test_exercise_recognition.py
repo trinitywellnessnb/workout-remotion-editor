@@ -57,10 +57,12 @@ class TaxonomyAndContextTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             load_context(None, ["curl"], ["source-1", "source-2"], self.taxonomy)
 
-    def test_taxonomy_variants_remain_distinct_and_rules_inactive(self):
+    def test_taxonomy_variants_remain_distinct_and_only_phase5_rule_active(self):
         self.assertNotEqual(self.taxonomy.entries["barbell_row"]["canonical_id"],
                             self.taxonomy.entries["dumbbell_row_single_arm"]["canonical_id"])
-        self.assertTrue(all(x["rep_rule_id"] is None for x in self.taxonomy.entries.values()))
+        active = {key: value["rep_rule_id"] for key, value in self.taxonomy.entries.items()
+                  if value["rep_rule_id"] is not None}
+        self.assertEqual(active, {"dumbbell_row_single_arm": "single_arm_dumbbell_row_v1"})
 
 
 class ProposalFusionTests(unittest.TestCase):

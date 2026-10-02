@@ -261,9 +261,13 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
     taxonomy_version = None
     if context is not None:
         from analyzers.exercise_recognition import Taxonomy
+
         metadata = document.get("taxonomy")
         if metadata:
-            taxonomy_ids, taxonomy_version = set(metadata["canonical_ids"]), metadata["version"]
+            taxonomy_ids, taxonomy_version = (
+                set(metadata["canonical_ids"]),
+                metadata["version"],
+            )
         else:
             taxonomy = Taxonomy.load()
             taxonomy_ids, taxonomy_version = set(taxonomy.entries), taxonomy.version
@@ -279,40 +283,76 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                 errors.append(f"{prefix}/source_id: unknown source")
             if assertion.get("canonical_exercise_id") not in taxonomy_ids | {None}:
                 errors.append(f"{prefix}/canonical_exercise_id: invalid taxonomy ID")
-            if assertion.get("mapping_status") == "mapped" and not assertion.get("canonical_exercise_id"):
+            if assertion.get("mapping_status") == "mapped" and not assertion.get(
+                "canonical_exercise_id"
+            ):
                 errors.append(f"{prefix}: mapped alias requires canonical ID")
-            if assertion.get("mapping_status") in {"ambiguous", "unmapped"} and assertion.get("canonical_exercise_id"):
-                errors.append(f"{prefix}: ambiguous/unmapped alias cannot claim canonical ID")
+            if assertion.get("mapping_status") in {
+                "ambiguous",
+                "unmapped",
+            } and assertion.get("canonical_exercise_id"):
+                errors.append(
+                    f"{prefix}: ambiguous/unmapped alias cannot claim canonical ID"
+                )
             if (assertion.get("start") is None) != (assertion.get("end") is None):
                 errors.append(f"{prefix}: interval context requires both start and end")
             if assertion.get("start") is not None:
                 bounds(assertion, prefix)
             scene_id = assertion.get("scene_id")
             if scene_id is not None:
-                scene = next((item for item in evidence.get("scenes", []) if item["id"] == scene_id), None)
+                scene = next(
+                    (
+                        item
+                        for item in evidence.get("scenes", [])
+                        if item["id"] == scene_id
+                    ),
+                    None,
+                )
                 if scene is None or scene["source_id"] != assertion["source_id"]:
                     errors.append(f"{prefix}/scene_id: unknown or cross-source scene")
                 elif assertion.get("start") is not None and (
-                        assertion["start"] < scene["start"] - 1e-6 or assertion["end"] > scene["end"] + 1e-6):
+                    assertion["start"] < scene["start"] - 1e-6
+                    or assertion["end"] > scene["end"] + 1e-6
+                ):
                     errors.append(f"{prefix}: assertion exceeds scene bounds")
             entity_id = assertion.get("entity_id")
             if entity_id is not None:
-                entity = next((item for item in evidence.get("tracked_entities", []) if item["id"] == entity_id), None)
+                entity = next(
+                    (
+                        item
+                        for item in evidence.get("tracked_entities", [])
+                        if item["id"] == entity_id
+                    ),
+                    None,
+                )
                 if entity is None or entity["source_id"] != assertion["source_id"]:
                     errors.append(f"{prefix}/entity_id: unknown or cross-source entity")
                 elif assertion.get("start") is not None and (
-                        assertion["end"] <= entity["start"] or assertion["start"] >= entity["end"]):
+                    assertion["end"] <= entity["start"]
+                    or assertion["start"] >= entity["end"]
+                ):
                     errors.append(f"{prefix}: assertion does not overlap entity")
             if assertion.get("mapping_status") is not None and metadata is not None:
                 from analyzers.exercise_recognition import Taxonomy, normalize_alias
+
                 bundled = Taxonomy.load()
-                if set(metadata["canonical_ids"]) == set(bundled.entries) and metadata["version"] == bundled.version:
+                if (
+                    set(metadata["canonical_ids"]) == set(bundled.entries)
+                    and metadata["version"] == bundled.version
+                ):
                     mapped = bundled.map_label(assertion["supplied_label"])
-                    if (assertion.get("normalized_label") != normalize_alias(assertion["supplied_label"])
-                            or assertion["mapping_status"] != mapped["status"]
-                            or assertion.get("canonical_exercise_id") != mapped["canonical_exercise_id"]
-                            or assertion.get("mapping_candidates", []) != mapped["candidate_ids"]):
-                        errors.append(f"{prefix}: alias mapping provenance is inconsistent")
+                    if (
+                        assertion.get("normalized_label")
+                        != normalize_alias(assertion["supplied_label"])
+                        or assertion["mapping_status"] != mapped["status"]
+                        or assertion.get("canonical_exercise_id")
+                        != mapped["canonical_exercise_id"]
+                        or assertion.get("mapping_candidates", [])
+                        != mapped["candidate_ids"]
+                    ):
+                        errors.append(
+                            f"{prefix}: alias mapping provenance is inconsistent"
+                        )
         for index, item in enumerate(context["ordered_plan"]):
             if item["canonical_exercise_id"] not in taxonomy_ids:
                 errors.append(f"/context/ordered_plan/{index}: invalid taxonomy ID")
@@ -705,10 +745,19 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                     errors.append(f"{prefix}: pose trajectory must be ordered")
                 last_pose_time[key] = item["timestamp"]
 
-    all_evidence_ids = {item["id"] for name, values in evidence.items() if name != "runs"
-                        for item in values if isinstance(item, dict) and "id" in item}
-    all_context_refs = {f"context:{item['id']}" for item in (context or {}).get("assertions", [])}
-    all_context_refs.update(f"plan:{item['order']}" for item in (context or {}).get("ordered_plan", []))
+    all_evidence_ids = {
+        item["id"]
+        for name, values in evidence.items()
+        if name != "runs"
+        for item in values
+        if isinstance(item, dict) and "id" in item
+    }
+    all_context_refs = {
+        f"context:{item['id']}" for item in (context or {}).get("assertions", [])
+    }
+    all_context_refs.update(
+        f"plan:{item['order']}" for item in (context or {}).get("ordered_plan", [])
+    )
     rank_groups: dict[tuple[Any, ...], list[tuple[int, float, str]]] = {}
     for collection in ("interval_candidates", "exercise_candidates"):
         for index, item in enumerate(evidence.get(collection, [])):
@@ -716,18 +765,32 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
             unique(item, prefix)
             bounds(item, prefix)
             run = runs.get(item["run_id"])
-            allowed = {"context_fusion"} if collection == "interval_candidates" else {
-                "context_fusion", "action_recognition"}
-            if run is None or run["source_id"] != item["source_id"] or run["category"] not in allowed:
+            allowed = (
+                {"context_fusion"}
+                if collection == "interval_candidates"
+                else {"context_fusion", "action_recognition"}
+            )
+            if (
+                run is None
+                or run["source_id"] != item["source_id"]
+                or run["category"] not in allowed
+            ):
                 errors.append(f"{prefix}/run_id: incompatible exercise run")
             elif run["status"] not in {"success", "partial"}:
-                errors.append(f"{prefix}: unusable run cannot supply candidate evidence")
+                errors.append(
+                    f"{prefix}: unusable run cannot supply candidate evidence"
+                )
             scene_id = item.get("scene_id")
             if scene_id is not None:
-                scene = next((x for x in evidence.get("scenes", []) if x["id"] == scene_id), None)
+                scene = next(
+                    (x for x in evidence.get("scenes", []) if x["id"] == scene_id), None
+                )
                 if scene is None or scene["source_id"] != item["source_id"]:
                     errors.append(f"{prefix}/scene_id: unknown source scene")
-                elif item["start"] < scene["start"] - 1e-6 or item["end"] > scene["end"] + 1e-6:
+                elif (
+                    item["start"] < scene["start"] - 1e-6
+                    or item["end"] > scene["end"] + 1e-6
+                ):
                     errors.append(f"{prefix}: candidate crosses scene bounds")
             entity_id = item.get("entity_id")
             if entity_id is not None:
@@ -735,43 +798,263 @@ def semantic_errors(document: dict[str, Any]) -> list[str]:
                 if entity is None or entity["source_id"] != item["source_id"]:
                     errors.append(f"{prefix}/entity_id: incompatible entity")
                 elif item["end"] <= entity["start"] or item["start"] >= entity["end"]:
-                    errors.append(f"{prefix}/entity_id: candidate does not overlap entity")
-                elif collection == "exercise_candidates" and item["source_type"] in {"action_model", "context_heuristic"} and entity["category"] != "person":
-                    errors.append(f"{prefix}/entity_id: machine candidate requires person entity")
-            for ref in item["supporting_evidence_refs"] + item.get("conflicting_evidence_refs", []):
+                    errors.append(
+                        f"{prefix}/entity_id: candidate does not overlap entity"
+                    )
+                elif (
+                    collection == "exercise_candidates"
+                    and item["source_type"] in {"action_model", "context_heuristic"}
+                    and entity["category"] != "person"
+                ):
+                    errors.append(
+                        f"{prefix}/entity_id: machine candidate requires person entity"
+                    )
+            for ref in item["supporting_evidence_refs"] + item.get(
+                "conflicting_evidence_refs", []
+            ):
                 if ref not in all_evidence_ids | all_context_refs:
-                    errors.append(f"{prefix}: unknown support/conflict evidence reference")
+                    errors.append(
+                        f"{prefix}: unknown support/conflict evidence reference"
+                    )
                     continue
-                referenced = next((value for name, values in evidence.items() if name != "runs"
-                                   for value in values if isinstance(value, dict) and value.get("id") == ref), None)
+                referenced = next(
+                    (
+                        value
+                        for name, values in evidence.items()
+                        if name != "runs"
+                        for value in values
+                        if isinstance(value, dict) and value.get("id") == ref
+                    ),
+                    None,
+                )
                 if referenced is not None:
                     if referenced.get("source_id") != item["source_id"]:
-                        errors.append(f"{prefix}: evidence reference belongs to another source")
-                    if (referenced.get("entity_id") is not None and item.get("entity_id") is not None
-                            and referenced["entity_id"] != item["entity_id"]):
-                        errors.append(f"{prefix}: evidence reference belongs to another entity")
+                        errors.append(
+                            f"{prefix}: evidence reference belongs to another source"
+                        )
+                    if (
+                        referenced.get("entity_id") is not None
+                        and item.get("entity_id") is not None
+                        and referenced["entity_id"] != item["entity_id"]
+                    ):
+                        errors.append(
+                            f"{prefix}: evidence reference belongs to another entity"
+                        )
                     timestamp = referenced.get("timestamp")
-                    if timestamp is not None and not item["start"] - 1e-6 <= timestamp <= item["end"] + 1e-6:
-                        errors.append(f"{prefix}: evidence timestamp is outside candidate interval")
+                    if (
+                        timestamp is not None
+                        and not item["start"] - 1e-6 <= timestamp <= item["end"] + 1e-6
+                    ):
+                        errors.append(
+                            f"{prefix}: evidence timestamp is outside candidate interval"
+                        )
             if collection == "exercise_candidates":
-                if item["taxonomy_version"] != taxonomy_version or item.get("canonical_exercise_id") not in taxonomy_ids | {None}:
+                if item["taxonomy_version"] != taxonomy_version or item.get(
+                    "canonical_exercise_id"
+                ) not in taxonomy_ids | {None}:
                     errors.append(f"{prefix}: invalid taxonomy version or canonical ID")
-                if item["source_type"] == "action_model" and (not item.get("model") or not item.get("provider")):
-                    errors.append(f"{prefix}: action-model candidate requires provider and model")
-                if item["source_type"] == "user_provided" and item.get("model") is not None:
-                    errors.append(f"{prefix}: user-provided candidate cannot claim a model")
-                if item["conflict_status"] == "none" and item["conflicting_evidence_refs"]:
-                    errors.append(f"{prefix}: conflict status disagrees with conflict references")
-                group = (item["run_id"], item["source_id"], item.get("scene_id"), item.get("entity_id"),
-                         item["start"], item["end"])
-                rank_groups.setdefault(group, []).append((item["rank"], item["confidence"], prefix))
+                if item["source_type"] == "action_model" and (
+                    not item.get("model") or not item.get("provider")
+                ):
+                    errors.append(
+                        f"{prefix}: action-model candidate requires provider and model"
+                    )
+                if (
+                    item["source_type"] == "user_provided"
+                    and item.get("model") is not None
+                ):
+                    errors.append(
+                        f"{prefix}: user-provided candidate cannot claim a model"
+                    )
+                if (
+                    item["conflict_status"] == "none"
+                    and item["conflicting_evidence_refs"]
+                ):
+                    errors.append(
+                        f"{prefix}: conflict status disagrees with conflict references"
+                    )
+                group = (
+                    item["run_id"],
+                    item["source_id"],
+                    item.get("scene_id"),
+                    item.get("entity_id"),
+                    item["start"],
+                    item["end"],
+                )
+                rank_groups.setdefault(group, []).append(
+                    (item["rank"], item["confidence"], prefix)
+                )
     for values in rank_groups.values():
         ordered_values = sorted(values)
         ranks = [value[0] for value in ordered_values]
         if len(ranks) != len(set(ranks)):
             errors.append(f"{ordered_values[0][2]}: duplicate rank in candidate group")
         if any(a[1] < b[1] for a, b in zip(ordered_values, ordered_values[1:])):
-            errors.append(f"{ordered_values[0][2]}: rank ordering must follow descending score")
+            errors.append(
+                f"{ordered_values[0][2]}: rank ordering must follow descending score"
+            )
+
+    exercise_by_id = {x["id"]: x for x in evidence.get("exercise_candidates", [])}
+    rep_intervals = {x["id"]: x for x in evidence.get("rep_analysis_intervals", [])}
+    for index, item in enumerate(evidence.get("rep_analysis_intervals", [])):
+        prefix = f"/evidence/rep_analysis_intervals/{index}"
+        unique(item, prefix)
+        bounds(item, prefix)
+        run = runs.get(item["run_id"])
+        candidate = exercise_by_id.get(item["exercise_candidate_id"])
+        if (
+            run is None
+            or run["category"] != "repetition_analysis"
+            or run["source_id"] != item["source_id"]
+            or run["status"] not in {"success", "partial"}
+        ):
+            errors.append(
+                f"{prefix}/run_id: incompatible or unusable repetition analyzer run"
+            )
+        if candidate is None or any(
+            candidate.get(k) != item.get(k)
+            for k in ("source_id", "scene_id", "entity_id", "canonical_exercise_id")
+        ):
+            errors.append(
+                f"{prefix}/exercise_candidate_id: incompatible candidate provenance"
+            )
+        entity = entities.get(item.get("entity_id"))
+        if item["eligible"] and (
+            entity is None
+            or entity.get("category") != "person"
+            or entity.get("source_id") != item["source_id"]
+        ):
+            errors.append(
+                f"{prefix}/entity_id: repetition analysis requires a same-source person"
+            )
+        if (item.get("canonical_exercise_id"), item.get("rep_rule_id")) != (
+            "dumbbell_row_single_arm",
+            "single_arm_dumbbell_row_v1",
+        ):
+            # Ineligible attempts for other exercises may have no rule, but can never claim an incompatible active rule.
+            if item.get("rep_rule_id") is not None or item["eligible"]:
+                errors.append(f"{prefix}: incompatible exercise/rule mapping")
+        failed = [g["reason"] for g in item["gate_results"] if not g["passed"]]
+        if item["eligible"] == bool(failed) or failed != item["ineligibility_reasons"]:
+            errors.append(f"{prefix}: eligibility and ordered gate results disagree")
+
+    completed_groups: dict[tuple[Any, ...], list[tuple[float, float, str]]] = {}
+    phase_order = (
+        "initial_bottom_confirmation",
+        "pull_departure",
+        "top_entry",
+        "top_confirmation",
+        "return_departure",
+        "bottom_reentry",
+        "final_completion_confirmation",
+    )
+    for index, item in enumerate(evidence.get("rep_candidates", [])):
+        prefix = f"/evidence/rep_candidates/{index}"
+        unique(item, prefix)
+        bounds(item, prefix)
+        interval = rep_intervals.get(item["rep_analysis_interval_id"])
+        candidate = exercise_by_id.get(item["exercise_candidate_id"])
+        run = runs.get(item["run_id"])
+        if (
+            interval is None
+            or not interval["eligible"]
+            or any(
+                interval.get(k) != item.get(k)
+                for k in (
+                    "source_id",
+                    "scene_id",
+                    "entity_id",
+                    "exercise_candidate_id",
+                    "canonical_exercise_id",
+                    "rep_rule_id",
+                    "rep_rule_version",
+                )
+            )
+            or interval.get("side") != item["working_side"]
+        ):
+            errors.append(
+                f"{prefix}/rep_analysis_interval_id: incompatible interval provenance or side"
+            )
+        if (
+            run is None
+            or run["category"] != "repetition_analysis"
+            or run["source_id"] != item["source_id"]
+        ):
+            errors.append(f"{prefix}/run_id: incompatible repetition run")
+        if (
+            candidate is None
+            or candidate.get("canonical_exercise_id") != item["canonical_exercise_id"]
+        ):
+            errors.append(
+                f"{prefix}/exercise_candidate_id: incompatible exercise candidate"
+            )
+        if (item["canonical_exercise_id"], item["rep_rule_id"]) != (
+            "dumbbell_row_single_arm",
+            "single_arm_dumbbell_row_v1",
+        ):
+            errors.append(f"{prefix}: wrong rule/exercise mapping")
+        values = [
+            item["phases"][name] for name in phase_order if name in item["phases"]
+        ]
+        interval_start = interval["start"] if interval is not None else item["start"]
+        if values != sorted(values) or any(
+            t < interval_start - 1e-6 or t > item["end"] + 1e-6 for t in values
+        ):
+            errors.append(
+                f"{prefix}/phases: phases must be source-time ordered and inside the candidate"
+            )
+        if item["status"] == "completed" and any(
+            name not in item["phases"] for name in phase_order
+        ):
+            errors.append(
+                f"{prefix}/phases: completed candidate requires every mandatory phase"
+            )
+        if item["status"] == "uncertain" and not item["uncertainty_reasons"]:
+            errors.append(
+                f"{prefix}/uncertainty_reasons: uncertain candidate requires a reason"
+            )
+        if item["status"] == "incomplete" and not item["incompletion_reason"]:
+            errors.append(
+                f"{prefix}/incompletion_reason: incomplete candidate requires a reason"
+            )
+        for ref in item["supporting_evidence_refs"]:
+            supporting = pose_samples.get(ref)
+            if (
+                supporting is None
+                or supporting.get("source_id") != item["source_id"]
+                or supporting.get("entity_id") != item["entity_id"]
+                or supporting.get("scene_id") != item["scene_id"]
+                or not item["start"] - 1e-6
+                <= supporting.get("timestamp", -1)
+                <= item["end"] + 1e-6
+            ):
+                errors.append(
+                    f"{prefix}/supporting_evidence_refs: invalid cross-source/entity/scene/time reference"
+                )
+        if item["status"] == "completed":
+            key = tuple(
+                item[x]
+                for x in (
+                    "source_id",
+                    "scene_id",
+                    "entity_id",
+                    "canonical_exercise_id",
+                    "rep_rule_id",
+                    "working_side",
+                )
+            )
+            completed_groups.setdefault(key, []).append(
+                (item["start"], item["end"], prefix)
+            )
+    for group in completed_groups.values():
+        group.sort()
+        for previous, current in zip(group, group[1:]):
+            overlap = previous[1] - current[0]
+            tolerance = min(
+                0.10, 0.1 * min(previous[1] - previous[0], current[1] - current[0])
+            )
+            if overlap > tolerance + 1e-6:
+                errors.append(f"{current[2]}: completed candidates materially overlap")
 
     plan = document.get("retention_plan", {})
     beat_ids: set[str] = set()

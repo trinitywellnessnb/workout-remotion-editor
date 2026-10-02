@@ -18,6 +18,7 @@ from analyzers.scene import Scene
 from analyzers.object_tracking import YoloObjectTracking
 from analyzers.pose import MMPoseProvider
 from analyzers.exercise_recognition import DEFAULT_TAXONOMY, WEIGHTS, Taxonomy, fuse, load_context
+from analyzers.repetition_analysis import run_repetition_analysis
 from validate_analysis import validate_document
 
 
@@ -26,10 +27,12 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
             supplied_metadata: dict[str, Any] | None = None,
             exercise_context: dict[str, Any] | None = None,
             taxonomy: Taxonomy | None = None, exercise_top_k: int = 3,
-            action_mode: str = "basic") -> dict[str, Any]:
+            action_mode: str = "basic", rep_analysis: bool = False,
+            rep_rule: str | None = None, rep_min_quality: float = .65,
+            rep_require_user_confirmation: bool = False) -> dict[str, Any]:
     """Director-callable workflow; failures are represented in the shared document."""
     document: dict[str, Any] = {
-        "schema_version": "2.5", "project": {"title": title, "mode": mode},
+        "schema_version": "2.6", "project": {"title": title, "mode": mode},
         "sources": [], "segments": [], "evidence": {"runs": []},
         "notes": ["Machine evidence only. Workout Remotion Editor must review footage before editing."],
     }
@@ -93,6 +96,9 @@ def analyze(sources: list[Path], *, title: str = "Workout analysis", mode: str =
             item["run_id"] = run_id
         document["evidence"].setdefault("interval_candidates", []).extend(relevant_intervals)
         document["evidence"].setdefault("exercise_candidates", []).extend(relevant_candidates)
+    if rep_analysis:
+        run_repetition_analysis(document, requested_rule=rep_rule, min_quality=rep_min_quality,
+                                require_user_confirmation=rep_require_user_confirmation)
     errors = validate_document(document)
     if errors:
         raise ValueError("Analysis package failed validation: " + "; ".join(errors))
@@ -167,7 +173,15 @@ def main() -> int:
     parser.add_argument("--exercise-top-k", type=int, choices=range(1, 6), default=3)
     parser.add_argument("--action-mode", choices=["basic", "balanced", "high_accuracy"], default="basic",
                         help="scheduling policy; Phase 4 runs no production action classifier")
+    parser.add_argument("--rep-analysis", action="store_true", help="emit conservative machine repetition evidence")
+    parser.add_argument("--rep-rule", help="exact rule ID; cannot override exercise compatibility")
+    parser.add_argument("--rep-min-quality", type=unit, default=.65, help="completed evidence quality policy")
+    parser.add_argument("--rep-require-user-confirmation", action="store_true")
     args = parser.parse_args()
+    if args.rep_analysis and not args.pose:
+        parser.error("--rep-analysis requires --pose")
+    if args.rep_rule and not args.rep_analysis:
+        parser.error("--rep-rule requires --rep-analysis")
     if args.duration is not None and len(args.videos) != 1:
         parser.error("--duration requires exactly one input")
     try:
@@ -203,7 +217,9 @@ def main() -> int:
                            timeout=args.timeout,
                            supplied_metadata={"duration": args.duration} if args.duration else None,
                            exercise_context=context, taxonomy=taxonomy, exercise_top_k=args.exercise_top_k,
-                           action_mode=args.action_mode)
+                           action_mode=args.action_mode, rep_analysis=args.rep_analysis,
+                           rep_rule=args.rep_rule, rep_min_quality=args.rep_min_quality,
+                           rep_require_user_confirmation=args.rep_require_user_confirmation)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         # Validate before writing; atomic replacement avoids a partial analysis file.
         from tempfile import NamedTemporaryFile
