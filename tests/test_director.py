@@ -1,7 +1,6 @@
 """Director evidence handoff, capability fallback, and artifact integrity."""
 from __future__ import annotations
 
-import json
 import os
 import subprocess
 import sys
