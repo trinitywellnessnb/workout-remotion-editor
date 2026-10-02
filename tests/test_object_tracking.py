@@ -302,15 +302,15 @@ class Tensor:
 
 
 class WorkerTests(unittest.TestCase):
-    def worker(self, *, fail_at=None, device="cpu", rotation=0, times=None, spans=None, load_failure=False):
+    def worker(self, *, fail_at=None, device="cpu", rotation=0, times=None, spans=None, load_failure=False, origin=0):
         temporary = tempfile.TemporaryDirectory()
         self.addCleanup(temporary.cleanup)
         model_path = Path(temporary.name) / "tiny.pt"
         model_path.write_bytes(b"mock")
         timestamps = times or [0, 0.2, 0.4, 0.6, 0.8, 1, 1.2, 1.4, 1.6, 1.8]
-        frames = [SimpleNamespace(pts=t + 7, time_base=1, to_ndarray=lambda **k: SimpleNamespace(shape=(1080, 1920, 3)))
+        frames = [SimpleNamespace(pts=t + origin, time_base=1, to_ndarray=lambda **k: SimpleNamespace(shape=(1080, 1920, 3)))
                   for t in timestamps]
-        stream = SimpleNamespace(start_time=7, time_base=1)
+        stream = SimpleNamespace(start_time=origin, time_base=1)
         container = SimpleNamespace(streams=SimpleNamespace(video=[stream]), decode=lambda _: iter(frames),
                                     close=lambda: None)
         calls = []
@@ -327,17 +327,27 @@ class WorkerTests(unittest.TestCase):
                     raise RuntimeError("GPU unavailable")
                 if fail_at is not None and len(calls) == fail_at and device == "cpu":
                     raise RuntimeError("inference failure")
-                boxes = SimpleNamespace(is_track=True, id=Tensor([1]), xyxyn=Tensor([[0.2, 0.1, 0.6, 0.9]]),
-                                        conf=Tensor([0.8]), cls=Tensor([0]))
+                class Boxes:
+                    is_track, id = True, Tensor([1])
+                    xyxyn, conf, cls = Tensor([[0.2, 0.1, 0.6, 0.9]]), Tensor([0.8]), Tensor([0])
+
+                    def __len__(self):
+                        return 1
+                boxes = Boxes()
                 return [SimpleNamespace(boxes=boxes, names=self.names)]
+
+            def predict(self, image, **kwargs):
+                return self.track(image, persist=False, **kwargs)
         modules = {"av": SimpleNamespace(open=lambda _: container),
                    "numpy": SimpleNamespace(ascontiguousarray=lambda a: a, rot90=lambda a, k: a),
                    "ultralytics": SimpleNamespace(__version__="8.4.171", YOLO=Model,
                                                    settings=SimpleNamespace(update=lambda _: None))}
+        default_spans = intervals()
+        default_spans[0]["scene_id"] = "verified-scene"
         payload = {"source": {"path": "raw.mp4", "duration": 2, "rotation": rotation},
                    "configuration": {"model": str(model_path), "device": device, "tracker": "bytetrack",
                                      "equipment_classes": [], "sample_fps": 5, "full_frame": False,
-                                     "imgsz": 640, "detector_confidence": 0.1}, "intervals": spans or intervals()}
+                                     "imgsz": 640, "detector_confidence": 0.1}, "intervals": spans or default_spans}
         with patch.dict(sys.modules, modules), patch.object(socket, "socket"), patch.object(
             socket, "create_connection"), patch.object(socket, "getaddrinfo"):
             # A real socket class is needed by the worker's blocking subclass.
@@ -349,11 +359,12 @@ class WorkerTests(unittest.TestCase):
         self.socket_type = socket.socket
 
     def test_pts_nonzero_origin_and_sampling(self):
-        result, calls = self.worker(times=[0, 0.05, 0.21, 0.41, 0.61, 0.81, 1.01, 1.21, 1.41, 1.61, 1.81])
+        result, calls = self.worker(times=[0, 0.05, 0.21, 0.41, 0.61, 0.81, 1.01, 1.21, 1.41, 1.61, 1.81],
+                                    origin=7, spans=intervals())
         self.assertEqual(result["status"], "success")
         self.assertAlmostEqual(result["samples"][1]["time"], 0.21)
         self.assertFalse(calls[0]["persist"])
-        self.assertTrue(calls[1]["persist"])
+        self.assertFalse(calls[1]["persist"])
         self.assertGreater(result["statistics"]["samples_skipped"], 0)
         self.assertEqual(len(result["statistics"]["model_sha256"]), 64)
 
@@ -376,6 +387,22 @@ class WorkerTests(unittest.TestCase):
         self.assertNotEqual(result["samples"][0]["detections"][0]["track_id"],
                             result["samples"][2]["detections"][0]["track_id"])
 
+    def test_missing_scene_evidence_never_persists_identity_across_unknown_cuts(self):
+        result, calls = self.worker(spans=intervals())
+        self.assertEqual(result["status"], "success")
+        self.assertTrue(all(not c["persist"] for c in calls))
+        self.assertTrue(all(d["track_id"] is None for s in result["samples"] for d in s["detections"]))
+        evidence = derive(result["samples"], intervals())
+        self.assertFalse(evidence["tracked_entities"])
+        self.assertTrue(evidence["visual_regions"])
+        self.assertIn("subject_unresolved", evidence["crop_constraints"][0]["risk_flags"])
+
+    def test_nonzero_origin_does_not_guess_prior_scene_clock(self):
+        result, calls = self.worker(origin=7)
+        self.assertEqual(result["status"], "failed")
+        self.assertIn("Nonzero video origin", result["errors"][0])
+        self.assertFalse(calls)
+
     def test_worker_model_load_failure_is_diagnostic(self):
         result, calls = self.worker(load_failure=True)
         self.assertEqual(result["status"], "failed")
@@ -385,7 +412,8 @@ class WorkerTests(unittest.TestCase):
     def test_real_worker_scene_lifecycle_resets(self):
         spans = intervals()
         spans[0]["end"] = 1
-        spans.append({**spans[0], "id": "interval:1", "start": 1, "end": 2})
+        spans[0]["scene_id"] = "scene-first"
+        spans.append({**spans[0], "id": "interval:1", "scene_id": "scene-second", "start": 1, "end": 2})
         result, calls = self.worker(spans=spans)
         self.assertFalse(calls[0]["persist"])
         self.assertFalse(calls[5]["persist"])

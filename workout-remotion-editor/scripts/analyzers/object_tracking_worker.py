@@ -69,6 +69,9 @@ def run(payload: dict[str, Any]) -> dict[str, Any]:
         if stream.start_time is None or stream.time_base is None:
             raise ValueError("Video timestamp origin is unverified; do not guess source timing")
         origin = float(stream.start_time * stream.time_base)
+        if abs(origin) > 1e-6 and any(span.get("scene_id") is not None for span in intervals):
+            raise ValueError("Nonzero video origin cannot safely align prior scene evidence; "
+                             "use --skip-scene for detection only or verify source timing separately")
         angle = rotation_degrees(source.get("rotation", 0))
         interval_index = 0
         next_time = intervals[0]["start"]
@@ -113,12 +116,14 @@ def run(payload: dict[str, Any]) -> dict[str, Any]:
                 fresh = True
                 epoch += 1
                 warnings.append(f"Tracking state reset after a timestamp gap at {timestamp:.6f}s.")
-            options = {"device": actual_device, "tracker": config["tracker"] + ".yaml",
+            tracking = interval.get("scene_id") is not None
+            options = {"device": actual_device,
                        "imgsz": config["imgsz"], "conf": config["detector_confidence"],
                        "save": False, "show": False, "verbose": False, "half": False}
             inference_started = time.monotonic()
             try:
-                result = model.track(image, persist=not fresh, **options)[0]
+                result = (model.track(image, persist=not fresh, tracker=config["tracker"] + ".yaml", **options)[0]
+                          if tracking else model.predict(image, **options)[0])
             except Exception as exc:
                 if actual_device == "cpu":
                     raise RuntimeError(f"Inference failed at {timestamp:.6f}s: {exc}") from exc
@@ -128,13 +133,15 @@ def run(payload: dict[str, Any]) -> dict[str, Any]:
                 # A fresh model also releases incompatible device/tracker state.
                 model = YOLO(str(path), task="detect")
                 epoch += 1
-                result = model.track(image, persist=False, **options)[0]
+                result = (model.track(image, persist=False, tracker=config["tracker"] + ".yaml", **options)[0]
+                          if tracking else model.predict(image, **options)[0])
                 fresh = True
             stats["inference_seconds"] += time.monotonic() - inference_started
             items = []
             boxes = result.boxes
             if boxes is not None:
-                ids = boxes.id.cpu().tolist() if boxes.is_track and boxes.id is not None else [None] * len(boxes)
+                ids = (boxes.id.cpu().tolist() if tracking and boxes.is_track and boxes.id is not None
+                       else [None] * len(boxes))
                 for bbox, confidence, class_id, track_id in zip(boxes.xyxyn.cpu().tolist(),
                                                                boxes.conf.cpu().tolist(),
                                                                boxes.cls.cpu().tolist(), ids):

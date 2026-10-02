@@ -98,7 +98,7 @@
               "null"
             ],
             "exclusiveMinimum": 0,
-            "description": "Seconds; null only in 2.4 when metadata is unavailable."
+            "description": "Seconds; null in evidence documents when metadata is unavailable."
           },
           "fps": {
             "type": "number",
@@ -1297,8 +1297,7 @@
           "items": {
             "type": "string",
             "minLength": 1
-          },
-          "minItems": 1
+          }
         },
         "detection_ids": {
           "type": "array",

@@ -181,18 +181,21 @@ def derive(samples: list[dict[str, Any]], scenes: list[dict[str, Any]],
                 associated.add(entity_id)
         for sample in scene_samples:
             observations = by_sample[sample["sample_index"]]
-            athletes = [item for item in observations if item.get("entity_id") in selected_entities]
+            athletes = [item for item in observations if item.get("entity_id") in selected_entities
+                        or not persons and item["category"] == "person"]
             equipment = [item for item in observations if item.get("entity_id") in associated]
             flags = ["primary_athlete_ambiguous"] if not winner else []
-            if not athletes:
-                flags.append("athlete_track_lost" if selected_entities else "subject_unresolved")
+            if not persons:
+                flags.append("subject_unresolved")
+            if not athletes and selected_entities:
+                flags.append("athlete_track_lost")
             athlete_region_ids, equipment_region_ids = [], []
             for kind, items, references in (("athlete", athletes, athlete_region_ids),
                                              ("equipment_candidate", equipment, equipment_region_ids)):
                 for item in items:
                     region_id = f"{item['id']}:region"
                     regions.append({"id": region_id, "interval_id": scene["id"], "time": sample["time"],
-                                    "kind": kind, "bbox": item["bbox"], "entity_ids": [item["entity_id"]],
+                                    "kind": kind, "bbox": item["bbox"], "entity_ids": [item["entity_id"]] if "entity_id" in item else [],
                                     "detection_ids": [item["id"]],
                                     "reason": "Observed subject box." if kind == "athlete" else
                                     "Persistent nearby object; exercise relevance needs review."})
@@ -210,7 +213,7 @@ def derive(samples: list[dict[str, Any]], scenes: list[dict[str, Any]],
                 union_id = f"sample:{sample['sample_index']}:union"
                 regions.append({"id": union_id, "interval_id": scene["id"], "time": sample["time"],
                                 "kind": "crop_required_union", "bbox": required,
-                                "entity_ids": [item["entity_id"] for item in athletes + equipment],
+                                "entity_ids": [item["entity_id"] for item in athletes + equipment if "entity_id" in item],
                                 "detection_ids": [item["id"] for item in athletes + equipment],
                                 "reason": "Padded union of observed subjects and candidate relevant objects."})
                 constraint["region_ids"].append(union_id)

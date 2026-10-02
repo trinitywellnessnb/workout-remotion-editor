@@ -32,7 +32,7 @@ def tracking_intervals(source: dict[str, Any], context: dict[str, Any],
         bounds.update(item["end"] for item in available)
     else:
         bounds = {0.0, duration}
-        warnings.append("No scene ranges available; scene continuity is unverified. Review cuts manually.")
+        warnings.append("No scene ranges available; using detection only without persistent identities. Review cuts manually.")
     times = sorted(bounds)
     cadence = 1 / source.get("fps", sample_fps) if full_frame else 1 / sample_fps
     intervals = []

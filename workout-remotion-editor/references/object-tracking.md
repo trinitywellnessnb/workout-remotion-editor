@@ -42,13 +42,13 @@ Only detect checkpoints are accepted. Pose and segmentation checkpoints are defe
 
 ## Sampling and source timing
 
-Decode frames with optional PyAV and retain their actual presentation timestamps. Source seconds are video PTS minus the video's verified stream origin, not frame_index / average_fps. This supports VFR sampling. Missing, non-increasing, or unverifiable timestamps fail with fallback instead of guessed timing.
+Decode frames with optional PyAV and retain their actual presentation timestamps. Source seconds are video PTS minus the video's verified stream origin, not frame_index / average_fps. This supports VFR sampling. Missing, non-increasing, or unverifiable timestamps fail with fallback instead of guessed timing. With a nonzero video origin, prior Phase 1 scene-clock alignment is not assumed: tracking fails conservatively. --skip-scene allows source-relative detection-only evidence in that case.
 
 The first frame at/after each fixed analysis grid point is used. --sample-fps specifies requested cadence; source FPS can limit it. --full-frame-tracking analyzes every decoded frame. Both modes decode sequentially, so sampling reduces inference cost rather than eliminating all decode work.
 
 Rotation-correct frames before inference. Boxes use display-oriented normalized xyxy coordinates; 0..1 spans the displayed video. Non-right-angle rotations are unsupported and reported. Run statistics include displayed dimensions; source width/height remain the coded dimensions. Crop inputs must use the same displayed coordinate space.
 
-Phase 1 scene ranges partition tracking lifecycles. Each scene/cut starts a fresh public tracker lifecycle, even when raw numeric IDs repeat. Tracking intervals record the supporting scene ID. Multiple detector runs are not mixed. If scene evidence is absent, tracking has unverified scene continuity and the Editor must review cuts. Large observed timestamp gaps reset tracker state and receive a new identity namespace. No cross-cut identity inference is performed.
+Phase 1 scene ranges partition tracking lifecycles. Each scene/cut starts a fresh public tracker lifecycle, even when raw numeric IDs repeat. Tracking intervals record the supporting scene ID. Multiple detector runs are not mixed. If scene evidence is absent, the worker uses detection only, emits no persistent IDs, and keeps subject identity unresolved. Observed person boxes still supply conservative crop regions. The Editor must review cuts; tracking cannot silently span unknown cuts. Large observed timestamp gaps reset tracker state and receive a new identity namespace. No cross-cut identity inference is performed.
 
 Upstream buffers count processed tracker updates, not wall-clock source time; the ByteTrack default buffer of 30 updates is about 6 seconds at 5 FPS. Association and occlusion handling can degrade with sparse samples. Increase cadence for crossings, fast implements, or track loss. There is no promise of continuous crop safety between samples. Adaptive motion-dependent cadence is deferred until it can preserve/test tracker time assumptions. Low motion never establishes rest or disposable footage.
 
