@@ -96,22 +96,34 @@ def run_provider(provider: Provider, source: dict[str, Any], timeout: float,
             for item in items:
                 if not isinstance(item, dict):
                     raise ValueError("provider evidence items must be objects")
+        # Resolve only identifiers minted by this invocation.  In particular, a
+        # pose result may deliberately point at an entity from an earlier YOLO
+        # run; qualifying every reference used to corrupt that relationship.
+        local_ids = {item["id"] for items in result.evidence.values() for item in items
+                     if isinstance(item.get("id"), str)}
+
+        def reference(value: str) -> str:
+            return f"{run_id}:{value}" if value in local_ids else value
+
+        for collection, items in result.evidence.items():
+            for item in items:
                 if isinstance(item.get("id"), str):
                     item["id"] = f"{run_id}:{item['id']}"
                 if "signal_ids" in item:
                     references = item["signal_ids"]
                     if not isinstance(references, list) or any(not isinstance(ref, str) for ref in references):
                         raise ValueError("signal_ids must be a list of strings")
-                    item["signal_ids"] = [f"{run_id}:{ref}" for ref in references]
-                for key in ("entity_id", "region_id"):
+                    item["signal_ids"] = [reference(ref) for ref in references]
+                for key in ("entity_id", "region_id", "detection_id", "pose_sample_id",
+                            "raw_pose_sample_id"):
                     if isinstance(item.get(key), str):
-                        item[key] = f"{run_id}:{item[key]}"
-                for key in ("entity_ids", "detection_ids"):
+                        item[key] = reference(item[key])
+                for key in ("entity_ids", "detection_ids", "supporting_pose_sample_ids"):
                     if key in item:
                         references = item[key]
                         if not isinstance(references, list) or any(not isinstance(ref, str) for ref in references):
                             raise ValueError(f"{key} must be a list of strings")
-                        item[key] = [f"{run_id}:{ref}" for ref in references]
+                        item[key] = [reference(ref) for ref in references]
                 item.update(source_id=source["id"], run_id=run_id)
         # Non-JSON values must not escape the isolation boundary.
         json.dumps({"metadata": result.metadata, "performance": result.performance,

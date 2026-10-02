@@ -324,6 +324,8 @@ Both tools are optional. Missing tools, unsupported media, empty results, and fa
 
 See [Phase 1 analysis pipeline](workout-remotion-editor/references/analysis-pipeline.md) for installation, detector selection, schema/provenance, timing, fallback, tests, and future provider extension points. The canonical schema is [workout-remotion-editor/scripts/analysis-schema.json](workout-remotion-editor/scripts/analysis-schema.json).
 
+Phase 3 adds optional, local MMPose pose evidence without adding exercise recognition or rep counting. It reuses YOLO person identities when available, preserves raw and smoothed landmarks separately, and emits provider-neutral joint, movement, and advisory crop evidence. MMPose is lazy-loaded and requires explicit local config/checkpoint paths; see [pose evidence](workout-remotion-editor/references/pose-evidence.md).
+
 The Director responsibilities described above remain the orchestration contract. The linked agent/ blueprint files are absent from this checkout; the new CLI provides a callable analysis workflow without claiming a Director implementation is included.
 
 ## For developers

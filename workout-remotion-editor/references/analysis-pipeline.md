@@ -1,14 +1,14 @@
 # Optional media analysis
 
-Phase 2 preserves the ordered evidence pipeline: media probe, scene analysis, motion/activity analysis, then optional object detection/tracking. The normalized output collections are provider-agnostic (`object_detections`, `tracked_entities`, `entity_roles`, `visual_regions`, and `crop_constraints`); provider/model details stay in provenance. See [object-tracking.md](object-tracking.md) for configuration and limitations.
+Phase 3 preserves the ordered evidence pipeline: media probe, scene analysis, motion/activity analysis, optional object detection/tracking, then optional pose. The normalized output collections remain provider-agnostic; provider/model details stay in provenance. See [object-tracking.md](object-tracking.md) and [pose-evidence.md](pose-evidence.md).
 
 External analyzers provide evidence. Workout Remotion Editor makes workout-specific editorial decisions, Workout Remotion Director orchestrates when available, and Remotion implements the accepted edit and renders it.
 
 ## Pipeline
 
-RAW VIDEO → media probe → scene analysis → motion/audio activity analysis → normalized evidence → Editor → Director → Remotion → QA → final render
+RAW VIDEO → media probe → scenes → activity → YOLO tracking → MMPose pose → normalized evidence → Editor → Director → Remotion → QA
 
-This phase implements media metadata, PySceneDetect scenes, and Auto-Editor activity signals only. No pose, exercise recognition, rep counting, transcription, segmentation, or visual-quality models are installed or invoked.
+Pose remains optional and locally configured. No exercise recognition, rep counting, transcription, segmentation, or visual-quality model is installed by the core environment.
 
 ## Developer entry point
 

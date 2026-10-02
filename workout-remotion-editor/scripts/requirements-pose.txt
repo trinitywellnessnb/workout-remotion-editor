@@ -1,0 +1,9 @@
+# Intentionally unpinned until the current MMPose/MMEngine/MMCV/PyTorch matrix can
+# be verified against official upstream release documentation. Install a mutually
+# compatible local stack, then supply explicit config and checkpoint paths.
+mmpose
+mmengine
+mmcv
+# torch and torchvision must match the selected CPU/native runtime.
+torch
+torchvision
