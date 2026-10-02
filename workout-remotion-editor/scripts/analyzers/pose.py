@@ -268,7 +268,7 @@ def derive_joint_metrics(
 
 
 def derive_movement_signals(
-    samples: list[dict[str, Any]], threshold: float = 0.25
+    samples: list[dict[str, Any]], threshold: float = 0.25, max_gap: float = 0.75
 ) -> list[dict[str, Any]]:
     signals, histories = [], defaultdict(list)
     direction_state: dict[tuple[str, str, str], tuple[int, int]] = {}
@@ -306,8 +306,15 @@ def derive_movement_signals(
             )
             key = (sample["scene_id"], identity, group)
             history = histories[key]
+            quality = min(p["confidence"] for p in present)
+            # Do not connect a trajectory across an athlete absence or a long
+            # landmark-loss interval.  A slow speed computed over that gap is
+            # not evidence of what happened while the person was unobserved.
+            if history and sample["timestamp"] - history[-1][0] > max_gap:
+                history.clear()
+                direction_state.pop(key, None)
             if history:
-                old_t, old_center, old_velocity = history[-1]
+                old_t, old_center, old_velocity, old_quality = history[-1]
                 dt = sample["timestamp"] - old_t
                 if dt > 0:
                     displacement = math.dist(center, old_center) / scale
@@ -324,7 +331,7 @@ def derive_movement_signals(
                             "value": round(speed, 6),
                             "unit": "torso_lengths_per_second_image_space",
                             "normalization_basis": "shoulder_to_hip_midpoint_image_distance",
-                            "quality": min(p["confidence"] for p in present),
+                            "quality": min(quality, old_quality),
                         }
                     )
                     velocity = (center[1] - old_center[1]) / dt
@@ -354,12 +361,12 @@ def derive_movement_signals(
                                 "value": 1,
                                 "unit": "candidate",
                                 "normalization_basis": "torso_length_and_velocity_hysteresis",
-                                "quality": min(p["confidence"] for p in present),
+                                "quality": min(quality, old_quality),
                             }
                         )
-                    history.append((sample["timestamp"], center, velocity))
+                    history.append((sample["timestamp"], center, velocity, quality))
                     continue
-            history.append((sample["timestamp"], center, None))
+            history.append((sample["timestamp"], center, None, quality))
     return signals
 
 
@@ -531,10 +538,20 @@ class MMPoseProvider:
                 ambiguous = detection is not None and len(results) != 1
                 for result_index, result in enumerate(results):
                     instance = result.pred_instances
-                    points, scores = (
-                        instance.keypoints[0].tolist(),
-                        instance.keypoint_scores[0].tolist(),
-                    )
+                    keypoints = getattr(instance, "keypoints", None)
+                    keypoint_scores = getattr(instance, "keypoint_scores", None)
+                    # Empty predictions are a normal, usable inference result,
+                    # not a provider failure.  Backend tensors expose shape;
+                    # fixture/list implementations are handled by len().
+                    if keypoints is None or keypoint_scores is None:
+                        continue
+                    try:
+                        if len(keypoints) == 0 or len(keypoint_scores) == 0:
+                            continue
+                        points = keypoints[0].tolist()
+                        scores = keypoint_scores[0].tolist()
+                    except (IndexError, TypeError, AttributeError):
+                        continue
                     pose = {
                         "keypoints": points,
                         "scores": scores,
@@ -571,9 +588,27 @@ class MMPoseProvider:
                 digest.update(chunk)
         checksum = digest.hexdigest()
         self.configuration["checkpoint_sha256"] = checksum
-        raw_count = sum(p["input_variant"] == "raw" for p in evidence["pose_samples"])
+        raw = [p for p in evidence["pose_samples"] if p["input_variant"] == "raw"]
+        # A backend can return a structurally valid but entirely missing
+        # skeleton.  That is no usable pose evidence and must not become a
+        # successful run merely because a result container existed.
+        raw_count = sum(
+            any(point["state"] == "visible" for point in pose["keypoints"])
+            for pose in raw
+        )
+        empty_sample_count = sum(not sample["poses"] for sample in samples)
+        if not raw_count:
+            # no_results runs cannot claim supporting evidence; retain only
+            # diagnostics/performance and let the earlier pipeline survive.
+            evidence = {name: [] for name in evidence}
         return Result(
-            status="success" if raw_count else "no_results",
+            status=(
+                "no_results"
+                if not raw_count
+                else "partial"
+                if empty_sample_count
+                else "success"
+            ),
             evidence=evidence,
             warnings=[
                 "Pose scores are model confidence evidence, not calibrated probabilities."
