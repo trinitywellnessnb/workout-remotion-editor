@@ -129,7 +129,7 @@ Register the provider in the workflow; add schema definitions, semantics, fixtur
 The category vocabulary anticipates transcript (WhisperX), object_tracking (YOLO),
 pose (MMPose), action_recognition (MMAction2), quality (VMAF), and future tracking/segmentation (SAM 2). These names describe extension points only; no future dependencies, provider stubs, or integrations are implemented.
 
-Director can call analyze_video.py and inspect the normalized JSON regardless of installed tools. This checkout documents Director responsibilities in README but does not contain the linked agent/ implementation; Phase 1 does not fabricate it.
+The repository includes the Director blueprint under agent/ and its evidence-preparation command at agent/scripts/prepare_analysis.py. The command calls this shared pipeline, validates the result, and writes analysis.json plus a handoff.json manifest in a new job directory. Both evidence-ready and manual-only results return to INSPECT for visual review before creative direction and Editor delegation. The wrapper adds no analyzer dependencies or workout-specific editing behavior. It requires a repository checkout; installed Skill-only workflows continue using scripts/analyze_video.py directly.
 
 ## Validation and CI
 

@@ -95,6 +95,26 @@ class RealToolTests(unittest.TestCase):
         finally:
             output.unlink(missing_ok=True)
 
+    def test_director_cli_on_generated_video(self):
+        output = self.video.parent / "director-job"
+        try:
+            result = subprocess.run(
+                [sys.executable, str(SCRIPTS.parents[1] / "agent/scripts/prepare_analysis.py"),
+                 str(self.video), "--output-dir", str(output), "--timeout", "60"],
+                capture_output=True, text=True, timeout=180)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            document = json.loads((output / "analysis.json").read_text())
+            manifest = json.loads((output / "handoff.json").read_text())
+            self.assertEqual(validate_document(document), [])
+            self.assertEqual(manifest["status"], "ready_for_visual_review")
+            self.assertEqual(manifest["next_state"], "INSPECT")
+            self.assertTrue(manifest["editor_review_required"])
+            self.assertTrue(all(run["status"] == "success" for run in manifest["analyzer_runs"]))
+            self.assertEqual(document["segments"], [])
+            self.assertEqual(hashlib.sha256(self.video.read_bytes()).hexdigest(), self.original_hash)
+        finally:
+            shutil.rmtree(output, ignore_errors=True)
+
     def test_real_adaptive_and_fade_detectors(self):
         for detector in ("adaptive", "threshold"):
             with self.subTest(detector=detector):
