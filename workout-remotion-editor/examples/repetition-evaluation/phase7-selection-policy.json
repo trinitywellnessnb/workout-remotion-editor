@@ -1,0 +1,7 @@
+{
+  "version": "1",
+  "precision_floor": 0.9,
+  "maximum_mean_absolute_count_error": 1.0,
+  "forbidden_false_positive_reasons": ["wrong_exercise_identity", "wrong_side"],
+  "require_no_side_failures": true
+}

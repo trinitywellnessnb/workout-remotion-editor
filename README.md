@@ -158,6 +158,8 @@ The goal is not to replace Remotion. It is to make Remotion **workout-aware and 
 
 ## Optional Phase 5 repetition evidence
 
+Phase 7 supplies a privacy-conscious, reusable real-world calibration workflow for the existing single-arm dumbbell-row v1 rule. Local media belongs in ignored `evaluation-data/`; named configurations are compared only on development sources, frozen, and then evaluated on held-out sources without tuning. No rights-cleared footage was available in this environment, so checked-in examples and reports are synthetic tooling demonstrations—not real-world accuracy claims. See [`phase7-real-world-validation.md`](workout-remotion-editor/references/phase7-real-world-validation.md).
+
 Schema 2.6 adds opt-in, non-editorial repetition evidence for the exact `dumbbell_row_single_arm` → `single_arm_dumbbell_row_v1` mapping. Use `--pose --rep-analysis` with dense pose sampling (8–12 Hz recommended). Ineligible attempts remain auditable; candidates are not promoted to top-level `repetitions` and create no visible counters. See the [repetition evidence reference](workout-remotion-editor/references/repetition-evidence.md).
 
 ## What v2.3 adds

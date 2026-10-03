@@ -1,0 +1,19 @@
+{
+  "config_id": "single_arm_dumbbell_row_v1-config-A",
+  "rule_id": "single_arm_dumbbell_row_v1",
+  "rule_version": "1",
+  "values": {
+    "minimum_sample_rate": 6.0,
+    "minimum_elbow_excursion": 25.0,
+    "minimum_torso_relative_wrist_path": 0.12,
+    "bottom_enter_threshold": 0.15,
+    "bottom_exit_threshold": 0.25,
+    "top_enter_threshold": 0.8,
+    "top_exit_threshold": 0.7,
+    "minimum_concentric_duration": 0.2,
+    "minimum_top_confirmation_duration": 0.1,
+    "minimum_eccentric_duration": 0.2,
+    "minimum_full_rep_duration": 0.65,
+    "minimum_quality_evidence_score": 0.65
+  }
+}

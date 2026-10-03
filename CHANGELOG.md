@@ -2,6 +2,13 @@
 
 All notable changes to Workout Remotion Editor are documented here.
 
+## Phase 7 — real-world validation workflow
+
+- Added privacy-minimal dataset manifests, optional media hashing, dual-annotation agreement, and adjudication guidance.
+- Added development-only named-config comparison, a configurable precision-first selection policy, immutable freeze records, and held-out first-look warnings.
+- Added structured FN, eligibility, view, and side reporting while retaining Phase 6 machine/editorial separation.
+- Added local footage ignore protections and explicit synthetic/real report labels. No real footage was available, no real metrics are claimed, and no v2 rule was created.
+
 ## Phase 5 — schema 2.6 repetition evidence
 
 - Added an opt-in exact-rule repetition analyzer for single-arm dumbbell rows.

@@ -31,3 +31,7 @@ skill.zip
 # Local analysis/output
 analysis.json
 renders/
+
+# Rights-cleared evaluation footage is local-only. Manifests/sidecars belong elsewhere.
+evaluation-data/
+**/evaluation-data/

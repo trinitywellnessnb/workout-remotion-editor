@@ -37,3 +37,5 @@ Fill each decision as `accept`, `reject`, `adjust`, `mark_incomplete`, or `mark_
 ## Limitations
 
 No footage is bundled. Timing tolerances require development-set study; ineligibility classification and false-positive reasons require human judgment. Evaluation reports are external and current rule thresholds remain unvalidated on real footage until a rights-cleared adjudicated dataset is evaluated.
+
+Phase 7 adds dataset manifests, dual-annotation agreement, precision-first config comparison, immutable freeze records, strict held-out execution, hashing, FN/eligibility/view analysis, and synthetic-versus-real labeling. Follow [phase7-real-world-validation.md](phase7-real-world-validation.md); these additions do not weaken review-based editorial promotion.
