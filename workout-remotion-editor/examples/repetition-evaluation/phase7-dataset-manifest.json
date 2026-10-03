@@ -1,0 +1,23 @@
+{
+  "format_version": "1",
+  "dataset_id": "local-row-evaluation",
+  "dataset_version": "1",
+  "footage_type": "real",
+  "sources": [
+    {
+      "source_id": "row-development-001",
+      "media_reference": "evaluation-data/row-development-001.mp4",
+      "rights_status": "rights_cleared",
+      "redistribution_allowed": false,
+      "split": "development",
+      "exercise_canonical_id": "dumbbell_row_single_arm",
+      "expected_side": "unknown",
+      "view_categories": ["unknown"],
+      "environment_category": "unknown",
+      "duration_seconds": 30.0,
+      "annotation_files": ["annotations/row-development-001-a.json", "annotations/row-development-001-b.json"],
+      "adjudication_file": "adjudications/row-development-001.json",
+      "notes": "Replace this example; do not commit private footage."
+    }
+  ]
+}

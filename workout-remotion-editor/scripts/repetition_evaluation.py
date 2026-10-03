@@ -39,6 +39,23 @@ FP_REASONS = {
     "wrong_side",
     "wrong_exercise_identity",
     "phase_boundary_error",
+    "temporal_boundary_error",
+    "pose_failure",
+    "unknown",
+}
+FN_REASONS = {
+    "sampling_too_sparse",
+    "pose_occlusion",
+    "wrist_missing",
+    "elbow_missing",
+    "side_unresolved",
+    "amplitude_threshold_too_strict",
+    "top_not_confirmed",
+    "return_not_confirmed",
+    "gap_reset",
+    "camera_unsuitable",
+    "candidate_identity_rejected",
+    "interval_boundary",
     "unknown",
 }
 
@@ -246,6 +263,8 @@ def evaluate(
         {"tp": 0, "fp": 0, "fn": 0},
         {},
     )
+    fn_reasons: dict[str, int] = {}
+    eligibility = {"eligible_intervals": 0, "ineligible_intervals": 0}
     incomplete = {
         "preserved": 0,
         "promoted_completed": 0,
@@ -298,6 +317,11 @@ def evaluate(
             reason = completed_p[i].get("false_positive_reason", "unknown")
             reason = reason if reason in FP_REASONS else "unknown"
             fp_reasons[reason] = fp_reasons.get(reason, 0) + 1
+        unmatched_gold = {i for i in range(len(completed_g))} - {x[1] for x in matches}
+        for i in unmatched_gold:
+            reason = completed_g[i].get("false_negative_reason", "unknown")
+            reason = reason if reason in FN_REASONS else "unknown"
+            fn_reasons[reason] = fn_reasons.get(reason, 0) + 1
         known_side = gold_doc.get("working_side", "unknown")
         if known_side != "unknown":
             predicted_sides = {x.get("working_side", "unknown") for x in preds}
@@ -330,6 +354,7 @@ def evaluate(
         )
         interval = intervals.get(interval_id)
         if interval and not interval.get("eligible", True):
+            eligibility["ineligible_intervals"] += 1
             for reason in interval.get("ineligibility_reasons", []):
                 ineligibility[reason] = ineligibility.get(reason, 0) + 1
             outcome = (
@@ -338,6 +363,8 @@ def evaluate(
                 else "correct_conservative"
             )
             ineligibility_outcome[outcome] += 1
+        else:
+            eligibility["eligible_intervals"] += 1
         ge, pe = len(completed_g), len(completed_p)
         sources.append(
             {
@@ -353,6 +380,8 @@ def evaluate(
                 "predicted_completed_count": pe,
                 "absolute_count_error": abs(pe - ge),
                 "signed_count_error": pe - ge,
+                "view_categories": gold_doc.get("view_categories", ["unknown"]),
+                "expected_side": gold_doc.get("working_side", "unknown"),
             }
         )
     tp, fp, fn = totals.values()
@@ -360,6 +389,53 @@ def evaluate(
     recall = tp / (tp + fn) if tp + fn else 1.0
     count_errors = [x["absolute_count_error"] for x in sources]
     total_side = sum(side.values())
+    eligibility_total = sum(eligibility.values())
+    views: dict[str, dict[str, int]] = {}
+    side_breakdown: dict[str, dict[str, int]] = {}
+    for source in sources:
+        for view in source["view_categories"]:
+            bucket = views.setdefault(
+                view,
+                {
+                    "source_count": 0,
+                    "tp": 0,
+                    "fp": 0,
+                    "fn": 0,
+                    "absolute_count_error": 0,
+                },
+            )
+            bucket["source_count"] += 1
+            for key, source_key in (
+                ("tp", "true_positives"),
+                ("fp", "false_positives"),
+                ("fn", "false_negatives"),
+                ("absolute_count_error", "absolute_count_error"),
+            ):
+                bucket[key] += source[source_key]
+        sb = side_breakdown.setdefault(
+            source["expected_side"], {"source_count": 0, "tp": 0, "fp": 0, "fn": 0}
+        )
+        sb["source_count"] += 1
+        for key, source_key in (
+            ("tp", "true_positives"),
+            ("fp", "false_positives"),
+            ("fn", "false_negatives"),
+        ):
+            sb[key] += source[source_key]
+    for bucket in views.values():
+        bucket["precision"] = (
+            bucket["tp"] / (bucket["tp"] + bucket["fp"])
+            if bucket["tp"] + bucket["fp"]
+            else None
+        )
+        bucket["recall"] = (
+            bucket["tp"] / (bucket["tp"] + bucket["fn"])
+            if bucket["tp"] + bucket["fn"]
+            else None
+        )
+        bucket["mean_absolute_count_error"] = (
+            bucket.pop("absolute_count_error") / bucket["source_count"]
+        )
     return {
         "format_version": "1.0",
         "generated_at": datetime.now(timezone.utc).isoformat(),
@@ -399,7 +475,17 @@ def evaluate(
             "uncertainty": uncertainty,
             "ineligibility_reasons": ineligibility,
             "ineligibility_outcome": ineligibility_outcome,
+            "eligibility": {
+                **eligibility,
+                "eligibility_rate": eligibility["eligible_intervals"]
+                / eligibility_total
+                if eligibility_total
+                else None,
+            },
             "false_positive_reasons": fp_reasons,
+            "false_negative_reasons": fn_reasons,
+            "performance_by_view": views,
+            "performance_by_side": side_breakdown,
         },
     }
 
