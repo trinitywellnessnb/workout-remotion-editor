@@ -346,3 +346,7 @@ The Director and Editor use independent version numbers. The current documented 
 ## License
 
 Original project material is licensed under the [MIT License](LICENSE). External projects and user-provided assets remain under their respective licenses and terms.
+
+### Phase 6 repetition evaluation and review
+
+The skill now includes an external, privacy-conscious gold-annotation/adjudication workflow and deterministic evaluator for `single_arm_dumbbell_row_v1`, plus explicit review decisions and idempotent promotion into editorial `repetitions`. See `workout-remotion-editor/references/repetition-evaluation.md`. Synthetic tests do not validate real-world accuracy; no private footage is bundled.

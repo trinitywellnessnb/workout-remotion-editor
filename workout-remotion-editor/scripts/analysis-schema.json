@@ -188,6 +188,37 @@
               },
               "exclusion_reason": {
                 "type": "string"
+              },
+              "source_candidate_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rep_rule_id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "rep_rule_version": {
+                "type": "string",
+                "minLength": 1
+              },
+              "reviewer": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "reviewed_at": {
+                "type": [
+                  "string",
+                  "null"
+                ],
+                "format": "date-time"
+              },
+              "review_decision": {
+                "enum": [
+                  "accept",
+                  "adjust"
+                ]
               }
             }
           }

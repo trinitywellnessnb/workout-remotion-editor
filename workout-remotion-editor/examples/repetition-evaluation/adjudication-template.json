@@ -1,0 +1,11 @@
+{
+  "format_version": "1.0",
+  "adjudication_id": "source-001-adjudicated-v1",
+  "source_id": "source-001",
+  "split": "development",
+  "annotation_ids": ["source-001-annotator-a-v1", "source-001-annotator-b-v1"],
+  "adjudicator": "adjudicator-1",
+  "repetitions": [],
+  "disagreements": [{"id": "difference-1", "annotation_ids": ["source-001-annotator-a-v1", "source-001-annotator-b-v1"], "status": "timing_adjusted", "notes": "Record resolution without editing originals."}],
+  "notes": ""
+}

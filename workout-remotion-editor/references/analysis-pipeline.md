@@ -151,3 +151,7 @@ A separate optional integration workflow installs ffmpeg, PySceneDetect with PyA
 ~~~sh
 REQUIRE_ANALYZERS=1 python -m unittest discover -s tests -p 'test_integration.py' -v
 ~~~
+
+## Phase 6 sidecar workflow
+
+`repetition_evaluation.py` validates independent gold annotations and adjudications, evaluates machine candidates by split, prepares/validates review decisions, and explicitly promotes reviewed candidates. Evaluation reports do not belong in production analysis JSON. Held-out reports must not drive threshold changes; production defaults are never mutated by the evaluator. See [repetition-evaluation.md](repetition-evaluation.md).

@@ -55,3 +55,9 @@ All notable changes to Workout Remotion Editor are documented here.
 - Evidence-linked workout analysis, paper-edit, rep-counter, struggle-hook, coaching-overlay, instructional, output, QA, and revision guidance.
 - JSON Schema and semantic Python validator for analysis artifacts.
 - Public user manual, open-source attribution, MIT license, and automated validated `skill.zip` packaging.
+
+## Phase 6
+
+- Added versioned gold annotation and adjudication sidecars, development/held-out repetition evaluation metrics, deterministic temporal matching, controlled configuration labels, and false-positive diagnostics.
+- Added explicit candidate review and deterministic, idempotent promotion to editorial repetitions with provenance while preserving the machine/editorial boundary.
+- Added synthetic fixtures, validators, CLI workflow, tests, and operator documentation; real-footage accuracy remains unvalidated.

@@ -39,3 +39,7 @@ Torso-relative geometry and elbow agreement suppress uniform camera/body transla
 Semantic validation enforces usable runs, provenance, source/scene/entity/person/side compatibility, bounds, exact mapping, phase order and mandatory phases, outcome reasons, quality ranges, evidence references, duplicates, and completed-rep overlap. Completed reps in one stream may share only `min(0.10 s, 10% of the shorter rep)`; marked incomplete/uncertain alternatives may overlap.
 
 Editors must inspect footage before promoting evidence to editorial repetitions. Image-plane pose remains vulnerable to occlusion, foreshortening, unusual views, clothing, camera motion, and tracking errors. Defaults are conservative starting values, not universal biomechanics. A future phase should validate and tune this isolated rule on consented, diverse real footage.
+
+## Phase 6 evaluation and editorial review
+
+Machine candidates remain evidence and are never copied automatically into editorial `repetitions`. Use the external annotation, adjudication, evaluation, review, and promotion workflow in [repetition-evaluation.md](repetition-evaluation.md). Only an explicit accepted/adjusted review can promote a completed or uncertain candidate; incomplete, rejected, and unreviewed candidates remain evidence. Synthetic fixtures are not real-world validation.
