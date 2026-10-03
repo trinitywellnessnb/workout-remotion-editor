@@ -1,0 +1,24 @@
+{
+  "format_version": "1.0",
+  "annotation_id": "source-001-annotator-a-v1",
+  "annotation_version": "1",
+  "source_id": "source-001",
+  "media": "operator-media/source-001.mp4",
+  "source_duration": 10.0,
+  "exercise": "single-arm dumbbell row",
+  "canonical_exercise_id": "dumbbell_row_single_arm",
+  "entity_id": "athlete-1",
+  "working_side": "left",
+  "evaluation_interval": {"start": 0.0, "end": 10.0},
+  "rep_analysis_interval_id": "rep-interval-1",
+  "split": "development",
+  "annotator": "annotator-a",
+  "repetitions": [
+    {"id": "gold-rep-1", "status": "completed", "side": "left", "start": 1.0, "top": 1.5, "end": 2.0, "phases": {}, "notes": ""}
+  ],
+  "excluded_intervals": [],
+  "occlusion_intervals": [],
+  "camera_motion_intervals": [],
+  "setup_transitions": [],
+  "notes": "Synthetic format example; not real-world validation."
+}
