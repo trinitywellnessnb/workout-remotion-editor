@@ -1,5 +1,16 @@
 # Changelog
 
+## Phase 9
+
+- Added deterministic reviewed-rep selection for quick, standard, extended
+  movement, and confirmed-set edits, including the short, exactly-ten, and
+  over-twelve defaults plus explicit user overrides.
+- Added conservative handles, adjacent-rep merging, omitted-gap preservation,
+  source-group chronology validation, hook replay identity, duration estimates,
+  rest decisions, and legacy fallback behavior.
+- Added Phase 9 regression coverage and durable Director documentation while
+  retaining Phase 8 counter synchronization and raw-candidate isolation.
+
 ## Phase 8
 
 - Added an opt-in, editorial-only repetition counter timeline with conservative

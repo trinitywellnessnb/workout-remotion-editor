@@ -103,7 +103,7 @@ def build_rep_counter_plan(
         rate = float(clip.get("playback_rate", 1))
         if rate <= 0:
             raise ValueError("clip playback_rate must be positive")
-        if clip.get("role") in {"hook", "replay"} and config.get("replay_behavior", "suppress") == "suppress":
+        if clip.get("role") in {"hook", "replay", "hook_replay"} and config.get("replay_behavior", "suppress") == "suppress":
             continue
         source_id = str(clip.get("source_id"))
         source_start = float(clip["source_start"])
