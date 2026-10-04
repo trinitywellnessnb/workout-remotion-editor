@@ -1,0 +1,12 @@
+{
+  "description": "Synthetic render props: r2 is omitted and the r3 hook replay is suppressed upstream.",
+  "enabled": true,
+  "fps": 30,
+  "placement": "top-right",
+  "animation_enabled": true,
+  "events": [
+    {"id":"rep-counter-r1","editorial_repetition_id":"r1","source_id":"synthetic","segment_id":"row","composition_time":2.0,"frame":60,"displayed_count":1,"source_rep_number":1,"target":null,"display_mode":"rep","stream_id":"row|","scope_start_frame":0},
+    {"id":"rep-counter-r3","editorial_repetition_id":"r3","source_id":"synthetic","segment_id":"row","composition_time":5.0,"frame":150,"displayed_count":2,"source_rep_number":3,"target":null,"display_mode":"rep","stream_id":"row|","scope_start_frame":0},
+    {"id":"rep-counter-r4","editorial_repetition_id":"r4","source_id":"synthetic","segment_id":"row","composition_time":7.0,"frame":210,"displayed_count":3,"source_rep_number":4,"target":null,"display_mode":"rep","stream_id":"row|","scope_start_frame":0}
+  ]
+}
