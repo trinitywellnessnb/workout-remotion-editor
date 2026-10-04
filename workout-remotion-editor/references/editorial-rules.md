@@ -18,6 +18,8 @@ A short edit usually needs: a truthful hook, enough context to understand it, a 
 
 **Quick:** concise assembly and minimal graphic system. **Standard:** polished arc with complete overlay/audio plan. **Extended:** selects reel, alternate structures, instructional detail, review checkpoints, and platform variants.
 
+Rep-aware defaults are defined in `rep-aware-edit-planning.md`: fewer than five reviewed reps retain all; exactly ten retains first three plus last three; more than twelve retains first three plus last four. Extended movement edits retain about 25–50%, and extended confirmed-set edits about 50–75%. User intent always overrides these defaults. Adjacent retained reps should flow continuously, but an omitted middle must remain an honest visible skip.
+
 ## Selection rubric
 
 Score candidates only as an organizing aid: relevance to brief, movement visibility, technical quality, emotional/story value, continuity, and rights/privacy suitability. Record why a lower-quality shot is essential. Confidence labels: `high` (clear evidence), `medium` (likely with limited ambiguity), `low` (do not assert without review).
