@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 10
+
+- Added a deterministic natural-language Editing Style Director with ten
+  blendable families, contextual modifiers, negation, and optional overrides.
+- Added weighted duration distributions, whole-video pacing curves, hybrid
+  phases, role/setup targets, semantic transition palettes, and FPS-aware smooth
+  dramatic speed-ramp contracts while preserving Phase 9 chronology and counters.
+- Added focused research, architecture documentation, regression coverage, and
+  synthetic inspectable style fixtures; source audio remains muted by default.
+
 ## Phase 9
 
 - Added deterministic reviewed-rep selection for quick, standard, extended

@@ -31,6 +31,11 @@ Track both:
 
 Speed changes modify the mapping between these domains. Rep counters and movement-phase overlays should remain bound to source events and then transformed into timeline timing through the segment's playback-rate mapping.
 
+Phase 10 style intent and renderer-neutral cubic-Bézier-like speed keyframes are
+defined in [editing-style-director.md](editing-style-director.md). Remotion must
+consume the normalized curve rather than infer “cinematic” or “viral” inside a
+component. Recompute source-to-composition mapping through every curve segment.
+
 For reviewed rep counters, use `scripts/rep_counter_timeline.py` before Remotion.
 The renderer consumes only normalized `rep_counter_events`; it must not inspect
 analysis evidence. See [reviewed-rep-counters.md](reviewed-rep-counters.md).
