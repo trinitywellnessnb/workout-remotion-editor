@@ -1,0 +1,9 @@
+{
+  "note": "Deterministic evidence fixtures; support scores are not probabilities.",
+  "styles": {
+    "viral_shortform": ["hook_candidate", "primary_movement", "close_detail", "transition_breather", "primary_movement", "ending_candidate"],
+    "cinematic_trailer": ["environment_context", "setup", "close_detail", "complete_rep_anchor", "walk_between_movements", "hero_shot", "ending_candidate"],
+    "raw_documentary": ["approach_station", "setup", "primary_movement", "recovery", "walk_between_movements", "setup", "primary_movement"]
+  },
+  "assertion": "Phase 10 style changes selected source roles, not only clip duration and transitions."
+}
