@@ -43,3 +43,11 @@ The canonical schema is scripts/analysis-schema.json within the Skill, or workou
 ## Reviewed repetition truth
 
 For repetition evaluation and promotion, follow [repetition-evaluation.md](repetition-evaluation.md). Gold and review documents are sidecars, and top-level `repetitions` means reviewed editorial truth—not raw analyzer output.
+
+## Semantic shot evidence (Phase 11)
+
+Analysis outputs may feed the [Semantic Shot Director](semantic-shot-director.md)
+through source intervals, scenes, anonymous tracks, activity, equipment/person
+interaction, pose/anatomy visibility, crop constraints, camera motion, user
+labels, and reviewed reps. Preserve references and ambiguity. Analysis evidence
+supports roles but never proves exercise identity, form, pain, fatigue, or failure.

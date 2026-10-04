@@ -96,3 +96,9 @@ All notable changes to Workout Remotion Editor are documented here.
 - Added versioned gold annotation and adjudication sidecars, development/held-out repetition evaluation metrics, deterministic temporal matching, controlled configuration labels, and false-positive diagnostics.
 - Added explicit candidate review and deterministic, idempotent promotion to editorial repetitions with provenance while preserving the machine/editorial boundary.
 - Added synthetic fixtures, validators, CLI workflow, tests, and operator documentation; real-footage accuracy remains unvalidated.
+
+## Phase 11
+
+- Added an evidence-backed Semantic Shot Director with ambiguous multi-role candidates.
+- Added inspectable visual quality, style compatibility, duration/time-remap constraints, soft style grammars, breathers, duplicate suppression, chronology validation, role-aware transitions, and natural-language role overrides.
+- Added deterministic Phase 11 tests and viral, cinematic, and raw fixture expectations without adding an ML dependency.
