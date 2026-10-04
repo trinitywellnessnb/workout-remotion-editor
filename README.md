@@ -15,6 +15,12 @@ speed changes, omissions, and hook replays are resolved before the reusable
 counter component receives its props. See the
 [reviewed counter guide](workout-remotion-editor/references/reviewed-rep-counters.md).
 
+Phase 9 adds an inspectable rep-aware Director: reviewed reps now drive complete,
+padded, chronological source selections; first/last and longer-edit policies,
+explicit overrides, hook replays, duration budgeting, and rest decisions are
+resolved before Remotion. See the
+[rep-aware planning guide](workout-remotion-editor/references/rep-aware-edit-planning.md).
+
 The layers are intentionally separate:
 
 ```text

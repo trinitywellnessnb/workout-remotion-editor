@@ -12,7 +12,7 @@ Act as the workout-video director first and the Remotion editor second. Analyze 
 1. Inspect all supplied workout footage before committing to an edit. Treat every visual detection as an evidence-based estimate and never invent exercise identity, rep count, struggle/failure, chronology, load, or performance.
 2. Read `references/workout-analysis.md` whenever the task requires rep/set analysis, movement-phase reasoning, hook selection, exercise-aware reframing, or a structured edit blueprint.
    For machine-readable exercise identity, also read `references/exercise-recognition.md`; treat candidates and intervals as evidence, never confirmed repetitions or sets. For gold evaluation or promotion into editorial repetitions, read `references/repetition-evaluation.md`; promotion always requires an explicit review sidecar.
-3. Read `references/editorial-rules.md` for pacing modes, cut points, speed changes, rep selection, glitch terminology, transitions, and multi-clip structure.
+3. Read `references/editorial-rules.md` for pacing modes, cut points, speed changes, rep selection, glitch terminology, transitions, and multi-clip structure. For reviewed-rep-driven source selection, chronology validation, hook replay, duration budgeting, and rest handling, also read `references/rep-aware-edit-planning.md`.
 4. Read `references/retention-and-shareability.md` whenever choosing a hook, structuring a short-form narrative, adding a payoff/loop/CTA, comparing variants, or making claims about likely audience response. Treat retention and shareability as hypotheses to test, never guarantees.
 5. Read `references/workout-analysis.md` when objective scene, pose, rep-state, beat/onset, motion, or crop signals are available or would materially improve the edit. External analyzers provide evidence, never authority.
 6. Read `references/overlays-and-output.md` when the user requests overlays or non-default output, and `references/reviewed-rep-counters.md` for any rep counter.
@@ -66,6 +66,8 @@ Interpret natural language without requiring the user to restate the rules.
 - `Glitch effects` -> RGB separation/static/distortion/screen tearing only when explicitly requested.
 - `Keep the audio` -> override the mute default only for the requested scope.
 - `Add rep counters` -> opt in to reviewed top-level editorial repetitions only; map retained completions through the final edit timeline, keep displayed numbering continuous, and suppress hook/replay duplicates. Raw machine candidates can never render a counter.
+- `Show all reps` / `keep the whole set` / `don't cut any reps` -> retain every reviewed rep in the requested scope.
+- `Only show the last 3` / `show first and last rep` / `use 2 reps per movement` -> apply that explicit override per movement or confirmed set.
 - `Add coaching tips/instructions` -> use user-provided guidance and time it to relevant movement phases when supportable.
 
 ## Analysis integration rule
