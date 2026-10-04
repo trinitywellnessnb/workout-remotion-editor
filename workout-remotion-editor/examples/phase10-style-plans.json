@@ -1,0 +1,650 @@
+{
+  "viral": {
+    "request": "Make this TikTok style and really fast.",
+    "style": {
+      "schema_version": "1.0",
+      "request": "Make this TikTok style and really fast.",
+      "seed": "10",
+      "detected_style_concepts": [
+        "viral_shortform",
+        "fast_fitness_montage"
+      ],
+      "profile_weights": {
+        "viral_shortform": 0.5,
+        "fast_fitness_montage": 0.5
+      },
+      "intent": {
+        "energy": 0.88,
+        "pace": 1,
+        "hook": 0.925,
+        "breathing": 0.25,
+        "effects": 0.36,
+        "slow": 0.09,
+        "setup": 0.19,
+        "cinematic": 0.19,
+        "raw": 0.465,
+        "polish": 0.565,
+        "rhythm": 0.86
+      },
+      "platform_bias": "tiktok",
+      "pacing_curve": [
+        "spike",
+        "rapid",
+        "breath",
+        "rapid",
+        "strong_finish"
+      ],
+      "style_phases": [
+        {
+          "start": 0,
+          "end": 1,
+          "style": "viral_shortform"
+        }
+      ],
+      "clip_duration_profile": {
+        "bands": {
+          "short": {
+            "min": 0.35,
+            "max": 0.7,
+            "weight": 0.635
+          },
+          "medium": {
+            "min": 0.7,
+            "max": 1.2,
+            "weight": 0.27
+          },
+          "anchor": {
+            "min": 1.0,
+            "max": 1.8,
+            "weight": 0.14
+          },
+          "micro": {
+            "min": 0.18,
+            "max": 0.35,
+            "weight": 0.125
+          },
+          "hero": {
+            "min": 1.8,
+            "max": 3.2,
+            "weight": 0.03
+          }
+        },
+        "minimum": 0.18,
+        "maximum": 3.2,
+        "repetition_limit": 3
+      },
+      "shot_role_targets": {
+        "primary_movement": 0.58,
+        "complete_rep_anchor": 0.17,
+        "hook": 0.11,
+        "setup": 0.08,
+        "breather": 0.045,
+        "hero": 0.015
+      },
+      "transition_policy": {
+        "palette": {
+          "cut": 0.84,
+          "whip": 0.065,
+          "motion_match": 0.045,
+          "push_cut": 0.03,
+          "glitch": 0.02
+        },
+        "frequency": 0.36,
+        "forbidden": [],
+        "semantic_only": true
+      },
+      "time_remapping": {
+        "enabled": true,
+        "slow_motion_amount": 0.09,
+        "fast_motion_amount": 0.44999999999999996,
+        "maximum_slowdown": 0.4,
+        "source_fps_floor_for_strong_slowdown": 50,
+        "active_movement_default_rate": 1.0,
+        "final_rep_slowdown": false
+      },
+      "hook_strategy": {
+        "type": "immediate_high_motion",
+        "target_seconds": 1.0,
+        "trusted_candidates": [
+          "user_selected",
+          "reviewed_high_effort_looking",
+          "late_set",
+          "unusual_angle",
+          "explosive_motion"
+        ],
+        "replay_counter": "suppress",
+        "preserve_identity": true
+      },
+      "setup_breather_policy": {
+        "amount": 0.19,
+        "duration_range": [
+          0.3,
+          1.0
+        ],
+        "maximum_share": 0.25
+      },
+      "ending_emphasis": "strong_action",
+      "anchor_policy": {
+        "heavy_reps_breathe": false,
+        "complete_reps": true
+      },
+      "chronology_strictness": "source_group_strict",
+      "rep_visibility": "complete_anchors",
+      "source_audio": "muted",
+      "priority_order": [
+        "source_chronology",
+        "explicit_user_instructions",
+        "reviewed_movement",
+        "movement_visibility",
+        "target_duration",
+        "style",
+        "decorative_transitions"
+      ],
+      "overrides": {},
+      "decision_reasons": [
+        "Detected viral shortform language.",
+        "Detected fast fitness montage language.",
+        "Strong speed modifier shortens the general rhythm."
+      ]
+    },
+    "sample_timing": [
+      {
+        "band": "short",
+        "duration": 0.616,
+        "role": "hook"
+      },
+      {
+        "band": "micro",
+        "duration": 0.307,
+        "role": "primary_movement"
+      },
+      {
+        "band": "medium",
+        "duration": 0.968,
+        "role": "primary_movement"
+      },
+      {
+        "band": "anchor",
+        "duration": 1.295,
+        "role": "complete_rep_anchor"
+      },
+      {
+        "band": "anchor",
+        "duration": 1.124,
+        "role": "setup"
+      },
+      {
+        "band": "short",
+        "duration": 0.602,
+        "role": "primary_movement"
+      },
+      {
+        "band": "short",
+        "duration": 0.587,
+        "role": "primary_movement"
+      },
+      {
+        "band": "hero",
+        "duration": 2.636,
+        "role": "hero"
+      }
+    ],
+    "sample_speed_curve": {
+      "type": "constant",
+      "keyframes": [
+        {
+          "position": 0,
+          "rate": 1.0
+        },
+        {
+          "position": 1,
+          "rate": 1.0
+        }
+      ],
+      "reason": "not_requested_by_profile"
+    }
+  },
+  "cinematic_trailer": {
+    "request": "Make it cinematic like a movie trailer.",
+    "style": {
+      "schema_version": "1.0",
+      "request": "Make it cinematic like a movie trailer.",
+      "seed": "10",
+      "detected_style_concepts": [
+        "cinematic_trailer"
+      ],
+      "profile_weights": {
+        "cinematic_trailer": 1.0
+      },
+      "intent": {
+        "energy": 0.68,
+        "pace": 0.57,
+        "hook": 0.82,
+        "breathing": 0.62,
+        "effects": 0.27,
+        "slow": 0.55,
+        "setup": 0.38,
+        "cinematic": 1.0,
+        "raw": 0.2,
+        "polish": 0.88,
+        "rhythm": 0.62
+      },
+      "platform_bias": "vertical_social",
+      "pacing_curve": [
+        "tease",
+        "build",
+        "pause",
+        "escalation",
+        "rapid_climax",
+        "hero_ending"
+      ],
+      "style_phases": [
+        {
+          "start": 0,
+          "end": 1,
+          "style": "cinematic_trailer"
+        }
+      ],
+      "clip_duration_profile": {
+        "bands": {
+          "anchor": {
+            "min": 1.0,
+            "max": 1.8,
+            "weight": 0.28
+          },
+          "medium": {
+            "min": 0.7,
+            "max": 1.2,
+            "weight": 0.24
+          },
+          "short": {
+            "min": 0.35,
+            "max": 0.7,
+            "weight": 0.18
+          },
+          "long": {
+            "min": 1.5,
+            "max": 3.0,
+            "weight": 0.16
+          },
+          "hero": {
+            "min": 1.8,
+            "max": 3.2,
+            "weight": 0.08
+          },
+          "micro": {
+            "min": 0.18,
+            "max": 0.35,
+            "weight": 0.06
+          }
+        },
+        "minimum": 0.35,
+        "maximum": 3.2,
+        "repetition_limit": 3
+      },
+      "shot_role_targets": {
+        "primary_movement": 0.38,
+        "complete_rep_anchor": 0.18,
+        "close_detail": 0.12,
+        "environment": 0.1,
+        "hero": 0.08,
+        "hook": 0.08,
+        "setup": 0.06
+      },
+      "transition_policy": {
+        "palette": {
+          "cut": 0.72,
+          "motion_match": 0.12,
+          "dip_black": 0.08,
+          "fade": 0.08
+        },
+        "frequency": 0.27,
+        "forbidden": [],
+        "semantic_only": true
+      },
+      "time_remapping": {
+        "enabled": true,
+        "slow_motion_amount": 0.55,
+        "fast_motion_amount": 0.019999999999999907,
+        "maximum_slowdown": 0.4,
+        "source_fps_floor_for_strong_slowdown": 50,
+        "active_movement_default_rate": 1.0,
+        "final_rep_slowdown": false
+      },
+      "hook_strategy": {
+        "type": "dramatic_teaser",
+        "target_seconds": 1.0,
+        "trusted_candidates": [
+          "user_selected",
+          "reviewed_high_effort_looking",
+          "late_set",
+          "unusual_angle",
+          "explosive_motion"
+        ],
+        "replay_counter": "suppress",
+        "preserve_identity": true
+      },
+      "setup_breather_policy": {
+        "amount": 0.38,
+        "duration_range": [
+          0.3,
+          1.0
+        ],
+        "maximum_share": 0.25
+      },
+      "ending_emphasis": "hero_fade",
+      "anchor_policy": {
+        "heavy_reps_breathe": false,
+        "complete_reps": true
+      },
+      "chronology_strictness": "source_group_strict",
+      "rep_visibility": "complete_anchors",
+      "source_audio": "muted",
+      "priority_order": [
+        "source_chronology",
+        "explicit_user_instructions",
+        "reviewed_movement",
+        "movement_visibility",
+        "target_duration",
+        "style",
+        "decorative_transitions"
+      ],
+      "overrides": {},
+      "decision_reasons": [
+        "Detected cinematic trailer language."
+      ]
+    },
+    "sample_timing": [
+      {
+        "band": "anchor",
+        "duration": 1.244,
+        "role": "hook"
+      },
+      {
+        "band": "anchor",
+        "duration": 1.611,
+        "role": "primary_movement"
+      },
+      {
+        "band": "short",
+        "duration": 0.357,
+        "role": "primary_movement"
+      },
+      {
+        "band": "anchor",
+        "duration": 1.433,
+        "role": "complete_rep_anchor"
+      },
+      {
+        "band": "medium",
+        "duration": 1.186,
+        "role": "setup"
+      },
+      {
+        "band": "medium",
+        "duration": 1.188,
+        "role": "primary_movement"
+      },
+      {
+        "band": "short",
+        "duration": 0.42,
+        "role": "primary_movement"
+      },
+      {
+        "band": "hero",
+        "duration": 1.945,
+        "role": "hero"
+      }
+    ],
+    "sample_speed_curve": {
+      "type": "smooth_dramatic_center",
+      "interpolation": "cubic_bezier",
+      "landmark_source": "clip_center",
+      "keyframes": [
+        {
+          "position": 0,
+          "rate": 1.0
+        },
+        {
+          "position": 0.30000000000000004,
+          "rate": 0.78
+        },
+        {
+          "position": 0.55,
+          "rate": 0.4
+        },
+        {
+          "position": 0.8,
+          "rate": 0.78
+        },
+        {
+          "position": 1,
+          "rate": 1.0
+        }
+      ],
+      "source_fps": 60,
+      "conservative_for_source_fps": false,
+      "optical_flow": false
+    }
+  },
+  "smooth_epic": {
+    "request": "Make it slower, smooth, dramatic and epic.",
+    "style": {
+      "schema_version": "1.0",
+      "request": "Make it slower, smooth, dramatic and epic.",
+      "seed": "10",
+      "detected_style_concepts": [
+        "epic_dramatic",
+        "smooth_sweeping"
+      ],
+      "profile_weights": {
+        "epic_dramatic": 0.5,
+        "smooth_sweeping": 0.5
+      },
+      "intent": {
+        "energy": 0.55,
+        "pace": 0.39,
+        "hook": 0.57,
+        "breathing": 0.72,
+        "effects": 0.205,
+        "slow": 0.55,
+        "setup": 0.31,
+        "cinematic": 0.76,
+        "raw": 0.235,
+        "polish": 0.74,
+        "rhythm": 0.475
+      },
+      "platform_bias": "vertical_social",
+      "pacing_curve": [
+        "establish",
+        "build",
+        "slow_peak",
+        "accelerate",
+        "resolve"
+      ],
+      "style_phases": [
+        {
+          "start": 0,
+          "end": 1,
+          "style": "epic_dramatic"
+        }
+      ],
+      "clip_duration_profile": {
+        "bands": {
+          "anchor": {
+            "min": 1.0,
+            "max": 1.8,
+            "weight": 0.34
+          },
+          "long": {
+            "min": 1.5,
+            "max": 3.0,
+            "weight": 0.3
+          },
+          "medium": {
+            "min": 0.7,
+            "max": 1.2,
+            "weight": 0.19
+          },
+          "hero": {
+            "min": 1.8,
+            "max": 3.2,
+            "weight": 0.11
+          },
+          "short": {
+            "min": 0.35,
+            "max": 0.7,
+            "weight": 0.06
+          }
+        },
+        "minimum": 0.35,
+        "maximum": 3.2,
+        "repetition_limit": 3
+      },
+      "shot_role_targets": {
+        "primary_movement": 0.39,
+        "complete_rep_anchor": 0.3,
+        "setup": 0.09,
+        "breather": 0.085,
+        "hero": 0.085,
+        "hook": 0.05
+      },
+      "transition_policy": {
+        "palette": {
+          "cut": 0.61,
+          "cross_dissolve": 0.15,
+          "fade": 0.1,
+          "motion_match": 0.1,
+          "dip_black": 0.04
+        },
+        "frequency": 0.205,
+        "forbidden": [],
+        "semantic_only": true
+      },
+      "time_remapping": {
+        "enabled": true,
+        "slow_motion_amount": 0.55,
+        "fast_motion_amount": 0,
+        "maximum_slowdown": 0.4,
+        "source_fps_floor_for_strong_slowdown": 50,
+        "active_movement_default_rate": 1.0,
+        "final_rep_slowdown": false
+      },
+      "hook_strategy": {
+        "type": "hero_or_build",
+        "target_seconds": 1.0,
+        "trusted_candidates": [
+          "user_selected",
+          "reviewed_high_effort_looking",
+          "late_set",
+          "unusual_angle",
+          "explosive_motion"
+        ],
+        "replay_counter": "suppress",
+        "preserve_identity": true
+      },
+      "setup_breather_policy": {
+        "amount": 0.31,
+        "duration_range": [
+          0.3,
+          1.0
+        ],
+        "maximum_share": 0.25
+      },
+      "ending_emphasis": "dramatic_payoff",
+      "anchor_policy": {
+        "heavy_reps_breathe": false,
+        "complete_reps": true
+      },
+      "chronology_strictness": "source_group_strict",
+      "rep_visibility": "complete_anchors",
+      "source_audio": "muted",
+      "priority_order": [
+        "source_chronology",
+        "explicit_user_instructions",
+        "reviewed_movement",
+        "movement_visibility",
+        "target_duration",
+        "style",
+        "decorative_transitions"
+      ],
+      "overrides": {},
+      "decision_reasons": [
+        "Detected epic dramatic language.",
+        "Detected smooth sweeping language."
+      ]
+    },
+    "sample_timing": [
+      {
+        "band": "anchor",
+        "duration": 1.224,
+        "role": "hook"
+      },
+      {
+        "band": "hero",
+        "duration": 2.767,
+        "role": "primary_movement"
+      },
+      {
+        "band": "long",
+        "duration": 2.685,
+        "role": "primary_movement"
+      },
+      {
+        "band": "anchor",
+        "duration": 1.616,
+        "role": "complete_rep_anchor"
+      },
+      {
+        "band": "anchor",
+        "duration": 1.691,
+        "role": "setup"
+      },
+      {
+        "band": "short",
+        "duration": 0.581,
+        "role": "primary_movement"
+      },
+      {
+        "band": "long",
+        "duration": 2.596,
+        "role": "primary_movement"
+      },
+      {
+        "band": "hero",
+        "duration": 2.522,
+        "role": "hero"
+      }
+    ],
+    "sample_speed_curve": {
+      "type": "smooth_dramatic_center",
+      "interpolation": "cubic_bezier",
+      "landmark_source": "clip_center",
+      "keyframes": [
+        {
+          "position": 0,
+          "rate": 1.0
+        },
+        {
+          "position": 0.30000000000000004,
+          "rate": 0.78
+        },
+        {
+          "position": 0.55,
+          "rate": 0.4
+        },
+        {
+          "position": 0.8,
+          "rate": 0.78
+        },
+        {
+          "position": 1,
+          "rate": 1.0
+        }
+      ],
+      "source_fps": 60,
+      "conservative_for_source_fps": false,
+      "optical_flow": false
+    }
+  }
+}

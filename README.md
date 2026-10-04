@@ -21,6 +21,14 @@ explicit overrides, hook replays, duration budgeting, and rest decisions are
 resolved before Remotion. See the
 [rep-aware planning guide](workout-remotion-editor/references/rep-aware-edit-planning.md).
 
+Phase 10 adds a deterministic natural-language Style Director. Everyday requests
+such as “TikTok-ish but cleaner”, “cinematic after the hook”, or “let the final
+rep breathe” resolve into blended pacing, duration distributions, shot roles,
+semantic transitions, setup/breather policy, and FPS-aware speed curves without
+requiring preset names. Style attaches to—rather than replacing—the truthful
+Phase 9 plan. See the [Style Director guide](workout-remotion-editor/references/editing-style-director.md)
+and [research notes](workout-remotion-editor/references/editing-style-research.md).
+
 The layers are intentionally separate:
 
 ```text
