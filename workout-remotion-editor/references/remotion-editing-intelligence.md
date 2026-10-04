@@ -31,6 +31,10 @@ Track both:
 
 Speed changes modify the mapping between these domains. Rep counters and movement-phase overlays should remain bound to source events and then transformed into timeline timing through the segment's playback-rate mapping.
 
+For reviewed rep counters, use `scripts/rep_counter_timeline.py` before Remotion.
+The renderer consumes only normalized `rep_counter_events`; it must not inspect
+analysis evidence. See [reviewed-rep-counters.md](reviewed-rep-counters.md).
+
 ## 5. Transition discipline
 
 Use transitions only between meaningful segments. A transition should not hide an uncertain cut or make separated reps appear continuous.

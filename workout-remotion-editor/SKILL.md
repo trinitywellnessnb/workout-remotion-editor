@@ -15,7 +15,7 @@ Act as the workout-video director first and the Remotion editor second. Analyze 
 3. Read `references/editorial-rules.md` for pacing modes, cut points, speed changes, rep selection, glitch terminology, transitions, and multi-clip structure.
 4. Read `references/retention-and-shareability.md` whenever choosing a hook, structuring a short-form narrative, adding a payoff/loop/CTA, comparing variants, or making claims about likely audience response. Treat retention and shareability as hypotheses to test, never guarantees.
 5. Read `references/workout-analysis.md` when objective scene, pose, rep-state, beat/onset, motion, or crop signals are available or would materially improve the edit. External analyzers provide evidence, never authority.
-6. Read `references/overlays-and-output.md` when the user requests rep counters, exercise names, workout data, coaching/educational text, animated callouts, music/audio changes, or non-default aspect ratios.
+6. Read `references/overlays-and-output.md` when the user requests overlays or non-default output, and `references/reviewed-rep-counters.md` for any rep counter.
 7. Read `references/remotion-editing-intelligence.md` when translating the paper edit/edit blueprint into Remotion, especially for ripple timelines, source-to-timeline timing, beat-aware cuts, or revision-local changes.
 8. Read `references/qa-and-revisions.md` before rendering a requested finished video and for follow-up revisions to an accepted edit.
 9. Read `references/remotion-skill-routing.md` whenever Remotion is the implementation layer. Route implementation to the official Remotion skills: best-practices, create, markup, multimedia, captions, interactivity, Studio, render, docs, upgrade, SaaS, and maps when relevant. Do not duplicate their generic implementation knowledge here.
@@ -65,7 +65,7 @@ Interpret natural language without requiring the user to restate the rules.
 - `Glitch transitions` -> fast cyberpunk vertical-strip/slice transitions between meaningful clips.
 - `Glitch effects` -> RGB separation/static/distortion/screen tearing only when explicitly requested.
 - `Keep the audio` -> override the mute default only for the requested scope.
-- `Add rep counters` -> synchronize to sufficiently visible completed reps; omit uncertain automatic counts.
+- `Add rep counters` -> opt in to reviewed top-level editorial repetitions only; map retained completions through the final edit timeline, keep displayed numbering continuous, and suppress hook/replay duplicates. Raw machine candidates can never render a counter.
 - `Add coaching tips/instructions` -> use user-provided guidance and time it to relevant movement phases when supportable.
 
 ## Analysis integration rule

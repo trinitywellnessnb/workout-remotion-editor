@@ -8,7 +8,7 @@ Use high contrast, readable type, adequate size, and non-color-only meaning. Kee
 
 ### Rep counters
 
-Bind displayed values to verified rep events rather than animation time guesses. Do not advance on incomplete/uncertain reps. If the opening is reordered, ensure the counter cannot imply a false set count. Label partial excerpts such as “rep 6” only when the preceding source context establishes it.
+Rep counters are opt-in. Bind displayed values to reviewed top-level editorial repetitions through the normalized event layer in [reviewed-rep-counters.md](reviewed-rep-counters.md), never directly to machine candidates or animation-time guesses. Do not advance on incomplete/unreviewed reps. If an opening is reordered or replayed, suppress its counter by default. Display retained reps continuously while preserving source identity in metadata.
 
 ### Coaching overlays
 

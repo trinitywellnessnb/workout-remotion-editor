@@ -1,5 +1,12 @@
 # Changelog
 
+## Phase 8
+
+- Added an opt-in, editorial-only repetition counter timeline with conservative
+  trim visibility, speed mapping, replay/deduplication, reset, target, and safe-zone rules.
+- Added a reusable deterministic Remotion `RepCounter` with an FPS-aware completion pulse.
+- Added a synthetic fixture, regression tests, and complete counter workflow documentation.
+
 All notable changes to Workout Remotion Editor are documented here.
 
 ## Phase 7 — real-world validation workflow

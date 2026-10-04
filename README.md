@@ -9,6 +9,12 @@ An open-source workout-video editing project for ChatGPT and Remotion. The proje
 
 [Remotion](https://www.remotion.dev/) remains the recommended video implementation and rendering layer.
 
+Phase 8 adds an opt-in bridge from reviewed editorial repetitions to deterministic
+Remotion counter events. Raw machine candidates never drive visible counts; trims,
+speed changes, omissions, and hook replays are resolved before the reusable
+counter component receives its props. See the
+[reviewed counter guide](workout-remotion-editor/references/reviewed-rep-counters.md).
+
 The layers are intentionally separate:
 
 ```text
