@@ -28,3 +28,11 @@ When requested, a complete final-three selected rep is chosen transparently as a
 Expected duration uses padded source duration divided by playback rate and accounts for transition overlap. Primary active reps remain at 1x by default. Short rests (default threshold two seconds) are skipped. Long rests retain a configurable 1–2 second orientation handle before activity resumes, or produce an inspectable `compressed_rest` fast-forward decision. Rest evidence does not confirm a set. Source audio remains muted by the skill default.
 
 The Director produces normalized JSON. React/Remotion components render that timeline and do not perform rep selection.
+
+## Semantic candidates after rep selection
+
+Phase 11 may rank a reviewed repetition as a complete-rep, hero, hook, or ending
+candidate, but it cannot manufacture or promote repetitions. Editorial repetition
+IDs, padding rules, retained completions, replay/counter suppression, and source
+chronology remain authoritative. If semantic evidence is absent, use this Phase 9
+plan unchanged.

@@ -97,3 +97,12 @@ questionnaire.
 Source audio remains muted unless the user explicitly requests otherwise. Rhythm
 metadata is future-ready but does not require or assume copyrighted music.
 
+
+## Phase 11 shot-role integration
+
+The style contract describes pacing and preferences; it does not identify source
+semantics. Pass it to `semantic_shot_director.py`, which combines profile weights
+with evidence-backed roles and general usability. Explicit role requests override
+profile tendencies, and chronology/editorial repetition truth override style.
+Candidate duration and FPS constraints bound Phase 10 duration/time-remap choices.
+See [semantic-shot-director.md](semantic-shot-director.md).

@@ -372,3 +372,13 @@ Original project material is licensed under the [MIT License](LICENSE). External
 ### Phase 6 repetition evaluation and review
 
 The skill now includes an external, privacy-conscious gold-annotation/adjudication workflow and deterministic evaluator for `single_arm_dumbbell_row_v1`, plus explicit review decisions and idempotent promotion into editorial `repetitions`. See `workout-remotion-editor/references/repetition-evaluation.md`. Synthetic tests do not validate real-world accuracy; no private footage is bundled.
+
+### Phase 11 semantic shot direction
+
+Phase 11 separates style from source-shot meaning. The deterministic Semantic
+Shot Director classifies evidence-backed role candidates (including complete
+reps, setup/equipment interactions, walking, details, hooks, heroes, endings,
+and unknown), scores inspectable visual usability and style compatibility, then
+selects a diverse chronological sequence with duplicate suppression and explicit
+natural-language role overrides. It degrades to Phase 9 selection when evidence
+is sparse and adds no model dependency. See the [Semantic Shot Director guide](workout-remotion-editor/references/semantic-shot-director.md).
