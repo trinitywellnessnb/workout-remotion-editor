@@ -4,7 +4,7 @@ Workout-specific editorial intelligence for ChatGPT, designed to direct Remotion
 
 ## What changed in v2.3
 
-v2.3 preserves the complete rep-aware workout intelligence and official Remotion routing from v2.2, then adds an evidence-informed retention and shareability layer. It plans a truthful viewer promise, purposeful narrative beats, an earned payoff, a supported reason to share, optional honest looping, controlled variants, and analytics-informed revision—without engagement bait or performance guarantees.
+Phase 10 preserves the complete rep-aware workout intelligence and official Remotion routing, then adds natural-language style direction. Say “social media ready”, “TikTok hook but cinematic after that”, “smooth and not too flashy”, or “slow down the strongest final rep”. The Director blends internal profiles and emits inspectable pacing, timing, role, transition, and speed-remap policies; users do not need to know preset names.
 
 ## 1. What This Skill Is
 Workout Remotion Editor v2.3 analyzes one or more exercise clips, decides what should appear in the edit, and delegates implementation to Remotion or another compatible editor. It reasons about exercises, working sets, repetitions, movement phases, high-effort moments, useful setup footage, exercise visibility, editorial pacing, and teaching overlays before the timeline is built.
