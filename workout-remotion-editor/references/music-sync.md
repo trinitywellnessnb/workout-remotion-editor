@@ -101,3 +101,13 @@ click/percussive material best, and makes no calibrated-confidence claim.
 Changing tempo, polyphonic music, section labels, downbeats, and loudness
 measurement need a separately evaluated optional provider. There is no default
 loop, time stretch, source-audio restoration, DAW mixing, or commercial fixture.
+
+## Phase 14 advanced evidence
+
+Phase 14 keeps this entire Phase 13 contract and adds the optional `librosa`
+provider, registry/capability declarations, local tempo regions, explicitly
+labeled beat support, neutral structural/energy phases, and optional FFmpeg
+compressed decode plus EBU R128 measurement. Synchronization now prefers reliable
+section boundaries and provider-supplied downbeats over accents and ordinary
+beats, while weak evidence automatically makes the edit more conservative. It
+never invents downbeats or meter. See [advanced-music-analysis.md](advanced-music-analysis.md).

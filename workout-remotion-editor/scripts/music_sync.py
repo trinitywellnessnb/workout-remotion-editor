@@ -33,10 +33,24 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
         mode = explicit
     elif any(
         x in text
-        for x in ("ignore the beat", "no music sync", "do not sync to the beat")
+        for x in (
+            "ignore the beat",
+            "no music sync",
+            "do not sync to the beat",
+            "ignore the song structure",
+            "keep the current edit",
+        )
     ):
         mode = "off"
-    elif "don't sync every" in text or "do not sync every" in text:
+    elif any(
+        x in text
+        for x in (
+            "don't sync every",
+            "do not sync every",
+            "don't follow every",
+            "do not follow every",
+        )
+    ):
         mode = "subtle"
     elif any(
         x in text
@@ -48,13 +62,27 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
             "the beat",
             "on the drop",
             "follow the beat",
+            "downbeat",
+            "big musical hits",
         )
     ):
         mode = "strong"
     elif any(x in text for x in ("loosely", "loose", "cinematic")):
         mode = "subtle"
     elif any(
-        x in text for x in ("with the music", "musical", "soundtrack", "to this song")
+        x in text
+        for x in (
+            "with the music",
+            "musical",
+            "soundtrack",
+            "to this song",
+            "song sections",
+            "song changes",
+            "build with the music",
+            "music picks up",
+            "fit this song",
+            "work with the music",
+        )
     ):
         mode = "moderate"
     else:
@@ -68,6 +96,20 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
         and any(x in text for x in ("drop", "hit", "music")),
         "ending_on_music": "ending" in text
         and any(x in text for x in ("music", "drop", "land")),
+        "section_aware": any(
+            x in text
+            for x in (
+                "song sections",
+                "song changes",
+                "build with",
+                "music picks up",
+                "high-energy",
+                "fast part",
+                "work with the music",
+                "fit this song",
+            )
+        ),
+        "downbeats_only": "downbeat" in text or "big musical hits" in text,
     }
 
 
@@ -135,6 +177,8 @@ def sync_timeline(
         "locked_boundaries_preserved": 0,
         "largest_boundary_shift": 0.0,
         "hero_rep_aligned": None,
+        "analysis_quality": (analysis or {}).get("analysis_quality", "unknown"),
+        "effective_mode": intent["mode"],
     }
     if soundtrack is None or analysis is None:
         result["soundtrack"] = None
@@ -158,8 +202,35 @@ def sync_timeline(
         result["music_sync"] = {**report, "status": "skipped", "reason": "sync_off"}
         return result
     offset = float(result["soundtrack"]["offset_seconds"])
+    quality = analysis.get("analysis_quality")
+    beat_support = analysis.get("beat_confidence")
+    # Old Phase 13 documents have no quality field and retain their behavior.
+    if quality in {"low", "insufficient"} or (
+        beat_support is not None and float(beat_support) < 0.4
+    ):
+        report["effective_mode"] = "subtle" if quality == "low" else "off"
+        report["adjustments"].append({"reason": "beat_confidence_too_low"})
+        if report["effective_mode"] == "off":
+            result["music_sync"] = {
+                **report,
+                "status": "skipped",
+                "reason": "insufficient_analysis_quality",
+            }
+            return result
     events = sorted(
         [
+            (float(x["start"]) + offset, 1.0, "section")
+            for x in analysis.get("sections", [])[1:]
+        ]
+        + [
+            (
+                float(x["timestamp"]) + offset,
+                float(x.get("strength", x.get("confidence", 1))),
+                "downbeat",
+            )
+            for x in analysis.get("downbeats", [])
+        ]
+        + [
             (float(x["timestamp"]) + offset, float(x.get("strength", 0)), "accent")
             for x in analysis.get("accent_events", [])
         ]
@@ -168,8 +239,11 @@ def sync_timeline(
             for x in analysis.get("beats", [])
         ]
     )
+    if intent["downbeats_only"]:
+        preferred = [x for x in events if x[2] in {"downbeat", "section", "accent"}]
+        events = preferred
     segments = result["timeline"]["segments"]
-    max_shift = MODES[intent["mode"]] * _style_factor(result)
+    max_shift = MODES[report["effective_mode"]] * _style_factor(result)
     eligible_seen = 0
     # Each accepted move translates later clips; density cap deliberately prevents every-cut sync.
     for index in range(len(segments) - 1):
@@ -192,7 +266,11 @@ def sync_timeline(
         ):
             continue
         eligible_seen += 1
-        cadence = 3 if intent["avoid_every_cut"] or intent["mode"] == "subtle" else 2
+        cadence = (
+            3
+            if intent["avoid_every_cut"] or report["effective_mode"] == "subtle"
+            else 2
+        )
         if eligible_seen % cadence:
             continue
         boundary = float(right["composition_start"])
@@ -213,8 +291,9 @@ def sync_timeline(
                 {"segment_id": left["segment_id"], "reason": "beat_outside_safe_margin"}
             )
             continue
+        priority = {"section": 4, "downbeat": 3, "accent": 2, "beat": 1}
         distance, target, strength, kind = min(
-            nearby, key=lambda x: (x[0], -x[2], x[1])
+            nearby, key=lambda x: (-priority.get(x[3], 0), x[0], -x[2], x[1])
         )
         shift = target - boundary
         if abs(shift) < 1e-6:
@@ -227,11 +306,13 @@ def sync_timeline(
             float(left["source_duration"]) / left["composition_duration"], 6
         )
         left["source_to_composition"]["playback_rate"] = left["playback_rate"]
-        left.setdefault("selection_reasons", []).append(
-            "snapped_to_nearby_beat"
-            if kind == "beat"
-            else "aligned_exercise_transition_to_accent"
-        )
+        reason = {
+            "beat": "snapped_to_nearby_beat",
+            "accent": "aligned_exercise_transition_to_accent",
+            "downbeat": "strong_downbeat_selected",
+            "section": "section_boundary_selected",
+        }[kind]
+        left.setdefault("selection_reasons", []).append(reason)
         report["adjustments"].append(
             {
                 "segment_id": left["segment_id"],
@@ -252,21 +333,41 @@ def sync_timeline(
             for s in segments
             if s.get("rep_ids") and s.get("replay_type") != "hook_replay"
         ]
-        accents = [float(x["timestamp"]) for x in analysis.get("accent_events", [])]
-        if finals and accents:
+        landmarks = (
+            [
+                (float(x["start"]), 3, "section")
+                for x in analysis.get("sections", [])[1:]
+            ]
+            + [
+                (float(x["timestamp"]), 2, "downbeat")
+                for x in analysis.get("downbeats", [])
+            ]
+            + [
+                (float(x["timestamp"]), 1, "accent")
+                for x in analysis.get("accent_events", [])
+            ]
+        )
+        if finals and landmarks:
             visual = float(
                 finals[-1]
                 .get("counter_events", [{}])[-1]
                 .get("composition_time", finals[-1]["composition_end"])
             )
             current_offset = float(result["soundtrack"]["offset_seconds"])
-            candidate = min(accents, key=lambda t: abs((t + current_offset) - visual))
+            safe = [
+                x for x in landmarks if abs((x[0] + current_offset) - visual) <= 1.0
+            ]
+            candidate, _, landmark_kind = min(
+                safe or landmarks,
+                key=lambda x: (-x[1], abs((x[0] + current_offset) - visual)),
+            )
             desired = visual - candidate
             if abs(desired - current_offset) <= 1.0 and desired >= 0:
                 result["soundtrack"]["offset_seconds"] = round(desired, 6)
                 report["hero_rep_aligned"] = {
                     "segment_id": finals[-1]["segment_id"],
                     "accent_time": candidate,
+                    "landmark_kind": landmark_kind,
                     "reason": "aligned_hero_rep_to_section_peak",
                 }
                 report["adjustments"].append(report["hero_rep_aligned"])

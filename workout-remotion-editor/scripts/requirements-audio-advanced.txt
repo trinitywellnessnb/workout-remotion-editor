@@ -1,0 +1,2 @@
+# Optional Phase 14 music-information-retrieval stack; never required by core.
+librosa>=0.10.2,<1.1

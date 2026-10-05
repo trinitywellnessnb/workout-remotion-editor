@@ -57,3 +57,9 @@ Phase 3 optionally calls MMPose's public `init_model` and `inference_topdown` AP
 ## Ultralytics YOLO and trackers
 
 Phase 2 optionally calls the public Python API of Ultralytics (`ultralytics>=8.3,<9`) for local YOLO inference with its supported ByteTrack or BoT-SORT integration. Ultralytics publishes its open-source package under **AGPL-3.0** and offers a separate enterprise license; these terms can conflict with proprietary distribution or network-service use. Users must review and satisfy the license for the exact package, model weights, tracker configuration, dependencies, and deployment, or obtain an appropriate commercial license. This repository does not vendor Ultralytics source, packages, tracker code, or model weights, does not redistribute a model, and does not install it in the core dependency path. Model artifacts and training datasets may have additional terms. Explicit `--allow-model-download` opt-in may download weights from upstream; it never uploads user footage through this adapter.
+
+## Phase 14 optional librosa and FFmpeg analysis
+
+Phase 14 can call librosa through its public API when separately installed. librosa is ISC-licensed; no package or source is bundled. Its NumPy, SciPy, numba, SoundFile/libsndfile and other transitive dependencies retain their own licenses and notices. The optional version range is recorded in `workout-remotion-editor/scripts/requirements-audio-advanced.txt`; deployments must inventory the resolved environment.
+
+Phase 14 may invoke a separately installed FFmpeg executable for read-only compressed-audio decoding and EBU R128 measurement. FFmpeg licensing depends on the exact build and enabled codecs (commonly LGPL or GPL configurations); it is not redistributed here. No codec, package, model, or binary is downloaded automatically.

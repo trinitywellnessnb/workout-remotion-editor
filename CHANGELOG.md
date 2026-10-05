@@ -123,3 +123,11 @@ All notable changes to Workout Remotion Editor are documented here.
 - Added deterministic soundtrack trim, no-loop default, volume/fades, Remotion
   audio props, synthetic audio coverage, and music policy documentation.
 - Preserved the no-soundtrack no-op and muted source-workout-audio defaults.
+
+## Phase 14 — advanced music analysis and structure-aware sync
+
+- Added an optional librosa provider and baseline/advanced/auto registry with explicit capabilities, isolated imports/failures, deterministic content/config caching, and safe baseline fallback.
+- Extended the Phase 13 contract backward-compatibly with local tempo regions, labeled beat support, half/double candidates, quality, coarse energy phases, loudness measurements, provenance, and diagnostics.
+- Added optional read-only FFmpeg compressed decoding and EBU R128 measurement without automatic mastering or source mutation.
+- Made synchronization quality-, section-, downbeat-, variable-tempo-, and natural-language-aware while retaining all locked workout, chronology, counter, density, and renderer boundaries.
+- Added deterministic Phase 14 provider, tempo, fallback, caching, source-integrity, quality, natural-language, and sync regression tests plus architecture/license documentation.
