@@ -110,6 +110,16 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
             )
         ),
         "downbeats_only": "downbeat" in text or "big musical hits" in text,
+        "bar_aware": any(
+            x in text
+            for x in (
+                "new bar",
+                "two bars",
+                "song phrasing",
+                "next phrase",
+                "few beats",
+            )
+        ),
     }
 
 
@@ -179,6 +189,10 @@ def sync_timeline(
         "hero_rep_aligned": None,
         "analysis_quality": (analysis or {}).get("analysis_quality", "unknown"),
         "effective_mode": intent["mode"],
+        "selected_rhythm_provider": (analysis or {}).get("provider"),
+        "provider_selection_reason": "normalized_capabilities_and_quality",
+        "capabilities_used": [],
+        "fallback_path": (analysis or {}).get("diagnostics", []),
     }
     if soundtrack is None or analysis is None:
         result["soundtrack"] = None
@@ -225,7 +239,7 @@ def sync_timeline(
         + [
             (
                 float(x["timestamp"]) + offset,
-                float(x.get("strength", x.get("confidence", 1))),
+                float(x.get("support", x.get("strength", x.get("confidence", 1)))),
                 "downbeat",
             )
             for x in analysis.get("downbeats", [])
@@ -239,6 +253,17 @@ def sync_timeline(
             for x in analysis.get("beats", [])
         ]
     )
+    downbeat_usable = "downbeats" in analysis.get(
+        "provider_capabilities", []
+    ) and quality in {"high", "moderate"}
+    if not downbeat_usable:
+        events = [event for event in events if event[2] != "downbeat"]
+    elif analysis.get("downbeats"):
+        report["capabilities_used"].append("downbeats")
+    if intent["bar_aware"] and "bar_positions" in analysis.get(
+        "provider_capabilities", []
+    ):
+        report["capabilities_used"].append("bar_positions")
     if intent["downbeats_only"]:
         preferred = [x for x in events if x[2] in {"downbeat", "section", "accent"}]
         events = preferred

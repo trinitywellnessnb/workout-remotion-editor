@@ -1,5 +1,12 @@
 # Changelog
 
+## Phase 15 — optional downbeat/bar contract and long-track streaming
+
+- Added fail-closed `downbeat` registry mode, capability declarations, normalized downbeat/bar/meter validation, honest support kinds, and provider-selection diagnostics.
+- Added bounded overlapping PCM-WAV chunk analysis with deterministic source-relative stitching, boundary deduplication, partial-failure isolation, temporary-file cleanup, source-integrity checks, and configuration-aware caching.
+- Added quality-gated major-event downbeat priority and conservative bar/phrase natural language without overriding locked workout truth.
+- Documented provider/license research and consciously declined a production model integration; no dependencies, weights, or downloads were added.
+
 ## Phase 12
 
 - Added a deterministic, renderer-neutral Timeline Composer with exact source

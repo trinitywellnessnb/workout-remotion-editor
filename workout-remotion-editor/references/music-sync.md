@@ -111,3 +111,7 @@ compressed decode plus EBU R128 measurement. Synchronization now prefers reliabl
 section boundaries and provider-supplied downbeats over accents and ordinary
 beats, while weak evidence automatically makes the edit more conservative. It
 never invents downbeats or meter. See [advanced-music-analysis.md](advanced-music-analysis.md).
+
+## Phase 15 downbeat and bar behavior
+
+Normalized downbeats are used only when capability, provenance, support kind, and high/moderate quality agree. Major events prefer section change, downbeat, accent, then beat; ordinary detail cuts remain beat-capable and density-limited. Natural-language bar/phrase requests enable grouped-bar timing only when bar positions exist—bars alone are not called semantic phrases. The sync report records the authoritative rhythm provider, selection reason, used capabilities, and fallback diagnostics; disagreeing grids are not averaged. See [downbeat-bar-analysis.md](downbeat-bar-analysis.md).

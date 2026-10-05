@@ -106,3 +106,7 @@ beat timestamps may adjust only boundaries already marked flexible and safe.
 Locked reviewed reps, hook replays, counter events, chronology, and required
 footage cannot move. Remotion receives only the compiled result and performs no
 audio analysis or editorial timing decisions.
+
+## Phase 15 bar-aware boundary
+
+The Composer exposes no provider objects. Phase 15 may use normalized, supported downbeats or bar positions for sparse major boundaries already marked flexible; it may not manufacture boundaries, assume meter, or create perpetual bar cuts. Section roles and style pacing still control density. Locked reps, counters, source chronology, and all source-to-composition mappings remain authoritative.

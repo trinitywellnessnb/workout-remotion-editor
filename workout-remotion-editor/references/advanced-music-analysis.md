@@ -92,3 +92,7 @@ This provider performs no lyric/vocal analysis, mood diagnosis, automatic
 mastering, or codec implementation. It does not claim downbeats, meter, or
 semantic song form. Remotion remains renderer-only and receives the already
 synchronized timeline plus source, trim, offset, fades, and user volume.
+
+## Phase 15 extension
+
+Phase 15 removes the baseline long-track memory limitation for PCM WAV by using bounded, overlapping chunks above a configurable threshold. The librosa path still needs whole-track context for its global features. A normalized downbeat, bar, and optional meter contract is available, but no production model was adopted after license/dependency review. See [downbeat-bar-analysis.md](downbeat-bar-analysis.md) for the decision matrix, stitching rules, cache identity, and fail-closed adapter.
