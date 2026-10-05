@@ -9,6 +9,14 @@ An open-source workout-video editing project for ChatGPT and Remotion. The proje
 
 [Remotion](https://www.remotion.dev/) remains the recommended video implementation and rendering layer.
 
+Phase 12 adds the deterministic Timeline Composer that converts reviewed rep
+choices, style intent, and semantic roles into exact source ranges,
+overlap-aware composition timing, transitions, playback/time-remap instructions,
+overlay contracts, and continuous rep-counter events. Remotion receives final
+props and performs no editorial selection. See the
+[Timeline Composer guide](workout-remotion-editor/references/timeline-composer.md)
+and [render fixtures](workout-remotion-editor/examples/phase12-timeline-fixtures.json).
+
 Phase 8 adds an opt-in bridge from reviewed editorial repetitions to deterministic
 Remotion counter events. Raw machine candidates never drive visible counts; trims,
 speed changes, omissions, and hook replays are resolved before the reusable

@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 12
+
+- Added a deterministic, renderer-neutral Timeline Composer with exact source
+  and composition ranges, duration budgeting, style phases, role-aware
+  transitions, source-FPS-safe time remapping, and authoritative mapping.
+- Added replay-safe continuous rep counters, overlay contracts, rigorous
+  timeline validation, summaries, and four-level input fallback.
+- Added pure Python and TypeScript Remotion adapters, three deterministic
+  fixtures, and Phase 12 regression coverage.
+
 ## Phase 10
 
 - Added a deterministic natural-language Editing Style Director with ten
