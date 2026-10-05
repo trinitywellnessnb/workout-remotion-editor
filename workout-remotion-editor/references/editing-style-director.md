@@ -106,3 +106,11 @@ with evidence-backed roles and general usability. Explicit role requests overrid
 profile tendencies, and chronology/editorial repetition truth override style.
 Candidate duration and FPS constraints bound Phase 10 duration/time-remap choices.
 See [semantic-shot-director.md](semantic-shot-director.md).
+
+## Music-aware style behavior (Phase 13)
+
+Style remains above beat snapping in the priority order. Viral/fast/gritty edits
+may use stronger rhythmic clusters, cinematic edits prefer sparse accents and
+broad energy changes, and smooth/coaching edits remain loose. Transition type is
+still selected here; soundtrack evidence can only adjust safe transition timing.
+Natural-language negation disables music sync. See [music-sync.md](music-sync.md).

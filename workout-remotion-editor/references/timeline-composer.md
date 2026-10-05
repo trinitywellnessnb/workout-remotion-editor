@@ -88,3 +88,12 @@ They never select footage, style, ordering, transitions, or repetitions.
 
 Deterministic viral, cinematic, and mixed fixtures live in
 `examples/phase12-timeline-fixtures.json`.
+
+## Phase 13 music timing extension
+
+Phase 13 consumes, rather than duplicates, the Composer's rhythmic-cut fields.
+Segments expose locked/flexible boundaries, before/after safe margins,
+transition safety, and timing priority. Reviewed reps, hook identity, counters,
+and required footage are locked. The music synchronizer may adjust only flexible
+composition duration within those margins, then reflows overlap and mappings.
+See [Soundtrack intelligence](music-sync.md).

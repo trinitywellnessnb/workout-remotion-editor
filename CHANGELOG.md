@@ -112,3 +112,14 @@ All notable changes to Workout Remotion Editor are documented here.
 - Added an evidence-backed Semantic Shot Director with ambiguous multi-role candidates.
 - Added inspectable visual quality, style compatibility, duration/time-remap constraints, soft style grammars, breathers, duplicate suppression, chronology validation, role-aware transitions, and natural-language role overrides.
 - Added deterministic Phase 11 tests and viral, cinematic, and raw fixture expectations without adding an ML dependency.
+
+## Phase 13 — Soundtrack intelligence
+
+- Added optional, provider-neutral PCM-WAV beat/onset/energy analysis with hashes,
+  validation, honest partial/unavailable states, and no heavyweight dependency.
+- Added natural-language, style-aware music synchronization constrained to
+  explicit flexible boundaries, with locked rep/hook/counter protection,
+  transition reflow, final-rep soundtrack offset, and adjustment reporting.
+- Added deterministic soundtrack trim, no-loop default, volume/fades, Remotion
+  audio props, synthetic audio coverage, and music policy documentation.
+- Preserved the no-soundtrack no-op and muted source-workout-audio defaults.

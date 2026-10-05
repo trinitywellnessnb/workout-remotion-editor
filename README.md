@@ -9,6 +9,8 @@ An open-source workout-video editing project for ChatGPT and Remotion. The proje
 
 [Remotion](https://www.remotion.dev/) remains the recommended video implementation and rendering layer.
 
+Phase 13 adds an optional soundtrack-intelligence layer: deterministic PCM-WAV beat/onset/energy evidence, provider-isolated failure, truth-safe flexible-boundary snapping, style-aware sync, final-rep accent offsetting, and compiled Remotion trim/fade/volume props. No soundtrack is required and source workout audio remains muted. See the [music synchronization guide](workout-remotion-editor/references/music-sync.md).
+
 Phase 12 adds the deterministic Timeline Composer that converts reviewed rep
 choices, style intent, and semantic roles into exact source ranges,
 overlap-aware composition timing, transitions, playback/time-remap instructions,

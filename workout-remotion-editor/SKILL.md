@@ -83,3 +83,18 @@ For optional automated evidence, read `references/analysis-pipeline.md` and run 
 ## Confidence rule
 
 Never present visual inference as certainty when the footage does not support it. A slow rep is a hook-selection signal, not proof of muscular failure. If counting, exercise recognition, set boundaries, chronology, ROM, or movement phase is uncertain, choose an edit that remains truthful without unsupported annotation.
+
+## Phase 13 — optional soundtrack intelligence
+
+When a user supplies a rights-cleared soundtrack, interpret ordinary directions
+such as “make this social media ready and cut it to this song,” “use the beat
+mostly between exercises,” or “make the final rep hit on the drop.” Do not ask
+for BPM or beat timestamps when local analysis can provide evidence. Resolve
+negations (“ignore the beat,” “no music sync”) first. Use Phase 13 normalized
+analysis and safe-boundary synchronizer; do not move locked reviewed reps,
+chronology, hook identity, or counter completions. Never sync every cut by
+default. Keep source workout audio muted unless the user explicitly asks for it.
+Without a soundtrack—or if its optional provider fails—preserve the Phase 12
+visual timeline exactly. Do not download music or assume usage rights. See
+`references/music-sync.md` for the provider, input, validation, style, offset,
+trim, fade, and renderer contracts.

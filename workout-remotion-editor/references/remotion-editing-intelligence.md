@@ -100,3 +100,11 @@ Workout Remotion Editor should decide *what* the workout edit should be. The off
 ## Phase 1 evidence handoff
 
 Treat normalized machine evidence as source-time input to the Editor's paper edit. The Director may invoke scripts/analyze_video.py before editorial review and inspect provider statuses. Remotion implements the reviewed blueprint; it does not render Auto-Editor cuts or equate scene boundaries with sets. Reuse probed metadata when available and convert accepted seconds to composition frames once. See analysis-pipeline.md for the canonical schema and fallback workflow.
+
+## Compiled soundtrack props
+
+Phase 13 sends Remotion soundtrack `src`, composition offset, source trim,
+normalized volume, fade frames, and explicit shortfall/loop policy. Remotion may
+play/fade that track and render the already synchronized visual timeline. It
+must not analyze beats, select accents, move cuts, or unmute camera audio. See
+[music-sync.md](music-sync.md).

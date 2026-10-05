@@ -331,6 +331,17 @@ def compile_timeline(
             tin = {"type": "none", "duration_seconds": 0.0, "model": "cut"}
         ids, source_nums, shown = _rep_fields(shot, display)
         replay = "hook_replay" if _role(shot) == "hook_replay" else None
+        protected = bool(
+            ids
+            or replay
+            or shot.get("user_required")
+            or shot.get("identity_critical")
+            or shot.get("locked_boundary")
+        )
+        supplied_margin = shot.get("flexible_trim_margin")
+        default_margin = 0.0 if protected else min(0.2, source_duration * 0.12)
+        before_margin = float(shot.get("safe_trim_margin_before", supplied_margin if supplied_margin is not None else default_margin))
+        after_margin = float(shot.get("safe_trim_margin_after", supplied_margin if supplied_margin is not None else default_margin))
         segment = {
             "segment_id": str(
                 shot.get("candidate_id") or shot.get("id") or f"segment-{i + 1:03d}"
@@ -373,7 +384,12 @@ def compile_timeline(
                 shot.get("rhythmic_cut_opportunity", True)
             ),
             "beat_lockable_boundary": True,
-            "flexible_trim_margin": shot.get("flexible_trim_margin", 0),
+            "transition_safe_boundary": bool(shot.get("transition_safe_boundary", True)),
+            "boundary_lock": "locked" if protected else "flexible",
+            "timing_priority": "truth" if protected else "style_then_music",
+            "safe_trim_margin_before": round(max(0.0, before_margin), 6),
+            "safe_trim_margin_after": round(max(0.0, after_margin), 6),
+            "flexible_trim_margin": round(max(0.0, min(before_margin, after_margin)), 6),
         }
         if segment["rep_counter_eligible"]:
             step = comp_duration / len(shown)
@@ -505,11 +521,23 @@ def to_remotion_props(plan: dict[str, Any]) -> dict[str, Any]:
     """Pure adapter: no ranking, selection, chronology or style decisions."""
     timeline = plan["timeline"]
     fps = int(timeline["fps"])
+    soundtrack = plan.get("soundtrack")
     return {
         "fps": fps,
         "durationInFrames": math.ceil(timeline["duration_seconds"] * fps),
         "aspectRatio": timeline["aspect_ratio"],
         "sourceAudioMuted": plan.get("source_audio", "muted") == "muted",
+        "soundtrack": None if not soundtrack else {
+            "src": soundtrack.get("src"),
+            "from": round(float(soundtrack.get("offset_seconds", 0)) * fps),
+            "trimStartFrame": round(float(soundtrack.get("trim_start_seconds", 0)) * fps),
+            "trimEndFrame": round(float(soundtrack.get("trim_end_seconds", 0)) * fps),
+            "volume": soundtrack.get("volume", 1),
+            "fadeInFrames": round(float(soundtrack.get("fade_in_seconds", 0)) * fps),
+            "fadeOutFrames": round(float(soundtrack.get("fade_out_seconds", 0)) * fps),
+            "loop": bool(soundtrack.get("loop", False)),
+            "shortfallPolicy": soundtrack.get("shortfall_policy", "leave_silence"),
+        },
         "clips": [
             {
                 "id": s["segment_id"],
