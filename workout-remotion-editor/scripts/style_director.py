@@ -497,7 +497,9 @@ def resolve_style(
         plan["setup"] = max(0, plan["setup"] - 0.3)
     heavy_breathe = bool(re.search(r"(heavy|final|last) reps? breathe", text))
     final_slow = bool(
-        re.search(r"slow (down )?(the )?(strongest )?(final|last) rep", text)
+        re.search(
+            r"slow (?:down )?(?:just )?(?:the )?(?:strongest )?(?:final|last) rep", text
+        )
     )
     chronology = (
         "strict"
@@ -614,6 +616,19 @@ def resolve_style(
 
 
 def _phases(text: str, weights: dict[str, float]) -> list[dict[str, Any]]:
+    if re.search(
+        r"start (?:tiktok[- ]?)?fast.*(?:last|end).*(?:cinematic|dramatic)|start (?:tiktok[- ]?)?fast.*(?:cinematic|dramatic).*(?:last|end)",
+        text,
+    ):
+        return [
+            {"start": 0, "end": 0.6, "style": "viral_shortform"},
+            {
+                "start": 0.6,
+                "end": 1,
+                "style": "cinematic_trailer",
+                "purpose": "dramatic_finish",
+            },
+        ]
     if re.search(r"(tiktok|viral) (hook|at first).*(cinematic|after)", text):
         return [
             {"start": 0, "end": 0.15, "style": "viral_shortform"},
@@ -625,7 +640,10 @@ def _phases(text: str, weights: dict[str, float]) -> list[dict[str, Any]]:
                 "purpose": "hero_ending",
             },
         ]
-    if re.search(r"fast at first.*(slow|cinematic).*(end|after)", text):
+    if re.search(
+        r"(?:start )?fast(?: at first)?.*(?:slow|cinematic|dramatic).*(?:end|after)|start fast.*(?:end|last).*(?:cinematic|dramatic)",
+        text,
+    ):
         return [
             {"start": 0, "end": 0.6, "style": "fast_fitness_montage"},
             {"start": 0.6, "end": 1, "style": "smooth_sweeping"},

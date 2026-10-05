@@ -1,0 +1,424 @@
+{
+  "schema_version": "1.0",
+  "fixtures": [
+    {
+      "name": "viral_workout",
+      "prompt": "Make it 15 seconds, TikTok-fast",
+      "target_duration": 15,
+      "input": {
+        "shots": [
+          {
+            "candidate_id": "replay-0",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 0,
+              "end": 1.5
+            },
+            "selected_role": "replay",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r3"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "primary_movement-0",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 0,
+              "end": 1.5
+            },
+            "selected_role": "primary_movement",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r1"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "close_detail-1",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 2,
+              "end": 3.5
+            },
+            "selected_role": "close_detail",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "complete_rep_anchor-2",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 4,
+              "end": 5.5
+            },
+            "selected_role": "complete_rep_anchor",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r2"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "setup-3",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 6,
+              "end": 7.5
+            },
+            "selected_role": "setup",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "primary_movement-4",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 8,
+              "end": 9.5
+            },
+            "selected_role": "primary_movement",
+            "exercise_id": "press",
+            "editorial_rep_ids": [
+              "p1"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "ending_candidate-5",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 10,
+              "end": 11.5
+            },
+            "selected_role": "ending_candidate",
+            "exercise_id": "press",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "cinematic_trailer",
+      "prompt": "Make it cinematic like a movie trailer and slow down the final rep",
+      "target_duration": 30,
+      "input": {
+        "shots": [
+          {
+            "candidate_id": "environment_context-0",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 0,
+              "end": 1.5
+            },
+            "selected_role": "environment_context",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "close_detail-1",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 2,
+              "end": 3.5
+            },
+            "selected_role": "close_detail",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "setup-2",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 4,
+              "end": 5.5
+            },
+            "selected_role": "setup",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "complete_rep_anchor-3",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 6,
+              "end": 7.5
+            },
+            "selected_role": "complete_rep_anchor",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r1"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "primary_movement-4",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 8,
+              "end": 9.5
+            },
+            "selected_role": "primary_movement",
+            "exercise_id": "press",
+            "editorial_rep_ids": [
+              "p1"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "close_detail-5",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 10,
+              "end": 11.5
+            },
+            "selected_role": "close_detail",
+            "exercise_id": "press",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "hero_shot-6",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 12,
+              "end": 13.5
+            },
+            "selected_role": "hero_shot",
+            "exercise_id": "press",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "complete_rep_anchor-7",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 14,
+              "end": 15.5
+            },
+            "selected_role": "complete_rep_anchor",
+            "exercise_id": "press",
+            "editorial_rep_ids": [
+              "p2"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "mixed",
+      "prompt": "Start TikTok-fast but make the last set cinematic and dramatic",
+      "target_duration": 30,
+      "input": {
+        "shots": [
+          {
+            "candidate_id": "replay-0",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 0,
+              "end": 1.5
+            },
+            "selected_role": "replay",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r2"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "primary_movement-0",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 0,
+              "end": 1.5
+            },
+            "selected_role": "primary_movement",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r1"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "close_detail-1",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 2,
+              "end": 3.5
+            },
+            "selected_role": "close_detail",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "primary_movement-2",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 4,
+              "end": 5.5
+            },
+            "selected_role": "primary_movement",
+            "exercise_id": "squat",
+            "editorial_rep_ids": [
+              "r2"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "setup-3",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 6,
+              "end": 7.5
+            },
+            "selected_role": "setup",
+            "exercise_id": "deadlift",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "complete_rep_anchor-4",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 8,
+              "end": 9.5
+            },
+            "selected_role": "complete_rep_anchor",
+            "exercise_id": "deadlift",
+            "editorial_rep_ids": [
+              "d1"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "hero_shot-5",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 10,
+              "end": 11.5
+            },
+            "selected_role": "hero_shot",
+            "exercise_id": "deadlift",
+            "editorial_rep_ids": [],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          },
+          {
+            "candidate_id": "complete_rep_anchor-6",
+            "source_id": "fixture.mp4",
+            "source_path": "fixture.mp4",
+            "source_interval": {
+              "start": 12,
+              "end": 13.5
+            },
+            "selected_role": "complete_rep_anchor",
+            "exercise_id": "deadlift",
+            "editorial_rep_ids": [
+              "d2"
+            ],
+            "source_fps": 60,
+            "selection_reasons": [
+              "deterministic_fixture"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

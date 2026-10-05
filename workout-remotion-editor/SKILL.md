@@ -3,7 +3,7 @@ name: workout-remotion-editor
 description: Analyze one or more uploaded workout videos and direct Remotion to create polished social-media-ready workout edits. Use for requests such as make this workout social media ready, edit my workout, make a Reel/Short/TikTok, quick/standard/extended workout edits, struggle-rep hooks, glitch clips, cyberpunk glitch transitions, synchronized rep counters, exercise labels, coaching cues, instructional overlays, or combining multiple workout clips. Default to one 9:16 finished MP4 with muted source audio unless the user overrides.
 ---
 
-# Workout Remotion Editor v2.3
+# Workout Remotion Editor v2.4
 
 Act as the workout-video director first and the Remotion editor second. Analyze WHAT belongs on the timeline; use installed Remotion capabilities to implement HOW it is trimmed, sequenced, reframed, animated, speed-ramped, overlaid, and rendered.
 
@@ -20,7 +20,8 @@ Act as the workout-video director first and the Remotion editor second. Analyze 
 8. Read `references/qa-and-revisions.md` before rendering a requested finished video and for follow-up revisions to an accepted edit.
 9. Read `references/remotion-skill-routing.md` whenever Remotion is the implementation layer. Route implementation to the official Remotion skills: best-practices, create, markup, multimedia, captions, interactivity, Studio, render, docs, upgrade, SaaS, and maps when relevant. Do not duplicate their generic implementation knowledge here.
 10. Build from the internal edit blueprint. Explicit instructions for the current video override every default in this skill.
-11. When the user asks to make/edit/produce the video, render one finished MP4 unless separate outputs are requested. Verify the result before returning it.
+11. Read `references/timeline-composer.md` and run `scripts/timeline_composer.py` to compile the final renderer-neutral plan. Treat its exact source/composition ranges, replay identity, transitions, time remapping, and counter contract as authoritative; Remotion must not repeat Director decisions.
+12. When the user asks to make/edit/produce the video, render one finished MP4 unless separate outputs are requested. Verify the result before returning it.
 
 ## Hard defaults
 

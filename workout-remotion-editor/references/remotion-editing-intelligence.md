@@ -1,5 +1,11 @@
 # Remotion Editing Intelligence
 
+> **Phase 12 contract:** compile editorial decisions with
+> `scripts/timeline_composer.py` before rendering. Remotion consumes exact
+> ranges through `remotion/timelineAdapter.ts`; it must not choose shots,
+> repetitions, chronology, style, or transitions. See
+> `references/timeline-composer.md`.
+
 Use this reference when translating the internal edit blueprint into Remotion structure.
 
 ## 1. Paper edit before implementation
