@@ -49,6 +49,23 @@ ADVANCED_CAPABILITIES = [
     "integrated_loudness",
     "peak_measurement",
 ]
+DOWNBEAT_CAPABILITIES = [
+    "global_tempo",
+    "local_tempo",
+    "beat_grid",
+    "beat_support",
+    "downbeats",
+    "bar_positions",
+    "meter",
+    "streaming_decode",
+    "chunked_analysis",
+]
+SUPPORT_KINDS = {
+    "calibrated_probability",
+    "provider_score",
+    "normalized_support_score",
+    "heuristic_strength",
+}
 
 
 class AudioAnalysisProvider(Protocol):
@@ -56,6 +73,163 @@ class AudioAnalysisProvider(Protocol):
     version: str
 
     def analyze(self, path: Path) -> dict[str, Any]: ...
+
+
+class DownbeatProvider:
+    """Reserved adapter for a separately installed, license-cleared backend.
+
+    Phase 15 deliberately ships no neural weights. Applications can pass an
+    object implementing ``AudioAnalysisProvider``; this registry entry makes an
+    explicit downbeat request fail closed rather than inventing meter.
+    """
+
+    name, version = "downbeat_adapter", "unavailable"
+    capabilities = DOWNBEAT_CAPABILITIES
+    available = False
+
+    def analyze(self, path: Path) -> dict[str, Any]:
+        return _empty(
+            "unavailable",
+            self.name,
+            self.version,
+            "no_license_cleared_downbeat_backend_configured",
+        )
+
+
+class ChunkedPcmWavProvider:
+    """Bounded-memory PCM-WAV analysis with deterministic overlap stitching."""
+
+    name, version = "pcm_wav_chunked", "1.0"
+    capabilities = BASELINE_CAPABILITIES + ["streaming_decode", "chunked_analysis"]
+
+    def __init__(self, *, chunk_seconds: float = 120.0, overlap_seconds: float = 2.0):
+        if (
+            chunk_seconds < 30
+            or overlap_seconds < 0
+            or overlap_seconds * 2 >= chunk_seconds
+        ):
+            raise ValueError(
+                "chunk_seconds must be >=30 and overlap less than half a chunk"
+            )
+        self.chunk_seconds, self.overlap_seconds = chunk_seconds, overlap_seconds
+
+    def analyze(self, path: Path) -> dict[str, Any]:
+        started, temporary_paths, chunks = time.monotonic(), [], []
+        try:
+            with wave.open(str(path), "rb") as source:
+                channels, width, rate, total = (
+                    source.getnchannels(),
+                    source.getsampwidth(),
+                    source.getframerate(),
+                    source.getnframes(),
+                )
+                duration, cursor, index = total / rate, 0, 0
+                while cursor < total:
+                    nominal_end = min(total, cursor + round(self.chunk_seconds * rate))
+                    read_start = max(0, cursor - round(self.overlap_seconds * rate))
+                    read_end = min(
+                        total, nominal_end + round(self.overlap_seconds * rate)
+                    )
+                    source.setpos(read_start)
+                    raw = source.readframes(read_end - read_start)
+                    handle = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
+                    handle.close()
+                    temporary = Path(handle.name)
+                    temporary_paths.append(temporary)
+                    with wave.open(str(temporary), "wb") as out:
+                        out.setparams(
+                            (channels, width, rate, read_end - read_start, "NONE", "")
+                        )
+                        out.writeframes(raw)
+                    result = PcmWavProvider().analyze(temporary)
+                    chunks.append(
+                        {
+                            "index": index,
+                            "source_start": read_start / rate,
+                            "source_end": read_end / rate,
+                            "nominal_start": cursor / rate,
+                            "nominal_end": nominal_end / rate,
+                            "status": result["status"],
+                            "result": result,
+                        }
+                    )
+                    cursor, index = nominal_end, index + 1
+            if not chunks:
+                return _empty("no_results", self.name, self.version, "empty_audio")
+            failed = [c for c in chunks if c["status"] in {"failed", "unavailable"}]
+            merged, duplicates = {}, 0
+            for field in ("beats", "onsets", "accent_events", "energy_curve"):
+                events = []
+                for chunk in chunks:
+                    offset = chunk["source_start"]
+                    for event in chunk["result"].get(field, []):
+                        item = dict(event)
+                        item["timestamp"] = round(float(item["timestamp"]) + offset, 6)
+                        item["provenance"] = self.name
+                        if item["timestamp"] <= duration + 1e-6:
+                            events.append(item)
+                events.sort(key=lambda x: x["timestamp"])
+                deduped = []
+                tolerance = 0.03 if field != "energy_curve" else 0.08
+                for event in events:
+                    if (
+                        deduped
+                        and event["timestamp"] - deduped[-1]["timestamp"] <= tolerance
+                    ):
+                        duplicates += 1
+                        score = event.get("strength", event.get("energy", 0))
+                        old = deduped[-1].get("strength", deduped[-1].get("energy", 0))
+                        if score > old:
+                            deduped[-1] = event
+                    else:
+                        deduped.append(event)
+                merged[field] = deduped
+            beat_times = [x["timestamp"] for x in merged["beats"]]
+            regions, curve = _tempo_regions(beat_times, duration, self.name)
+            intervals = [b - a for a, b in zip(beat_times, beat_times[1:]) if b > a]
+            bpm = (
+                round(60 / (sorted(intervals)[len(intervals) // 2]), 3)
+                if intervals
+                else None
+            )
+            status = "partial" if failed else ("success" if beat_times else "partial")
+            return {
+                **_empty(status, self.name, self.version, "chunked_analysis"),
+                "duration": round(duration, 6),
+                "sample_rate": rate,
+                "channels": channels,
+                "estimated_bpm": bpm,
+                **merged,
+                "tempo_regions": regions,
+                "tempo_curve": curve,
+                "provider_capabilities": list(self.capabilities),
+                "analysis_quality": "moderate" if beat_times else "low",
+                "chunk_report": {
+                    "chunks_processed": len(chunks),
+                    "failed_chunks": len(failed),
+                    "deduplicated_boundary_events": duplicates,
+                    "chunk_seconds": self.chunk_seconds,
+                    "overlap_seconds": self.overlap_seconds,
+                    "peak_decoded_samples_estimate": round(
+                        (self.chunk_seconds + 2 * self.overlap_seconds)
+                        * rate
+                        * channels
+                    ),
+                    "processing_duration_seconds": round(time.monotonic() - started, 3),
+                },
+                "diagnostics": ["chunked_analysis"]
+                + (["partial_chunk_failure"] if failed else []),
+            }
+        except (wave.Error, EOFError, OSError) as exc:
+            return _empty(
+                "failed",
+                self.name,
+                self.version,
+                "chunk_decode_failed:" + type(exc).__name__,
+            )
+        finally:
+            for temporary in temporary_paths:
+                temporary.unlink(missing_ok=True)
 
 
 def soundtrack_input(path: Path, **metadata: Any) -> dict[str, Any]:
@@ -691,15 +865,59 @@ def validate_analysis(value: dict[str, Any]) -> list[str]:
     ):
         errors.append("invalid_beat_confidence")
     if value.get("downbeats_available") and any(
-        b.get("bar_position") is None for b in value.get("beats", [])
+        b.get("bar_position") is None and b.get("beat_within_bar") is None
+        for b in value.get("beats", [])
     ):
-        errors.append("invalid_bar_grouping")
+        if value.get("meter") is not None:
+            errors.append("invalid_bar_grouping")
+    capabilities = set(value.get("provider_capabilities", []))
+    strict_downbeats = str(value.get("analysis_contract_version", "2.0")).startswith(
+        "3"
+    )
+    meter = value.get("meter")
+    if (
+        strict_downbeats
+        and (value.get("downbeats") or value.get("bars"))
+        and "downbeats" not in capabilities
+    ):
+        errors.append("downbeats_without_capability")
+    if meter is not None and "meter" not in capabilities:
+        errors.append("meter_without_capability")
+    if meter is not None and not value.get("meter_support_kind"):
+        errors.append("meter_without_support_semantics")
+    last_downbeat, last_bar = -1.0, -1
+    for event in value.get("downbeats", []) if strict_downbeats else []:
+        timestamp = float(event.get("timestamp", -1))
+        support = event.get("support")
+        if timestamp < last_downbeat or not 0 <= timestamp <= duration:
+            errors.append("invalid_downbeat_timestamp")
+        if not event.get("provider") or event.get("support_kind") not in SUPPORT_KINDS:
+            errors.append("invalid_downbeat_provenance")
+        if support is not None and not 0 <= float(support) <= 1:
+            errors.append("invalid_downbeat_support")
+        bar_index = event.get("bar_index")
+        if bar_index is not None and int(bar_index) < last_bar:
+            errors.append("non_monotonic_bar_index")
+        last_downbeat, last_bar = (
+            timestamp,
+            int(bar_index if bar_index is not None else last_bar),
+        )
+    numerator = None
+    if isinstance(meter, str) and re.fullmatch(r"[1-9][0-9]*/[1-9][0-9]*", meter):
+        numerator = int(meter.split("/")[0])
+    for beat in value.get("beats", []):
+        position = beat.get("beat_within_bar", beat.get("bar_position"))
+        if position is not None and (
+            int(position) < 1 or (numerator and int(position) > numerator)
+        ):
+            errors.append("invalid_beat_within_bar")
     if value.get("status") == "success" and not (
         value.get("beats") or value.get("onsets")
     ):
         errors.append("success_without_results")
     if value.get("status") in {"unavailable", "failed", "skipped"} and any(
-        value.get(name) for name in ("beats", "onsets", "accent_events")
+        value.get(name)
+        for name in ("beats", "onsets", "accent_events", "downbeats", "bars")
     ):
         errors.append("results_in_inactive_status")
     last_energy = -1.0
@@ -718,6 +936,9 @@ def analyze_soundtrack(
     provider: AudioAnalysisProvider | str | None = None,
     *,
     cache_dir: Path | None = None,
+    long_track_threshold_seconds: float = 600.0,
+    chunk_seconds: float = 120.0,
+    chunk_overlap_seconds: float = 2.0,
 ) -> dict[str, Any]:
     """Analyze with ``baseline``, ``advanced``, or safe advanced-first ``auto``.
 
@@ -732,15 +953,30 @@ def analyze_soundtrack(
         else "custom"
     )
     selected: AudioAnalysisProvider
-    if mode not in {"baseline", "advanced", "auto", "custom"}:
-        raise ValueError("provider must be baseline, advanced, or auto")
+    if mode not in {"baseline", "advanced", "downbeat", "auto", "custom"}:
+        raise ValueError("provider must be baseline, advanced, downbeat, or auto")
+
+    def baseline_provider() -> AudioAnalysisProvider:
+        try:
+            with wave.open(str(path), "rb") as probe:
+                duration = probe.getnframes() / max(1, probe.getframerate())
+            if duration >= long_track_threshold_seconds:
+                return ChunkedPcmWavProvider(
+                    chunk_seconds=chunk_seconds, overlap_seconds=chunk_overlap_seconds
+                )
+        except (wave.Error, EOFError, OSError):
+            pass
+        return PcmWavProvider()
+
     if mode == "baseline":
-        selected = PcmWavProvider()
+        selected = baseline_provider()
     elif mode == "advanced":
         selected = LibrosaProvider()
+    elif mode == "downbeat":
+        selected = DownbeatProvider()
     elif mode == "auto":
         candidate = LibrosaProvider()
-        selected = candidate if candidate.available else PcmWavProvider()
+        selected = candidate if candidate.available else baseline_provider()
     else:
         selected = provider  # type: ignore[assignment]
     digest = hashlib.sha256(path.read_bytes()).hexdigest()
@@ -749,6 +985,9 @@ def analyze_soundtrack(
         "version": selected.version,
         "sample_rate": getattr(selected, "sample_rate", None),
         "hop_length": getattr(selected, "hop_length", None),
+        "chunk_seconds": getattr(selected, "chunk_seconds", None),
+        "overlap_seconds": getattr(selected, "overlap_seconds", None),
+        "model": getattr(selected, "model_identity", None),
     }
     key = hashlib.sha256(
         json.dumps({"source": digest, "config": config}, sort_keys=True).encode()
@@ -760,12 +999,17 @@ def analyze_soundtrack(
             cached.setdefault("diagnostics", []).append("analysis_cache_hit")
             return cached
     result = selected.analyze(path)
+    if hashlib.sha256(path.read_bytes()).hexdigest() != digest:
+        result = _empty(
+            "failed", selected.name, selected.version, "source_integrity_changed"
+        )
     if (
         mode == "auto"
         and result.get("status") in {"failed", "unavailable"}
         and selected.name != PcmWavProvider.name
     ):
-        fallback = PcmWavProvider().analyze(path)
+        fallback_provider = baseline_provider()
+        fallback = fallback_provider.analyze(path)
         fallback.setdefault("diagnostics", []).extend(
             ["advanced_provider_unavailable", "fallback_to_baseline"]
         )
@@ -790,6 +1034,7 @@ def analyze_soundtrack(
 
 def provider_registry() -> dict[str, dict[str, Any]]:
     advanced = LibrosaProvider()
+    downbeat = DownbeatProvider()
     return {
         "baseline": {
             "provider": PcmWavProvider.name,
@@ -801,6 +1046,13 @@ def provider_registry() -> dict[str, dict[str, Any]]:
             "version": advanced.version,
             "available": advanced.available,
             "capabilities": list(ADVANCED_CAPABILITIES),
+        },
+        "downbeat": {
+            "provider": downbeat.name,
+            "version": downbeat.version,
+            "available": downbeat.available,
+            "capabilities": list(DOWNBEAT_CAPABILITIES),
+            "reason": "no_license_cleared_downbeat_backend_configured",
         },
         "auto": {
             "provider": advanced.name if advanced.available else PcmWavProvider.name,
@@ -817,7 +1069,9 @@ def main() -> int:
     parser.add_argument("soundtrack", type=Path)
     parser.add_argument("--output", type=Path)
     parser.add_argument(
-        "--provider", choices=("baseline", "advanced", "auto"), default="auto"
+        "--provider",
+        choices=("baseline", "advanced", "downbeat", "auto"),
+        default="auto",
     )
     parser.add_argument("--cache-dir", type=Path)
     args = parser.parse_args()

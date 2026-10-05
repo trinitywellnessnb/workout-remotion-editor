@@ -11,6 +11,8 @@ An open-source workout-video editing project for ChatGPT and Remotion. The proje
 
 Phase 14 adds an optional librosa music-analysis provider, capability-aware provider registry, variable-tempo maps, honest beat support and half/double-time ambiguity, conservative energy sections, and optional FFmpeg compressed decoding/loudness measurement. The Phase 13 contract and dependency-free PCM-WAV fallback remain intact; no package, codec, or model is downloaded. See the [advanced music analysis guide](workout-remotion-editor/references/advanced-music-analysis.md).
 
+Phase 15 adds a fail-closed optional downbeat/bar provider contract, strict meter and support semantics, quality-gated bar-aware synchronization, and bounded overlapping PCM-WAV chunk analysis for long tracks. Provider research rejected automatic production adoption until code/model licensing and CI are defensible; no model is downloaded and no 4/4 meter is assumed. See the [downbeat and bar analysis guide](workout-remotion-editor/references/downbeat-bar-analysis.md).
+
 Phase 13 adds an optional soundtrack-intelligence layer: deterministic PCM-WAV beat/onset/energy evidence, provider-isolated failure, truth-safe flexible-boundary snapping, style-aware sync, final-rep accent offsetting, and compiled Remotion trim/fade/volume props. No soundtrack is required and source workout audio remains muted. See the [music synchronization guide](workout-remotion-editor/references/music-sync.md).
 
 Phase 12 adds the deterministic Timeline Composer that converts reviewed rep

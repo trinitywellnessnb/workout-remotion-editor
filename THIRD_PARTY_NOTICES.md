@@ -63,3 +63,7 @@ Phase 2 optionally calls the public Python API of Ultralytics (`ultralytics>=8.3
 Phase 14 can call librosa through its public API when separately installed. librosa is ISC-licensed; no package or source is bundled. Its NumPy, SciPy, numba, SoundFile/libsndfile and other transitive dependencies retain their own licenses and notices. The optional version range is recorded in `workout-remotion-editor/scripts/requirements-audio-advanced.txt`; deployments must inventory the resolved environment.
 
 Phase 14 may invoke a separately installed FFmpeg executable for read-only compressed-audio decoding and EBU R128 measurement. FFmpeg licensing depends on the exact build and enabled codecs (commonly LGPL or GPL configurations); it is not redistributed here. No codec, package, model, or binary is downloaded automatically.
+
+## Phase 15 downbeat-provider research
+
+Phase 15 ships no downbeat library or pretrained model. Essentia was not adopted because its AGPL/commercial licensing and available evaluated beat API did not meet this repository's distribution/downbeat gate. madmom's BSD code is distinct from its CC BY-NC-SA model/data assets, so those assets are not suitable for unrestricted commercial reuse here. BeatNet's MIT code is a future adapter candidate, but its pretrained-model provenance and the PyTorch/madmom/PyAudio dependency chain require further clearance. Names are research references only; nothing is copied, bundled, installed, or downloaded. librosa remains the ISC-licensed Phase 14 option and does not supply invented downbeats.
