@@ -98,3 +98,17 @@ Without a soundtrack—or if its optional provider fails—preserve the Phase 12
 visual timeline exactly. Do not download music or assume usage rights. See
 `references/music-sync.md` for the provider, input, validation, style, offset,
 trim, fade, and renderer contracts.
+
+## Phase 14 — advanced music structure (optional)
+
+When a user supplies a normal rights-cleared song and says “Make this video fit
+this song,” select audio analysis through the `auto` registry: prefer the optional
+advanced provider and safely retain the Phase 13 PCM-WAV baseline when it is
+unavailable. Use declared capabilities only. Prefer reliable section changes,
+strong accents, and provider-supplied downbeats; use ordinary beats selectively
+and actual beat timestamps for changing tempo. Reduce sync when evidence quality
+is weak and preserve the visual timeline when it is insufficient. Never infer
+4/4, fabricate downbeats or verse/chorus labels, analyze lyrics, or change user
+volume from measured loudness. Workout truth, locked reps, hook identity,
+chronology, and counters remain authoritative. See
+`references/advanced-music-analysis.md`.

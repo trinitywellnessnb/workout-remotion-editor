@@ -97,3 +97,12 @@ transition safety, and timing priority. Reviewed reps, hook identity, counters,
 and required footage are locked. The music synchronizer may adjust only flexible
 composition duration within those margins, then reflows overlap and mappings.
 See [Soundtrack intelligence](music-sync.md).
+
+## Phase 14 music structure boundary
+
+The authoritative Phase 12 timeline remains the input to Phase 14. Reliable
+section changes, provider-supplied downbeats, accents, and actual variable-tempo
+beat timestamps may adjust only boundaries already marked flexible and safe.
+Locked reviewed reps, hook replays, counter events, chronology, and required
+footage cannot move. Remotion receives only the compiled result and performs no
+audio analysis or editorial timing decisions.
