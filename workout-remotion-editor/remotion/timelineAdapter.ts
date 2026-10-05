@@ -21,6 +21,11 @@ export type TimelineSegment = {
 
 export type NormalizedTimelinePlan = {
   source_audio: "muted" | "preserve";
+  soundtrack?: null | {
+    src: string; offset_seconds: number; trim_start_seconds: number; trim_end_seconds: number;
+    volume: number; fade_in_seconds: number; fade_out_seconds: number; loop: boolean;
+    shortfall_policy: "leave_silence" | "loop";
+  };
   timeline: {fps: number; duration_seconds: number; aspect_ratio: string; segments: TimelineSegment[]};
 };
 
@@ -31,6 +36,17 @@ export const timelineToRemotionProps = (plan: NormalizedTimelinePlan) => {
     durationInFrames: Math.ceil(duration * fps),
     aspectRatio,
     sourceAudioMuted: plan.source_audio !== "preserve",
+    soundtrack: !plan.soundtrack ? null : {
+      src: plan.soundtrack.src,
+      from: Math.round(plan.soundtrack.offset_seconds * fps),
+      trimStartFrame: Math.round(plan.soundtrack.trim_start_seconds * fps),
+      trimEndFrame: Math.round(plan.soundtrack.trim_end_seconds * fps),
+      volume: plan.soundtrack.volume,
+      fadeInFrames: Math.round(plan.soundtrack.fade_in_seconds * fps),
+      fadeOutFrames: Math.round(plan.soundtrack.fade_out_seconds * fps),
+      loop: plan.soundtrack.loop,
+      shortfallPolicy: plan.soundtrack.shortfall_policy,
+    },
     clips: segments.map((segment) => ({
       id: segment.segment_id,
       src: segment.source_path,
