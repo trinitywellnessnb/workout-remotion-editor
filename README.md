@@ -2,6 +2,26 @@
 
 # Workout Remotion Editor + Workout Remotion Director
 
+## Phase 17: runnable Remotion export
+
+The renderer consumes the authoritative Phase 12–16 timeline without making
+new editorial decisions. Node 24+ and FFmpeg are required.
+
+```bash
+npm install
+npm run fixtures
+npm run preflight -- --timeline workout-remotion-editor/fixtures/generated/hybrid.json
+npm run render:fixture
+ffprobe -v error -show_streams -show_format renders/workout-edit.mp4
+```
+
+The smoke command creates rights-safe timestamped video and click-track media,
+then renders a vertical H.264 MP4. Render production plans with `npm run render
+-- --timeline path/to/final-plan.json --output renders/workout-edit.mp4`; paths
+are relative to the timeline. Preflight rejects missing media and invalid
+contracts before Chromium starts. `npm run studio` launches Studio. Workout
+source audio is muted unless the final plan explicitly preserves it.
+
 An open-source workout-video editing project for ChatGPT and Remotion. The project now has two complementary intelligence layers:
 
 - **Workout Remotion Editor v2.3** — the ChatGPT Skill for workout-specific analysis and research-informed social editing intelligence.

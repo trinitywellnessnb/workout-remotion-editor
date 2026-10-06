@@ -1,5 +1,12 @@
 # Third-Party Notices
 
+## Phase 17 Node rendering dependencies
+
+The runnable renderer uses Remotion (Remotion License), React (MIT), TypeScript
+(Apache-2.0), ESLint (MIT), and Vitest (MIT) from published npm packages.
+Synthetic fixtures are generated locally with FFmpeg and are not vendored. The
+lockfile records the complete resolved dependency graph.
+
 ## Phase 4 action recognition
 
 Phase 4 includes no production action-recognition framework, model code, or checkpoint. Before a future backend is added, verify framework/dependency/native-runtime licenses, model config and checkpoint terms, training-dataset and derivative-model terms, and fixture rights. Checkpoints must not be downloaded automatically.
