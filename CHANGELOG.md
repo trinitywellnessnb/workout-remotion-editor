@@ -1,3 +1,9 @@
+## Phase 16 — production rhythm review and compressed streaming
+
+- Re-evaluated BeatNet, madmom, Essentia, aubio, librosa, and newer model-backed trackers; retained the fail-closed downbeat slot because no evaluated model passed the separate commercial redistribution gate.
+- Added safe bounded FFmpeg PCM streaming for MP3, AAC/M4A, FLAC, and WAV-compatible analysis with argv-only invocation, backpressure, timeout cleanup, overlap stitching, partial coverage, provenance, and source hashing.
+- Extended cache identity and deterministic tests for decoder availability, routing, bounds, timestamps, timeout, integrity, and configuration changes.
+
 # Changelog
 
 ## Phase 15 follow-up

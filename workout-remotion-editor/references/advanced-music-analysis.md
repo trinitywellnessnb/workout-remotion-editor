@@ -96,3 +96,8 @@ synchronized timeline plus source, trim, offset, fades, and user volume.
 ## Phase 15 extension
 
 Phase 15 removes the baseline long-track memory limitation for PCM WAV by using bounded, overlapping chunks above a configurable threshold. The librosa path still needs whole-track context for its global features. A normalized downbeat, bar, and optional meter contract is available, but no production model was adopted after license/dependency review. See [downbeat-bar-analysis.md](downbeat-bar-analysis.md) for the decision matrix, stitching rules, cache identity, and fail-closed adapter.
+
+
+## Phase 16 compatibility
+
+Compressed soundtrack baseline analysis now uses a bounded FFmpeg PCM pipe when available; see `production-rhythm-provider.md`. This does not create downbeat, bar, meter, section, or probability evidence. All existing truth gates, provider disagreement diagnostics, flexible-boundary limits, source chronology, protected rep/counter mapping, and explicit user negation remain authoritative.
