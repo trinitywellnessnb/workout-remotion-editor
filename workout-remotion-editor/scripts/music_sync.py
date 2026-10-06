@@ -63,6 +63,8 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
             "on the drop",
             "follow the beat",
             "downbeat",
+            "first beat of each measure",
+            "first beat of the measure",
             "big musical hits",
         )
     ):
@@ -81,6 +83,7 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
             "build with the music",
             "music picks up",
             "fit this song",
+            "fit the song",
             "work with the music",
         )
     ):
@@ -109,7 +112,16 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
                 "fit this song",
             )
         ),
-        "downbeats_only": "downbeat" in text or "big musical hits" in text,
+        "downbeats_only": any(
+            x in text
+            for x in (
+                "downbeat",
+                "big musical hits",
+                "first beat of each measure",
+                "first beat of the measure",
+                "strongest hits",
+            )
+        ),
         "bar_aware": any(
             x in text
             for x in (
@@ -118,8 +130,13 @@ def resolve_music_intent(prompt: str, explicit: str | None = None) -> dict[str, 
                 "song phrasing",
                 "next phrase",
                 "few beats",
+                "first beat of each measure",
+                "first beat of the measure",
+                "four-beat pattern",
+                "4-beat pattern",
+                "use the bars",
             )
-        ),
+        ) and not any(x in text for x in ("ignore the bar", "don't worry about the downbeat")),
     }
 
 

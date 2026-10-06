@@ -53,15 +53,18 @@ selection reason, capabilities used, and fallback path.
 
 PCM WAV tracks at least 600 seconds long use bounded chunks by default; operators
 may configure the threshold, chunk duration (default 120 seconds), and overlap
-(default 2 seconds). The minimum chunk is 30 seconds. Each secure temporary WAV
-contains only the current chunk plus controlled overlap and is removed in a
-`finally` path. Source timestamps are restored during stitching. Events within
+(default 2 seconds). The minimum chunk is 30 seconds. The PCM reader passes only
+the current decoded byte window to the analyzer: it neither materializes the
+whole soundtrack nor writes chunk WAVs. Source timestamps are restored during stitching. Events within
 30 ms (energy within 80 ms) are deterministically deduplicated, keeping the
 stronger event. Failures yield partial results when other chunks survive.
 
 PCM accumulation is bounded to roughly `(chunk + 2*overlap) * sample_rate *
 channels`; the quality report records this estimate, chunks processed, partial
-failures, boundary duplicates, and processing time. Stitched beat timestamps
+failures, successful chunks, analyzed/total duration, coverage ratio, per-chunk
+source and nominal spans, before/after source hashes, boundary duplicates, and
+processing time. Quality cannot exceed `low` below 95% coverage and becomes
+`insufficient` below 50%. Stitched beats are globally re-indexed; their timestamps
 drive tempo regions—future beats are never generated from one summary BPM.
 Integrated loudness, semantic section interpretation, and other whole-track
 features remain global Phase 14 operations rather than being falsely described
