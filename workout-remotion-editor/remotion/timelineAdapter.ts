@@ -14,7 +14,7 @@ export type TimelineSegment = {
   rep_counter_eligible?: boolean; replay_type?: string|null; rep_ids?: string[]; display_rep_numbers?: number[]; counter_events?: CounterEvent[];
 };
 export type Soundtrack = {src: string; offset_seconds: number; trim_start_seconds: number; trim_end_seconds: number; volume: number; fade_in_seconds: number; fade_out_seconds: number; loop: boolean; shortfall_policy: 'leave_silence'|'loop'};
-export type NormalizedTimelinePlan = {source_audio: 'muted'|'preserve'; soundtrack?: Soundtrack|null; timeline: {fps: number; duration_seconds: number; aspect_ratio: string; width?: number; height?: number; segments: TimelineSegment[]}};
+export type NormalizedTimelinePlan = {schema_version: '1.0'; source_audio: 'muted'|'preserve'; soundtrack?: Soundtrack|null; timeline: {fps: number; duration_seconds: number; aspect_ratio: string; width?: number; height?: number; segments: TimelineSegment[]}};
 export const secondsToFrame = (seconds: number, fps: number) => Math.round(seconds * fps);
 const points = (s: TimelineSegment) => s.time_remap?.keyframes ?? s.time_remap?.points ?? s.time_remap?.curve ?? [];
 const speedAt = (p: Point[], position: number, fallback: number) => {
@@ -41,6 +41,12 @@ export const sourceTimeAtFrame = (s: TimelineSegment, localFrame: number, fps: n
   const sourcePosition=((i-1)+fraction)/steps;
   return Math.min(s.source_end,s.source_start+sourcePosition*sourceDuration);
 };
+/** Boundaries use nearest-frame rounding; only the composition end is rounded
+ * up, ensuring that the requested duration is never truncated. */
+export const frameRange = (startSeconds:number, durationSeconds:number, fps:number) => ({
+  from: secondsToFrame(startSeconds,fps),
+  durationInFrames: Math.max(1,secondsToFrame(durationSeconds,fps)),
+});
 export const cropAtFrame = (crop: Crop|undefined, frame: number, duration: number): Required<Pick<Crop,'x'|'y'|'scale'>> => {
   const fallback = {x: crop?.x ?? 50, y: crop?.y ?? 50, scale: crop?.scale ?? 1}; const p = crop?.keyframes ?? [];
   if (!p.length) return fallback;
@@ -52,5 +58,5 @@ export const cropAtFrame = (crop: Crop|undefined, frame: number, duration: numbe
 };
 export const timelineToRemotionProps = (plan: NormalizedTimelinePlan) => {
   const {fps, duration_seconds, aspect_ratio, width=1080, height=1920, segments} = plan.timeline;
-  return {plan, fps, width, height, durationInFrames: Math.max(1, Math.ceil(duration_seconds*fps)), aspectRatio: aspect_ratio, sourceAudioMuted: plan.source_audio !== 'preserve', clips: segments.map(s => ({...s, from: secondsToFrame(s.composition_start,fps), durationInFrames: Math.max(1,secondsToFrame(s.composition_duration,fps))}))};
+  return {plan, fps, width, height, durationInFrames: Math.max(1, Math.ceil(duration_seconds*fps)), aspectRatio: aspect_ratio, sourceAudioMuted: plan.source_audio !== 'preserve', clips: segments.map(s => ({...s, ...frameRange(s.composition_start,s.composition_duration,fps)}))};
 };

@@ -51,3 +51,11 @@ Validated on 2026-09-17 in the supplied repository environment.
 | PASS | `python` dependency-free frontmatter and required-file assertion script | Name, frontmatter keys, and required v2.3 references passed. |
 | PASS | `git diff --check` | No whitespace errors. |
 | WARNING | `python -m pip install --disable-pip-version-check -q PyYAML jsonschema` | Network proxy returned HTTP 403, so PyYAML could not be added to the local environment. `jsonschema` was already available; CI installs both dependencies. |
+
+## Phase 18 real-render hardening (2026-10-06)
+
+Independent code-path review found and repaired a material variable-speed defect: clamping `sourceFrame - compositionFrame` to zero made every slow section play linearly. Each rendered output frame now seeks the exact absolute mapped source frame. The review also found duplicate references to one source were incorrectly treated as basename collisions; only genuinely different files sharing a basename are now rejected.
+
+The durable validation path is `npm run validate:render`: generated encoded mixed-FPS media → normalized timeline → production Remotion renderer → H.264 MP4 → FFprobe tolerance/stream report → representative PNG extraction. CI runs that path and uploads the MP4, JSON report, and frames. Preflight now rejects unsupported contracts, non-finite/reverse remaps, unsafe transitions, invalid crops/audio, short/corrupt media, and output/source collisions.
+
+This execution environment blocked all external package and OS repositories with HTTP 403. Consequently npm dependencies, FFmpeg/FFprobe, Chromium, encoded fixtures, and MP4 artifacts could not be installed/generated here. JavaScript syntax checks and 292 Python regressions passed; the only Python failure was the unavailable `jsonschema` dependency (7 optional tests skipped). The CI workflow is the authoritative real-render execution environment for this change.
