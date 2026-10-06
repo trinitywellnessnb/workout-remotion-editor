@@ -14,9 +14,14 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npm run lint
-      - run: npm run build
-      - run: npm run render:fixture
-      - run: ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height,r_frame_rate -of default=nw=1 renders/workout-edit.mp4
+      - run: npm run validate:render
+      - uses: actions/upload-artifact@v4
+        with:
+          name: remotion-smoke-qa
+          path: |
+            renders/phase18-smoke.mp4
+            renders/phase18-smoke.mp4.qa.json
+            renders/qa-frames/*.png
   python-regression:
     runs-on: ubuntu-latest
     steps:

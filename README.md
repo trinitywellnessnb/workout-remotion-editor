@@ -2,25 +2,16 @@
 
 # Workout Remotion Editor + Workout Remotion Director
 
-## Phase 17: runnable Remotion export
+## Phase 18: real-media render validation
 
-The renderer consumes the authoritative Phase 12–16 timeline without making
-new editorial decisions. Node 24+ and FFmpeg are required.
+The renderer consumes the authoritative Phase 12–16 timeline without making new editorial decisions. Node 24+, FFmpeg/FFprobe, and a Chromium-compatible Remotion browser are required.
 
 ```bash
 npm install
-npm run fixtures
-npm run preflight -- --timeline workout-remotion-editor/fixtures/generated/hybrid.json
-npm run render:fixture
-ffprobe -v error -show_streams -show_format renders/workout-edit.mp4
+npm run validate:render
 ```
 
-The smoke command creates rights-safe timestamped video and click-track media,
-then renders a vertical H.264 MP4. Render production plans with `npm run render
--- --timeline path/to/final-plan.json --output renders/workout-edit.mp4`; paths
-are relative to the timeline. Preflight rejects missing media and invalid
-contracts before Chromium starts. `npm run studio` launches Studio. Workout
-source audio is muted unless the final plan explicitly preserves it.
+The command generates rights-safe, genuinely encoded mixed-FPS video and audio fixtures; bundles Remotion; renders a vertical H.264/AAC smoke MP4 through the production path; FFprobes duration/streams; emits a machine-readable QA report; and extracts representative frames. Individual viral, cinematic, hybrid, glitch, counter, and speed-map plans are generated under `workout-remotion-editor/fixtures/generated/`. Render one with `npm run render -- --timeline <plan> --output <safe-output.mp4> --quality preview`; use `standard` (default) or `high` for final output and `--concurrency N` to override the conservative default. Preflight validates the `1.0` contract, media readability/duration, transition safety, remaps, crops, audio ranges, and output collisions before Chromium starts. Workout source audio remains muted unless the reviewed plan explicitly preserves it. See [render troubleshooting](docs/RENDERING_TROUBLESHOOTING.md).
 
 An open-source workout-video editing project for ChatGPT and Remotion. The project now has two complementary intelligence layers:
 
