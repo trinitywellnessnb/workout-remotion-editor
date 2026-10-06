@@ -115,3 +115,8 @@ never invents downbeats or meter. See [advanced-music-analysis.md](advanced-musi
 ## Phase 15 downbeat and bar behavior
 
 Normalized downbeats are used only when capability, provenance, support kind, and high/moderate quality agree. Major events prefer section change, downbeat, accent, then beat; ordinary detail cuts remain beat-capable and density-limited. Natural-language bar/phrase requests enable grouped-bar timing only when bar positions exist—bars alone are not called semantic phrases. The sync report records the authoritative rhythm provider, selection reason, used capabilities, and fallback diagnostics; disagreeing grids are not averaged. See [downbeat-bar-analysis.md](downbeat-bar-analysis.md).
+
+
+## Phase 16 compatibility
+
+Compressed soundtrack baseline analysis now uses a bounded FFmpeg PCM pipe when available; see `production-rhythm-provider.md`. This does not create downbeat, bar, meter, section, or probability evidence. All existing truth gates, provider disagreement diagnostics, flexible-boundary limits, source chronology, protected rep/counter mapping, and explicit user negation remain authoritative.

@@ -116,3 +116,8 @@ chronology, and counters remain authoritative. See
 ## Phase 15 — defensible downbeats and long tracks (optional)
 
 Use downbeats, bar positions, or meter only when the selected provider declares the matching capability and supplies valid evidence with honest support semantics. Never assume 4/4 or treat grouped bars as semantic phrases. `auto` ignores the fail-closed downbeat adapter until a separately installed, license-cleared backend is configured. On long PCM-WAV sources, use bounded overlapping chunks and deterministic stitching; preserve the source hash and report partial failures. Major exercise/style/hero events may prefer strong downbeats, but small cuts may use beats and music never overrides locked workout truth. See `references/downbeat-bar-analysis.md`.
+
+
+## Phase 16 soundtrack streaming
+
+For a normal request such as “Make this workout fit the song,” select `auto`; compressed MP3, AAC/M4A, and FLAC sources may use installed FFmpeg through a bounded PCM pipe without user codec terminology. Never install/download a rhythm model. `downbeat` remains fail-closed until an explicitly local, license-cleared model exists. Preserve explicit negation (“ignore the meter”, “don’t use downbeats”, or “don’t sync this to music”), protected reps/counters, source chronology, and soundtrack pitch/speed. See `references/production-rhythm-provider.md`.

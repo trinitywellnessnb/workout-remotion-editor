@@ -14,6 +14,7 @@ import json
 import math
 import os
 import re
+import select
 import shutil
 import struct
 import subprocess
@@ -306,6 +307,187 @@ class ChunkedPcmWavProvider:
                 self.version,
                 "chunk_decode_failed:" + type(exc).__name__,
             )
+
+
+class FfmpegPcmStreamProvider:
+    """Decode compressed media synchronously into bounded signed-16-bit PCM.
+
+    The pipe is deliberately consumed by the analyzer in the same thread.  This
+    supplies natural backpressure: no producer queue can grow behind analysis.
+    """
+
+    name, version = "ffmpeg_pcm_stream", "1.0"
+    capabilities = BASELINE_CAPABILITIES + [
+        "decode_compressed_audio", "streaming_decode", "chunked_analysis"
+    ]
+
+    def __init__(self, *, sample_rate: int = 22050, channels: int = 1,
+                 chunk_seconds: float = 120.0, overlap_seconds: float = 2.0,
+                 timeout_seconds: float = 900.0, ffmpeg_path: str | None = None):
+        if chunk_seconds < 30 or overlap_seconds < 0 or overlap_seconds * 2 >= chunk_seconds:
+            raise ValueError("chunk_seconds must be >=30 and overlap less than half a chunk")
+        if channels not in (1, 2) or sample_rate < 1000 or timeout_seconds <= 0:
+            raise ValueError("invalid streaming decode configuration")
+        self.sample_rate, self.channels = sample_rate, channels
+        self.chunk_seconds, self.overlap_seconds = chunk_seconds, overlap_seconds
+        self.timeout_seconds = timeout_seconds
+        self.ffmpeg_path = ffmpeg_path or shutil.which("ffmpeg")
+        self.version = self._ffmpeg_version()
+
+    @property
+    def available(self) -> bool:
+        return bool(self.ffmpeg_path)
+
+    def _ffmpeg_version(self) -> str:
+        if not self.ffmpeg_path:
+            return "unavailable"
+        try:
+            line = subprocess.run([self.ffmpeg_path, "-version"], capture_output=True,
+                                  text=True, timeout=5, check=True).stdout.splitlines()[0]
+            return line.removeprefix("ffmpeg version ").split()[0]
+        except (OSError, subprocess.SubprocessError, IndexError):
+            return "unknown"
+
+    def analyze(self, path: Path) -> dict[str, Any]:
+        if not self.available:
+            return _empty("unavailable", self.name, self.version, "ffmpeg_unavailable")
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        frame_bytes = self.channels * 2
+        nominal_frames = round(self.chunk_seconds * self.sample_rate)
+        overlap_frames = round(self.overlap_seconds * self.sample_rate)
+        read_bytes = nominal_frames * frame_bytes
+        command = [self.ffmpeg_path, "-nostdin", "-hide_banner", "-loglevel", "error",
+                   "-i", str(path), "-vn", "-sn", "-dn", "-f", "s16le", "-acodec",
+                   "pcm_s16le", "-ar", str(self.sample_rate), "-ac", str(self.channels), "pipe:1"]
+        started, process, chunks, tail, cursor = time.monotonic(), None, [], b"", 0
+        pending = bytearray()
+        stderr = b""
+        stderr_file = tempfile.TemporaryFile()
+        try:
+            process = subprocess.Popen(command, stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                                       stderr=stderr_file, close_fds=True)
+            assert process.stdout is not None
+            while True:
+                remaining = self.timeout_seconds - (time.monotonic() - started)
+                if remaining <= 0:
+                    raise subprocess.TimeoutExpired(command, self.timeout_seconds)
+                ready, _, _ = select.select([process.stdout], [], [], min(1.0, remaining))
+                if not ready:
+                    continue
+                # os.read returns currently available pipe data rather than
+                # waiting for an entire logical chunk, keeping cancellation
+                # responsive even when a decoder stalls mid-stream.
+                incoming = os.read(process.stdout.fileno(), read_bytes - len(pending))
+                if incoming:
+                    pending.extend(incoming)
+                    if len(pending) < read_bytes:
+                        continue
+                elif not pending:
+                    break
+                block = bytes(pending)
+                pending.clear()
+                usable = len(block) - len(block) % frame_bytes
+                block = block[:usable]
+                raw = tail + block
+                source_start_frame = max(0, cursor - len(tail) // frame_bytes)
+                result = PcmWavProvider().analyze_pcm(raw, channels=self.channels,
+                                                      width=2, rate=self.sample_rate)
+                chunks.append({"index": len(chunks), "source_start_frame": source_start_frame,
+                               "nominal_start_frame": cursor,
+                               "nominal_frames": len(block) // frame_bytes, "result": result,
+                               "status": result["status"]})
+                cursor += len(block) // frame_bytes
+                tail = block[-overlap_frames * frame_bytes:] if overlap_frames else b""
+                if len(block) < read_bytes:
+                    break
+            returncode = process.wait(timeout=10)
+            stderr_file.seek(0)
+            stderr = stderr_file.read(16384)
+            decode_failed = returncode != 0
+        except subprocess.TimeoutExpired:
+            decode_failed = True
+            stderr = b"decoder timeout"
+            self._terminate(process)
+        except Exception as exc:
+            # Keep optional decoder/analyzer failures inside the provider
+            # boundary. KeyboardInterrupt/SystemExit still propagate.
+            decode_failed = True
+            stderr = ("decoder error:" + type(exc).__name__).encode()
+            self._terminate(process)
+        finally:
+            if process is not None and process.poll() is None:
+                self._terminate(process)
+            stderr_file.close()
+        duration = cursor / self.sample_rate
+        if not chunks:
+            return _empty("failed" if decode_failed else "no_results", self.name,
+                          self.version, "decode_failed:" + stderr.decode(errors="replace")[:240])
+        merged, duplicates = {}, 0
+        for field in ("beats", "onsets", "accent_events", "energy_curve"):
+            events = []
+            for chunk in chunks:
+                offset = chunk["source_start_frame"] / self.sample_rate
+                for original in chunk["result"].get(field, []):
+                    item = dict(original, provenance=self.name)
+                    item["timestamp"] = round(float(item["timestamp"]) + offset, 6)
+                    if item["timestamp"] <= duration + 1 / self.sample_rate:
+                        events.append(item)
+            events.sort(key=lambda x: x["timestamp"])
+            deduped, tolerance = [], 0.08 if field == "energy_curve" else 0.03
+            for event in events:
+                if deduped and event["timestamp"] - deduped[-1]["timestamp"] <= tolerance:
+                    duplicates += 1
+                    score = event.get("strength", event.get("energy", 0))
+                    old = deduped[-1].get("strength", deduped[-1].get("energy", 0))
+                    if score > old:
+                        deduped[-1] = event
+                else:
+                    deduped.append(event)
+            merged[field] = deduped
+        for index, beat in enumerate(merged["beats"]):
+            beat["index"] = index
+        beat_times = [x["timestamp"] for x in merged["beats"]]
+        regions, curve = _tempo_regions(beat_times, duration, self.name)
+        intervals = [b-a for a, b in zip(beat_times, beat_times[1:]) if b > a]
+        bpm = round(60 / sorted(intervals)[len(intervals)//2], 3) if intervals else None
+        # Without a trustworthy container duration, a failed decoder's remaining
+        # span is unknowable. Zero is conservative and never overstates coverage.
+        coverage = 0.0 if decode_failed else 1.0
+        unchanged = hashlib.sha256(path.read_bytes()).hexdigest() == digest
+        return {**_empty("partial" if decode_failed else ("success" if beat_times else "partial"),
+                         self.name, self.version, "streaming_decode"),
+                "duration": round(duration, 6), "sample_rate": self.sample_rate,
+                "channels": self.channels, "estimated_bpm": bpm, **merged,
+                "tempo_regions": regions, "tempo_curve": curve,
+                "provider_capabilities": list(self.capabilities),
+                "analysis_quality": "moderate" if beat_times and not decode_failed else "low",
+                "decode_provenance": {"backend": "ffmpeg", "version": self.version,
+                    "output_format": "s16le", "sample_rate": self.sample_rate,
+                    "channels": self.channels, "arguments": ["-vn", "-sn", "-dn"]},
+                "chunk_report": {"chunks_processed": len(chunks),
+                    "successful_chunks": sum(c["status"] not in {"failed", "unavailable"} for c in chunks),
+                    "failed_chunks": sum(c["status"] in {"failed", "unavailable"} for c in chunks),
+                    "coverage_ratio": coverage, "decoded_duration": round(duration, 6),
+                    "failed_source_span": {"start": round(duration, 6), "end": None} if decode_failed else None,
+                    "chunk_seconds": self.chunk_seconds, "overlap_seconds": self.overlap_seconds,
+                    "peak_pcm_bytes": (nominal_frames + overlap_frames) * frame_bytes,
+                    "deduplicated_boundary_events": duplicates,
+                    "source_sha256_before": digest,
+                    "source_sha256_after": hashlib.sha256(path.read_bytes()).hexdigest(),
+                    "source_unchanged": unchanged},
+                "diagnostics": ["compressed_audio_streamed_via_ffmpeg"] +
+                    (["partial_decode_failure:" + stderr.decode(errors="replace")[:240]] if decode_failed else [])}
+
+    @staticmethod
+    def _terminate(process: subprocess.Popen[bytes] | None) -> None:
+        if process is None or process.poll() is not None:
+            return
+        process.terminate()
+        try:
+            process.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=2)
 
 
 def soundtrack_input(path: Path, **metadata: Any) -> dict[str, Any]:
@@ -1040,6 +1222,10 @@ def analyze_soundtrack(
         raise ValueError("provider must be baseline, advanced, downbeat, or auto")
 
     def baseline_provider() -> AudioAnalysisProvider:
+        if path.suffix.lower() in {".mp3", ".m4a", ".aac", ".flac"}:
+            return FfmpegPcmStreamProvider(
+                chunk_seconds=chunk_seconds, overlap_seconds=chunk_overlap_seconds
+            )
         try:
             with wave.open(str(path), "rb") as probe:
                 duration = probe.getnframes() / max(1, probe.getframerate())
@@ -1070,6 +1256,9 @@ def analyze_soundtrack(
         "hop_length": getattr(selected, "hop_length", None),
         "chunk_seconds": getattr(selected, "chunk_seconds", None),
         "overlap_seconds": getattr(selected, "overlap_seconds", None),
+        "decode_backend": "ffmpeg" if isinstance(selected, FfmpegPcmStreamProvider) else "native_wav",
+        "channels": getattr(selected, "channels", None),
+        "timeout_seconds": getattr(selected, "timeout_seconds", None),
         "model": getattr(selected, "model_identity", None),
     }
     key = hashlib.sha256(
@@ -1118,6 +1307,7 @@ def analyze_soundtrack(
 def provider_registry() -> dict[str, dict[str, Any]]:
     advanced = LibrosaProvider()
     downbeat = DownbeatProvider()
+    streaming = FfmpegPcmStreamProvider()
     return {
         "baseline": {
             "provider": PcmWavProvider.name,
@@ -1129,6 +1319,12 @@ def provider_registry() -> dict[str, dict[str, Any]]:
             "version": advanced.version,
             "available": advanced.available,
             "capabilities": list(ADVANCED_CAPABILITIES),
+        },
+        "compressed_stream": {
+            "provider": streaming.name,
+            "version": streaming.version,
+            "available": streaming.available,
+            "capabilities": list(streaming.capabilities),
         },
         "downbeat": {
             "provider": downbeat.name,

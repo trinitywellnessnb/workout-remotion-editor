@@ -100,3 +100,8 @@ Remaining limitations: no production downbeat model is enabled; chunked PCM
 analysis is baseline-quality and not equivalent to a context-aware neural
 stream; integrated loudness and advanced sections can still require whole-track
 work; variable meter is not represented until a defensible provider supplies it.
+
+
+## Phase 16 compatibility
+
+Compressed soundtrack baseline analysis now uses a bounded FFmpeg PCM pipe when available; see `production-rhythm-provider.md`. This does not create downbeat, bar, meter, section, or probability evidence. All existing truth gates, provider disagreement diagnostics, flexible-boundary limits, source chronology, protected rep/counter mapping, and explicit user negation remain authoritative.

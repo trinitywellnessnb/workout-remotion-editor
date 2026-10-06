@@ -110,3 +110,8 @@ audio analysis or editorial timing decisions.
 ## Phase 15 bar-aware boundary
 
 The Composer exposes no provider objects. Phase 15 may use normalized, supported downbeats or bar positions for sparse major boundaries already marked flexible; it may not manufacture boundaries, assume meter, or create perpetual bar cuts. Section roles and style pacing still control density. Locked reps, counters, source chronology, and all source-to-composition mappings remain authoritative.
+
+
+## Phase 16 compatibility
+
+Compressed soundtrack baseline analysis now uses a bounded FFmpeg PCM pipe when available; see `production-rhythm-provider.md`. This does not create downbeat, bar, meter, section, or probability evidence. All existing truth gates, provider disagreement diagnostics, flexible-boundary limits, source chronology, protected rep/counter mapping, and explicit user negation remain authoritative.
