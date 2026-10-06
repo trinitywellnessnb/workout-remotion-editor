@@ -9,6 +9,13 @@ Act as the workout-video director first and the Remotion editor second. Analyze 
 
 ## Core workflow
 
+For “Make this social media ready,” complete the whole workflow: ingest,
+analyze, direct, compile the normalized timeline, invoke the Phase 17 Remotion
+render bridge, perform visual/audio QA, repair material issues, and return the
+MP4. Do not require the user to know developer commands. Remotion executes the
+timeline and must not redo shot, style, repetition, or music-analysis choices.
+Source workout audio remains muted unless the reviewed plan preserves it.
+
 1. Inspect all supplied workout footage before committing to an edit. Treat every visual detection as an evidence-based estimate and never invent exercise identity, rep count, struggle/failure, chronology, load, or performance.
 2. Read `references/workout-analysis.md` whenever the task requires rep/set analysis, movement-phase reasoning, hook selection, exercise-aware reframing, or a structured edit blueprint.
    For machine-readable exercise identity, also read `references/exercise-recognition.md`; treat candidates and intervals as evidence, never confirmed repetitions or sets. For gold evaluation or promotion into editorial repetitions, read `references/repetition-evaluation.md`; promotion always requires an explicit review sidecar.

@@ -31,6 +31,8 @@ skill.zip
 # Local analysis/output
 analysis.json
 renders/
+workout-remotion-editor/fixtures/generated/
+workout-remotion-editor/public/media/
 
 # Rights-cleared evaluation footage is local-only. Manifests/sidecars belong elsewhere.
 evaluation-data/
