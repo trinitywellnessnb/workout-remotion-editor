@@ -96,6 +96,65 @@ class DownbeatProvider:
         )
 
 
+class MockRhythmStructureProvider:
+    """Deterministic contract fixture; never selected by the runtime registry.
+
+    Tests inject this provider explicitly so production code cannot confuse
+    synthetic bar evidence with analysis of the source recording.
+    """
+
+    name, version = "mock_rhythm_structure", "1.0"
+    capabilities = DOWNBEAT_CAPABILITIES
+
+    def __init__(self, *, meter: str | None = "4/4", support: float = 0.9):
+        self.meter, self.support = meter, support
+
+    def analyze(self, path: Path) -> dict[str, Any]:
+        with wave.open(str(path), "rb") as source:
+            duration = source.getnframes() / source.getframerate()
+        numerator = int(self.meter.split("/")[0]) if self.meter else None
+        times = [i * 0.5 for i in range(int(duration / 0.5) + 1)]
+        beats = []
+        for index, timestamp in enumerate(times):
+            beat = {
+                "timestamp": timestamp,
+                "index": index,
+                "strength": 1.0 if numerator and index % numerator == 0 else 0.6,
+                "bar_position": (index % numerator) + 1 if numerator else None,
+                "provenance": self.name,
+            }
+            beats.append(beat)
+        downbeats = (
+            [
+                {
+                    "timestamp": beat["timestamp"],
+                    "bar_index": beat["index"] // numerator,
+                    "support": self.support,
+                    "support_kind": "provider_score",
+                    "provider": self.name,
+                }
+                for beat in beats
+                if beat["index"] % numerator == 0
+            ]
+            if numerator
+            else []
+        )
+        return {
+            **_empty("success", self.name, self.version, "deterministic_test_provider"),
+            "analysis_contract_version": "3.0",
+            "duration": duration,
+            "estimated_bpm": 120.0,
+            "beats": beats,
+            "downbeats_available": bool(downbeats),
+            "downbeats": downbeats,
+            "meter": self.meter,
+            "meter_support": self.support if self.meter else None,
+            "meter_support_kind": "provider_score" if self.meter else None,
+            "provider_capabilities": list(self.capabilities),
+            "analysis_quality": "high" if self.support >= 0.75 else "low",
+        }
+
+
 class ChunkedPcmWavProvider:
     """Bounded-memory PCM-WAV analysis with deterministic overlap stitching."""
 
@@ -114,7 +173,8 @@ class ChunkedPcmWavProvider:
         self.chunk_seconds, self.overlap_seconds = chunk_seconds, overlap_seconds
 
     def analyze(self, path: Path) -> dict[str, Any]:
-        started, temporary_paths, chunks = time.monotonic(), [], []
+        started, chunks = time.monotonic(), []
+        source_hash_before = hashlib.sha256(path.read_bytes()).hexdigest()
         try:
             with wave.open(str(path), "rb") as source:
                 channels, width, rate, total = (
@@ -132,16 +192,9 @@ class ChunkedPcmWavProvider:
                     )
                     source.setpos(read_start)
                     raw = source.readframes(read_end - read_start)
-                    handle = tempfile.NamedTemporaryFile(suffix=".wav", delete=False)
-                    handle.close()
-                    temporary = Path(handle.name)
-                    temporary_paths.append(temporary)
-                    with wave.open(str(temporary), "wb") as out:
-                        out.setparams(
-                            (channels, width, rate, read_end - read_start, "NONE", "")
-                        )
-                        out.writeframes(raw)
-                    result = PcmWavProvider().analyze(temporary)
+                    result = PcmWavProvider().analyze_pcm(
+                        raw, channels=channels, width=width, rate=rate
+                    )
                     chunks.append(
                         {
                             "index": index,
@@ -192,7 +245,22 @@ class ChunkedPcmWavProvider:
                 if intervals
                 else None
             )
+            for index, beat in enumerate(merged["beats"]):
+                beat["index"] = index
+            successful = len(chunks) - len(failed)
+            analyzed_duration = sum(
+                c["nominal_end"] - c["nominal_start"]
+                for c in chunks
+                if c["status"] not in {"failed", "unavailable"}
+            )
+            coverage = min(1.0, analyzed_duration / duration) if duration else 0.0
             status = "partial" if failed else ("success" if beat_times else "partial")
+            quality = (
+                "moderate" if beat_times and coverage >= 0.95
+                else "low" if beat_times and coverage >= 0.5
+                else "insufficient"
+            )
+            source_hash_after = hashlib.sha256(path.read_bytes()).hexdigest()
             return {
                 **_empty(status, self.name, self.version, "chunked_analysis"),
                 "duration": round(duration, 6),
@@ -203,10 +271,14 @@ class ChunkedPcmWavProvider:
                 "tempo_regions": regions,
                 "tempo_curve": curve,
                 "provider_capabilities": list(self.capabilities),
-                "analysis_quality": "moderate" if beat_times else "low",
+                "analysis_quality": quality,
                 "chunk_report": {
                     "chunks_processed": len(chunks),
+                    "successful_chunks": successful,
                     "failed_chunks": len(failed),
+                    "analyzed_duration": round(analyzed_duration, 6),
+                    "total_duration": round(duration, 6),
+                    "coverage_ratio": round(coverage, 6),
                     "deduplicated_boundary_events": duplicates,
                     "chunk_seconds": self.chunk_seconds,
                     "overlap_seconds": self.overlap_seconds,
@@ -216,6 +288,13 @@ class ChunkedPcmWavProvider:
                         * channels
                     ),
                     "processing_duration_seconds": round(time.monotonic() - started, 3),
+                    "source_sha256_before": source_hash_before,
+                    "source_sha256_after": source_hash_after,
+                    "source_unchanged": source_hash_before == source_hash_after,
+                    "chunks": [
+                        {k: c[k] for k in ("index", "source_start", "source_end", "nominal_start", "nominal_end", "status")}
+                        for c in chunks
+                    ],
                 },
                 "diagnostics": ["chunked_analysis"]
                 + (["partial_chunk_failure"] if failed else []),
@@ -227,9 +306,6 @@ class ChunkedPcmWavProvider:
                 self.version,
                 "chunk_decode_failed:" + type(exc).__name__,
             )
-        finally:
-            for temporary in temporary_paths:
-                temporary.unlink(missing_ok=True)
 
 
 def soundtrack_input(path: Path, **metadata: Any) -> dict[str, Any]:
@@ -300,6 +376,13 @@ class PcmWavProvider:
             return _empty(
                 "failed", self.name, self.version, f"decode_failed:{type(exc).__name__}"
             )
+        return self.analyze_pcm(raw, channels=channels, width=width, rate=rate)
+
+    def analyze_pcm(
+        self, raw: bytes, *, channels: int, width: int, rate: int
+    ) -> dict[str, Any]:
+        """Analyze one already-decoded PCM window without a temporary file."""
+        frames = len(raw) // (width * channels)
         duration = frames / rate
         if duration <= 0:
             return _empty("no_results", self.name, self.version, "empty_audio")

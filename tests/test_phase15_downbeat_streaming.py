@@ -75,6 +75,24 @@ def test_registry_fail_closed_and_auto_does_not_select_downbeat(monkeypatch, tmp
     )
 
 
+@pytest.mark.parametrize("meter,expected", [("4/4", 4), ("3/4", 3), (None, None)])
+def test_mock_rhythm_provider_is_explicit_truthful_and_deterministic(tmp_path, meter, expected):
+    path = tmp_path / "fixture.wav"
+    click_track(path, 4)
+    result = sa.analyze_soundtrack(
+        path, sa.MockRhythmStructureProvider(meter=meter, support=0.88)
+    )
+    assert result["provider"]["name"] == "mock_rhythm_structure"
+    assert result["meter"] == meter
+    assert bool(result["downbeats"]) is bool(meter)
+    if expected:
+        assert result["downbeats"][1]["bar_index"] == 1
+        assert result["beats"][expected]["bar_position"] == 1
+    else:
+        assert all(beat["bar_position"] is None for beat in result["beats"])
+    assert not sa.validate_analysis(result)
+
+
 def test_chunked_long_track_is_bounded_deduplicated_and_source_relative(tmp_path):
     path = tmp_path / "long.wav"
     click_track(path)
@@ -88,6 +106,9 @@ def test_chunked_long_track_is_bounded_deduplicated_and_source_relative(tmp_path
     )
     assert result["provider"]["name"] == sa.ChunkedPcmWavProvider.name
     assert result["chunk_report"]["chunks_processed"] == 3
+    assert result["chunk_report"]["coverage_ratio"] == 1
+    assert result["chunk_report"]["successful_chunks"] == 3
+    assert result["chunk_report"]["source_unchanged"] is True
     assert result["chunk_report"]["peak_decoded_samples_estimate"] <= 34000
     times = [x["timestamp"] for x in result["beats"]]
     assert len(times) == 130  # overlap did not lose or duplicate any 120 BPM beat
@@ -99,17 +120,17 @@ def test_chunked_long_track_is_bounded_deduplicated_and_source_relative(tmp_path
 def test_chunk_failure_isolated_and_temp_files_removed(monkeypatch, tmp_path):
     path = tmp_path / "long.wav"
     click_track(path)
-    original, calls = sa.PcmWavProvider.analyze, {"count": 0}
+    original, calls = sa.PcmWavProvider.analyze_pcm, {"count": 0}
 
-    def fail_once(self, chunk):
+    def fail_once(self, chunk, **metadata):
         calls["count"] += 1
         return (
             sa._empty("failed", self.name, self.version, "fixture")
             if calls["count"] == 2
-            else original(self, chunk)
+            else original(self, chunk, **metadata)
         )
 
-    monkeypatch.setattr(sa.PcmWavProvider, "analyze", fail_once)
+    monkeypatch.setattr(sa.PcmWavProvider, "analyze_pcm", fail_once)
     before = set(Path("/tmp").glob("tmp*.wav"))
     result = sa.ChunkedPcmWavProvider(chunk_seconds=30, overlap_seconds=2).analyze(path)
     assert (
@@ -164,6 +185,23 @@ def test_quality_gated_sync_and_natural_language():
     assert resolve_music_intent("Build for two bars, then hit the final rep.")[
         "bar_aware"
     ]
+
+
+@pytest.mark.parametrize(
+    "prompt,mode,bar_aware,downbeats",
+    [
+        ("Use the first beat of each measure.", "strong", True, True),
+        ("Use four-beat patterns.", "off", True, False),
+        ("Ignore the bar structure.", "off", False, False),
+        ("Only use the strongest hits.", "off", False, True),
+        ("Make it fit the song.", "moderate", False, False),
+    ],
+)
+def test_phase15_natural_language_variants(prompt, mode, bar_aware, downbeats):
+    intent = resolve_music_intent(prompt)
+    assert intent["mode"] == mode
+    assert intent["bar_aware"] is bar_aware
+    assert intent["downbeats_only"] is downbeats
 
 
 def test_provider_disagreement_is_not_fused():

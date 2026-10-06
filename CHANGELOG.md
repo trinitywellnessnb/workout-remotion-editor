@@ -1,5 +1,15 @@
 # Changelog
 
+## Phase 15 follow-up
+
+- Removed temporary WAV materialization from the bounded PCM chunk path and
+  added explicit chunk spans, coverage, success/failure counts, source-integrity
+  hashes, global beat re-indexing, and coverage-gated quality.
+- Added an injectable deterministic rhythm-structure provider for 3/4, 4/4,
+  unknown-meter, bar, support-semantics, and synchronization contract tests.
+- Expanded plain-language handling for measures, strongest hits, four-beat
+  patterns, ignored bar structure, and “make it fit the song.”
+
 ## Phase 15 — optional downbeat/bar contract and long-track streaming
 
 - Added fail-closed `downbeat` registry mode, capability declarations, normalized downbeat/bar/meter validation, honest support kinds, and provider-selection diagnostics.
